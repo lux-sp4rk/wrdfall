@@ -30,7 +30,7 @@ Goal: introduce *gentle pressure* (frustration) without timers/ads/energy by add
 
 **Setup**
 - Player has a fixed **grid** (e.g. 6×8 or 7×9) of letters.
-- Player forms a word by dragging a path through **adjacent** letters (Boggle-style).
+- Player forms a word by dragging a path through **4-direction adjacent** letters only (no diagonals) (Boggle-style).
 - Player can also **reposition** letters using a *push-move* (Tetris-like constraint):
   - Clears create **empty cells**.
   - A move is dragging a letter **one step** up/down/left/right into an **adjacent empty cell**.
