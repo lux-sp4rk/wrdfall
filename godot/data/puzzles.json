@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "puzzles": [
+    {
+      "id": 1,
+      "title": "Warm-up",
+      "tray": ["S", "T", "A", "R", "E", "N"],
+      "slots": [
+        {
+          "length": 4,
+          "rules": [],
+          "example_answer": "EARN"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Starts-with",
+      "tray": ["S", "T", "A", "R", "E", "N"],
+      "slots": [
+        {
+          "length": 5,
+          "rules": [{"type": "starts_with", "value": "S"}],
+          "example_answer": "STARE"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Ends-with",
+      "tray": ["C", "A", "R", "E", "T", "P"],
+      "slots": [
+        {
+          "length": 5,
+          "rules": [{"type": "ends_with", "value": "E"}],
+          "example_answer": "TRACE"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Contains",
+      "tray": ["B", "R", "A", "I", "N", "S"],
+      "slots": [
+        {
+          "length": 5,
+          "rules": [{"type": "contains", "value": "RA"}],
+          "example_answer": "BRAIN"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Cozy nouns",
+      "tray": ["G", "A", "R", "D", "E", "N"],
+      "slots": [
+        {
+          "length": 6,
+          "rules": [],
+          "example_answer": "GARDEN"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Gentle constraint",
+      "tray": ["L", "I", "S", "T", "E", "N"],
+      "slots": [
+        {
+          "length": 6,
+          "rules": [{"type": "ends_with", "value": "N"}],
+          "example_answer": "LISTEN"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Slightly harder",
+      "tray": ["C", "H", "A", "I", "R", "S"],
+      "slots": [
+        {
+          "length": 6,
+          "rules": [{"type": "starts_with", "value": "C"}],
+          "example_answer": "CHAIRS"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Contains digraph",
+      "tray": ["S", "H", "A", "R", "E", "D"],
+      "slots": [
+        {
+          "length": 5,
+          "rules": [{"type": "contains", "value": "SH"}],
+          "example_answer": "SHARE"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Longer",
+      "tray": ["P", "L", "A", "N", "E", "T", "S"],
+      "slots": [
+        {
+          "length": 7,
+          "rules": [],
+          "example_answer": "PLANETS"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Two-slot (first multi)",
+      "tray": ["S", "T", "O", "N", "E", "R"],
+      "slots": [
+        {
+          "length": 4,
+          "rules": [{"type": "starts_with", "value": "S"}],
+          "example_answer": "SONE"
+        },
+        {
+          "length": 4,
+          "rules": [{"type": "ends_with", "value": "E"}],
+          "example_answer": "TONE"
+        }
+      ]
+    }
+  ]
+}
