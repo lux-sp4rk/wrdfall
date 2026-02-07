@@ -1,38 +1,28 @@
-# CLAUDE.md
+# CLAUDE.md — Word Loom Instructions
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Project Context
+Word Loom is a calm, senior-first word puzzle game built with **Godot 4.x (GDScript)**.
+- **Target**: iPad, phone, browser (HTML5).
+- **Style**: No ads, no timers, high contrast, large tap targets.
 
-## Project Overview
+## Core Workflows
+- **Build/Run**: Use Godot editor on Mac or headless export for testing.
+- **Tests**: (Pending) Use GUT for GDScript unit testing.
+- **Data**: Puzzles are defined in `puzzles/*.md` and compiled to `godot/data/puzzles.json`.
 
-Word Loom is a calm, senior-first word puzzle game (no ads) targeting iPad, phone, and browser. The repo is currently in the **pre-code design phase** — it contains the product spec, puzzle content, and design notes but no application code yet.
+## Code Style (GDScript)
+- **Signals**: Use the `signal_name.connect(callable)` syntax (Godot 4).
+- **Typing**: Use static typing where possible (e.g., `var x: int = 5`).
+- **Naming**: `snake_case` for variables/functions, `PascalCase` for classes.
+- **Nodes**: Access nodes using the `@onready var name = $Path` pattern.
 
-## Key Design Documents
+## Workflow Rules
+- **Verification**: After logic changes, run a verification script or check the Godot scene.
+- **Git**: Work on feature branches (`fix/` or `feat/`).
+- **PRs**: Include a summary of changes and mention which issue is being addressed.
+- **Updates**: Keep this `CLAUDE.md` updated with new build commands or style shifts.
 
-- `SPEC.md` — Full product spec: core loop, rules, Loom Drop mode, hints, UX constraints, monetization
-- `build-plan.md` — Phased build plan; Phase 0 is a web-first prototype playable on iPad
-- `research/oracle-notes.md` — Senior-first UX research and puzzle design best practices
-- `puzzles/` — Hand-crafted puzzle sets (starter-10, flash-pack-30) in markdown table format
-- `packs/pack-ideas.md` — Theme pack concepts
-- `monetization/arrow-notes.md` — Ethical pricing model (paid base game, no subscriptions)
-
-## Game Modes
-
-1. **Tapestry mode (core)**: Player gets a letter tray + rule constraints, drags letters into loom slots to form valid words. Puzzles have 1–3 word slots with rules like length, starts-with, ends-with, contains.
-2. **Loom Drop (optional Tetris-flavor)**: Grid-based mode with 4-direction adjacency path-finding, gravity, letter spawning, and a spatial "jam" loss condition (no timers).
-
-## Architecture Intent (Phase 0)
-
-- Single-page web app, static hosting, offline-friendly
-- Touch-first UI with large tap targets (>=44px), high contrast
-- Local wordlist for validation (no server required)
-- 10 starter puzzles hard-coded as JSON
-- Potential future wrapping with Tauri/Capacitor for native app feel
-
-## Design Constraints
-
-- No ads, no timers (default), no energy systems
-- Hints must create forward progress (nudge → reveal letter → reveal word)
-- Accept any valid dictionary word meeting rule constraints (avoid "ghost answers")
-- Font size default large (18–20pt+), WCAG AAA-ish contrast
-- Vocabulary restricted to common/familiar words (frequency-weighted)
-- Unlimited undo always visible
+## Key Docs
+- `SPEC.md`: Core loop and UX constraints.
+- `build-plan.md`: Current implementation phase.
+- `puzzles/`: Source material for JSON puzzle data.
