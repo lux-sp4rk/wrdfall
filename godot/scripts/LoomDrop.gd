@@ -6,7 +6,7 @@ extends Control
 @onready var hint_button: Button = %"HintButton"
 
 const ROWS: int = 8
-const COLS: int = 8
+const COLS: int = 7
 const MIN_WORD_LENGTH: int = 3
 const INITIAL_FILL_ROWS: int = 5
 
@@ -26,7 +26,7 @@ const LETTER_WEIGHTS: Dictionary = {
 }
 var _bag_distribution: Array = []
 
-const DROP_INTERVAL: float = 8.0  # seconds between letter drops
+const DROP_INTERVAL: float = 7.0  # seconds between letter drops
 const VOWELS: String = "AEIOU"
 const TARGET_VOWEL_RATIO: float = 0.38
 # Common English bigrams — used to bias dropped letters toward playable neighbors
@@ -102,8 +102,8 @@ func _initialize_grid() -> void:
 		for col in range(COLS):
 			var btn := Button.new()
 			btn.text = grid[row][col]
-			btn.custom_minimum_size = Vector2(48, 48)
-			btn.add_theme_font_size_override("font_size", 32)
+			btn.custom_minimum_size = Vector2(64, 64)
+			btn.add_theme_font_size_override("font_size", 36)
 			btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			grid_container.add_child(btn)
 			btn_row.append(btn)
