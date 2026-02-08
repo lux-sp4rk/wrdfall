@@ -3,7 +3,6 @@ extends Control
 @onready var grid_container: GridContainer = %"GridContainer"
 @onready var word_label: Label = %"WordLabel"
 @onready var score_label: Label = %"ScoreLabel"
-@onready var hint_button: Button = %"HintButton"
 @onready var shake_button: Button = %"ShakeButton"
 
 const ROWS: int = 7
@@ -67,7 +66,6 @@ func _ready() -> void:
 	_start_drop_timer()
 
 	# Connect buttons
-	hint_button.pressed.connect(_on_hint_pressed)
 	shake_button.pressed.connect(_on_shake_pressed)
 
 
@@ -104,8 +102,8 @@ func _initialize_grid() -> void:
 		for col in range(COLS):
 			var btn := Button.new()
 			btn.text = grid[row][col]
-			btn.custom_minimum_size = Vector2(64, 64)
-			btn.add_theme_font_size_override("font_size", 36)
+			btn.custom_minimum_size = Vector2(80, 80)
+			btn.add_theme_font_size_override("font_size", 44)
 			btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			grid_container.add_child(btn)
 			btn_row.append(btn)
@@ -415,22 +413,6 @@ func _score_word(word: String) -> int:
 		5: return 8
 		6: return 12
 		_: return 12 + (length - 6) * 5
-
-
-# --- Hint Button ---
-
-func _on_hint_pressed() -> void:
-	if not is_selecting or selected_path.is_empty():
-		word_label.text = "Select letters to get a hint"
-		return
-
-	var word: String = _get_selected_word()
-	if selected_path.size() < MIN_WORD_LENGTH:
-		word_label.text = "Select at least 3 letters"
-	elif not dictionary.is_valid_word(word):
-		word_label.text = "Not in dictionary"
-	else:
-		word_label.text = "Valid! Release to accept"
 
 
 # --- Shake Button ---
