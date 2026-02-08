@@ -8,6 +8,7 @@ extends Control
 const ROWS: int = 12
 const COLS: int = 8
 const MIN_WORD_LENGTH: int = 3
+const INITIAL_FILL_ROWS: int = 8
 
 var grid: Array = []       # 2D [row][col] of String
 var buttons: Array = []    # 2D [row][col] of Button
@@ -38,11 +39,12 @@ func _initialize_grid() -> void:
 	grid.clear()
 	buttons.clear()
 
+	var empty_rows: int = ROWS - INITIAL_FILL_ROWS
 	for row in range(ROWS):
 		var grid_row: Array = []
 		var btn_row: Array = []
 		for col in range(COLS):
-			var letter: String = _random_letter()
+			var letter: String = "" if row < empty_rows else _random_letter()
 			var btn := Button.new()
 			btn.text = letter
 			btn.custom_minimum_size = Vector2(48, 48)
