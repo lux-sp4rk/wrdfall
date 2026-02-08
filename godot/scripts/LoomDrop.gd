@@ -26,7 +26,7 @@ const LETTER_WEIGHTS: Dictionary = {
 }
 var _bag_distribution: Array = []
 
-const DROP_INTERVAL: float = 6.0  # seconds between letter drops
+const DROP_INTERVAL: float = 5.0  # seconds between letter drops
 const VOWELS: String = "AEIOU"
 const TARGET_VOWEL_RATIO: float = 0.38
 # Common English bigrams — used to bias dropped letters toward playable neighbors
