@@ -33,6 +33,13 @@ const BIGRAMS: Dictionary = {
 	"Z": "EAIOU",
 }
 
+const SEED_WORDS: Array = [
+	"STAR", "LOOM", "DROP", "RAIN", "FIRE", "GLOW", "WIND", "TREE",
+	"LAKE", "WAVE", "RISE", "GOLD", "IRON", "BONE", "GUST", "MIST",
+	"TORN", "HAZE", "DUNE", "FERN", "SAGE", "LIME", "PINE", "ARCH",
+	"ROPE", "NEST", "CAVE", "PALE", "WREN", "GATE", "VINE", "HELM",
+]
+
 const COLOR_SELECTED: Color = Color(0.35, 0.65, 1.0)
 const COLOR_TOO_SHORT: Color = Color(0.7, 0.7, 0.7)
 
@@ -56,22 +63,71 @@ func _initialize_grid() -> void:
 	grid.clear()
 	buttons.clear()
 
+	# Build data grid: empty top rows, filled bottom rows
 	var empty_rows: int = ROWS - INITIAL_FILL_ROWS
 	for row in range(ROWS):
 		var grid_row: Array = []
+		for col in range(COLS):
+			grid_row.append("" if row < empty_rows else _random_letter())
+		grid.append(grid_row)
+
+	# Plant a few words into the filled area for a playable start
+	_seed_words()
+
+	# Create button grid from data
+	for row in range(ROWS):
 		var btn_row: Array = []
 		for col in range(COLS):
-			var letter: String = "" if row < empty_rows else _smart_letter(col)
 			var btn := Button.new()
-			btn.text = letter
+			btn.text = grid[row][col]
 			btn.custom_minimum_size = Vector2(48, 48)
 			btn.add_theme_font_size_override("font_size", 24)
 			btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			grid_container.add_child(btn)
-			grid_row.append(letter)
 			btn_row.append(btn)
-		grid.append(grid_row)
 		buttons.append(btn_row)
+
+
+func _seed_words() -> void:
+	var empty_rows: int = ROWS - INITIAL_FILL_ROWS
+	var words: Array = SEED_WORDS.duplicate()
+
+	# Plant 3-5 words in random positions (horizontal or vertical)
+	var count: int = 3 + randi() % 3
+	for _i in range(count):
+		if words.is_empty():
+			break
+		var idx: int = randi() % words.size()
+		var word: String = words[idx]
+		words.remove_at(idx)
+
+		var horizontal: bool = randf() < 0.5
+		var placed: bool = false
+
+		# Try a few random positions
+		for _attempt in range(20):
+			if horizontal:
+				if word.length() > COLS:
+					break
+				var row: int = empty_rows + randi() % INITIAL_FILL_ROWS
+				var col: int = randi() % (COLS - word.length() + 1)
+				# Write the word into the row
+				for c in range(word.length()):
+					grid[row][col + c] = word[c]
+				placed = true
+				break
+			else:
+				if word.length() > INITIAL_FILL_ROWS:
+					break
+				var col: int = randi() % COLS
+				var row: int = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
+				for r in range(word.length()):
+					grid[row + r][col] = word[r]
+				placed = true
+				break
+
+		if not placed:
+			words.append(word)
 
 
 func _random_letter() -> String:
