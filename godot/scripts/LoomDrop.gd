@@ -46,6 +46,11 @@ const COLOR_TOO_SHORT: Color = Color(0.7, 0.7, 0.7)
 var drop_timer: Timer
 var game_over: bool = false
 
+# Rescue word drip-feed: when no valid word exists, bias drops to build one
+var _rescue_word: String = ""
+var _rescue_col: int = -1
+var _rescue_letters_remaining: Array = []
+
 
 func _ready() -> void:
 	back_button.pressed.connect(_on_back_pressed)
@@ -192,6 +197,73 @@ func _smart_letter(col: int) -> String:
 	return _random_letter()
 
 
+# --- Rescue word system ---
+
+func _find_any_word_on_grid() -> bool:
+	# 4 axes — each checked forward and reversed to cover all 8 directions
+	var directions: Array = [
+		Vector2i(0, 1),   # horizontal (right)
+		Vector2i(1, 0),   # vertical (down)
+		Vector2i(1, 1),   # diagonal down-right
+		Vector2i(1, -1),  # diagonal down-left
+	]
+	for row in range(ROWS):
+		for col in range(COLS):
+			if grid[row][col] == "":
+				continue
+			for dir in directions:
+				var letters: String = ""
+				var r: int = row
+				var c: int = col
+				while r >= 0 and r < ROWS and c >= 0 and c < COLS and grid[r][c] != "":
+					letters += grid[r][c]
+					if letters.length() >= MIN_WORD_LENGTH:
+						if dictionary.is_valid_word(letters):
+							return true
+						# Also check the reverse (covers the opposite direction)
+						var rev: String = ""
+						for i in range(letters.length() - 1, -1, -1):
+							rev += letters[i]
+						if dictionary.is_valid_word(rev):
+							return true
+					if letters.length() >= 6:
+						break
+					r += dir.x
+					c += dir.y
+	return false
+
+
+func _plan_rescue_word() -> void:
+	var candidates: Array = SEED_WORDS.duplicate()
+	candidates.shuffle()
+	for word in candidates:
+		if word.length() > 4:
+			continue
+		# Find a column with space for all letters to stack vertically
+		for _attempt in range(10):
+			var col: int = randi() % COLS
+			# Count empty cells in this column
+			var empty_count: int = 0
+			for r in range(ROWS):
+				if grid[r][col] == "":
+					empty_count += 1
+			if empty_count >= word.length():
+				_rescue_word = word
+				_rescue_col = col
+				_rescue_letters_remaining = []
+				for i in range(word.length()):
+					_rescue_letters_remaining.append(word[i])
+				return
+	# No suitable column found — will retry next drop cycle
+	_rescue_word = ""
+
+
+func _clear_rescue() -> void:
+	_rescue_word = ""
+	_rescue_col = -1
+	_rescue_letters_remaining = []
+
+
 # --- Input handling ---
 
 func _input(event: InputEvent) -> void:
@@ -287,6 +359,12 @@ func _accept_word(word: String) -> void:
 	_apply_gravity()
 	_update_grid_display()
 
+	# After clearing, check if a rescue is needed for upcoming drops
+	if not _find_any_word_on_grid():
+		_plan_rescue_word()
+	else:
+		_clear_rescue()
+
 
 func _score_word(word: String) -> int:
 	var length: int = word.length()
@@ -340,8 +418,30 @@ func _drop_letter() -> void:
 		_trigger_game_over()
 		return
 
-	var col: int = open_cols[randi() % open_cols.size()]
-	grid[0][col] = _smart_letter(col)
+	var has_word: bool = _find_any_word_on_grid()
+
+	# If a word exists, the rescue is no longer needed
+	if has_word:
+		_clear_rescue()
+
+	# If no word and no rescue queued, plan one
+	if not has_word and _rescue_letters_remaining.is_empty():
+		_plan_rescue_word()
+
+	# Drop a rescue letter if we have one queued and the column is open
+	if not _rescue_letters_remaining.is_empty():
+		var col: int = _rescue_col
+		if grid[0][col] == "":
+			grid[0][col] = _rescue_letters_remaining.pop_front()
+		else:
+			# Target column is full — fall back to a normal drop
+			col = open_cols[randi() % open_cols.size()]
+			grid[0][col] = _smart_letter(col)
+			_clear_rescue()
+	else:
+		var col: int = open_cols[randi() % open_cols.size()]
+		grid[0][col] = _smart_letter(col)
+
 	_apply_gravity()
 	_update_grid_display()
 
