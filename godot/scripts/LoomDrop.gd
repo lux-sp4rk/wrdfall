@@ -20,7 +20,7 @@ var dictionary: DictionaryService
 
 var letter_bag: String = "EEEEEEEEEEEEAAAAAAAAAIIIIIIIIIOOOOOOOOONNNNNNRRRRRRTTTTTTTTLLLLSSSSUUUUUDDDDGGGBBCCMMPPFFHHVVWWYYKJXQZ"
 
-const DROP_INTERVAL: float = 16.0  # seconds between letter drops
+const DROP_INTERVAL: float = 8.0  # seconds between letter drops
 const VOWELS: String = "AEIOU"
 const TARGET_VOWEL_RATIO: float = 0.38
 # Common English bigrams — used to bias dropped letters toward playable neighbors
