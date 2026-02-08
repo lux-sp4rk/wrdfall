@@ -6,8 +6,8 @@ extends Control
 @onready var hint_button: Button = %"HintButton"
 @onready var shake_button: Button = %"ShakeButton"
 
-const ROWS: int = 8
-const COLS: int = 7
+const ROWS: int = 7
+const COLS: int = 6
 const MIN_WORD_LENGTH: int = 3
 const INITIAL_FILL_ROWS: int = 5
 
@@ -27,7 +27,7 @@ const LETTER_WEIGHTS: Dictionary = {
 }
 var _bag_distribution: Array = []
 
-const DROP_INTERVAL: float = 7.0  # seconds between letter drops
+const DROP_INTERVAL: float = 6.0  # seconds between letter drops
 const VOWELS: String = "AEIOU"
 const TARGET_VOWEL_RATIO: float = 0.38
 # Common English bigrams — used to bias dropped letters toward playable neighbors
