@@ -20,12 +20,24 @@ var dictionary: DictionaryService
 
 var letter_bag: String = "EEEEEEEEEEEEAAAAAAAAAIIIIIIIIIOOOOOOOOONNNNNNRRRRRRTTTTTTTTLLLLSSSSUUUUUDDDDGGGBBCCMMPPFFHHVVWWYYKJXQZ"
 
-const DROP_INTERVAL: float = 1.0  # seconds between letter drops
+const DROP_INTERVAL: float = 3.0  # seconds between letter drops
+const VOWELS: String = "AEIOU"
+const TARGET_VOWEL_RATIO: float = 0.38
+# Common English bigrams — used to bias dropped letters toward playable neighbors
+const BIGRAMS: Dictionary = {
+	"T": "HEIOA", "H": "EAIOU", "S": "THECO", "R": "EAIOU", "N": "GDEOT",
+	"E": "RSDNA", "A": "NTRLS", "I": "NTSCO", "O": "NRFUT", "L": "EIAOY",
+	"D": "EIAOS", "C": "OAHEK", "U": "RSTLN", "P": "RLAEO", "M": "AEION",
+	"G": "EOAHR", "B": "ELAOU", "F": "OIRAE", "W": "AIHOE", "Y": "SOEIA",
+	"V": "EIAOU", "K": "EISAN", "J": "UOAEI", "X": "PTIAE", "Q": "UUUUU",
+	"Z": "EAIOU",
+}
 
 const COLOR_SELECTED: Color = Color(0.35, 0.65, 1.0)
 const COLOR_TOO_SHORT: Color = Color(0.7, 0.7, 0.7)
 
 var drop_timer: Timer
+var game_over: bool = false
 
 
 func _ready() -> void:
@@ -49,7 +61,7 @@ func _initialize_grid() -> void:
 		var grid_row: Array = []
 		var btn_row: Array = []
 		for col in range(COLS):
-			var letter: String = "" if row < empty_rows else _random_letter()
+			var letter: String = "" if row < empty_rows else _smart_letter(col)
 			var btn := Button.new()
 			btn.text = letter
 			btn.custom_minimum_size = Vector2(48, 48)
@@ -66,9 +78,51 @@ func _random_letter() -> String:
 	return letter_bag[randi() % letter_bag.length()]
 
 
+func _smart_letter(col: int) -> String:
+	# 1) Vowel/consonant balance — count what's on the board
+	var vowel_count: int = 0
+	var total_count: int = 0
+	for r in range(ROWS):
+		for c in range(COLS):
+			if grid[r][c] != "":
+				total_count += 1
+				if VOWELS.find(grid[r][c]) != -1:
+					vowel_count += 1
+
+	var need_vowel: bool = false
+	if total_count > 0:
+		var ratio: float = float(vowel_count) / float(total_count)
+		need_vowel = ratio < TARGET_VOWEL_RATIO
+
+	# 2) Find the neighbor letter where this drop will land
+	var land_row: int = -1
+	for r in range(ROWS - 1, -1, -1):
+		if grid[r][col] == "":
+			land_row = r
+			break
+	if land_row == -1:
+		return _random_letter()
+
+	var neighbor: String = ""
+	if land_row < ROWS - 1:
+		neighbor = grid[land_row + 1][col]  # letter below landing spot
+
+	# 3) Pick letter: 50% bigram-aware, 50% bag-weighted (with vowel bias)
+	if neighbor != "" and BIGRAMS.has(neighbor) and randf() < 0.5:
+		var candidates: String = BIGRAMS[neighbor]
+		return candidates[randi() % candidates.length()]
+
+	if need_vowel:
+		return VOWELS[randi() % VOWELS.length()]
+
+	return _random_letter()
+
+
 # --- Input handling ---
 
 func _input(event: InputEvent) -> void:
+	if game_over:
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			var cell := _cell_at(event.global_position)
@@ -199,6 +253,9 @@ func _start_drop_timer() -> void:
 
 
 func _drop_letter() -> void:
+	if game_over:
+		return
+
 	# Find columns that have space (top row is empty)
 	var open_cols: Array = []
 	for col in range(COLS):
@@ -206,12 +263,19 @@ func _drop_letter() -> void:
 			open_cols.append(col)
 
 	if open_cols.is_empty():
+		_trigger_game_over()
 		return
 
 	var col: int = open_cols[randi() % open_cols.size()]
-	grid[0][col] = _random_letter()
+	grid[0][col] = _smart_letter(col)
 	_apply_gravity()
 	_update_grid_display()
+
+
+func _trigger_game_over() -> void:
+	game_over = true
+	drop_timer.stop()
+	word_label.text = "Game Over! Score: %d" % score
 
 
 func _update_grid_display() -> void:
