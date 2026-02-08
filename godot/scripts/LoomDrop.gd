@@ -3,8 +3,6 @@ extends Control
 @onready var grid_container: GridContainer = %"GridContainer"
 @onready var word_label: Label = %"WordLabel"
 @onready var score_label: Label = %"ScoreLabel"
-@onready var undo_button: Button = %"UndoButton"
-@onready var clear_button: Button = %"ClearButton"
 @onready var hint_button: Button = %"HintButton"
 
 const ROWS: int = 8
@@ -17,11 +15,6 @@ var buttons: Array = []    # 2D [row][col] of Button
 var selected_path: Array = []  # Array of Vector2i (x=col, y=row)
 var is_selecting: bool = false
 var score: int = 0
-
-# Undo state
-var undo_grid: Array = []
-var undo_score: int = 0
-var can_undo: bool = false
 
 var dictionary: DictionaryService
 
@@ -72,11 +65,8 @@ func _ready() -> void:
 	_update_score_display()
 	_start_drop_timer()
 
-	# Connect button signals
-	undo_button.pressed.connect(_on_undo_pressed)
-	clear_button.pressed.connect(_on_clear_pressed)
+	# Connect hint button
 	hint_button.pressed.connect(_on_hint_pressed)
-	_update_button_states()
 
 
 func _build_weighted_bag() -> void:
@@ -374,9 +364,6 @@ func _accept_word(word: String) -> void:
 		word_label.text = "Not a valid word."
 		return
 
-	# Save state before making changes (for undo)
-	_save_undo_state()
-
 	var points: int = _score_word(word)
 	score += points
 	_update_score_display()
@@ -407,49 +394,7 @@ func _score_word(word: String) -> int:
 		_: return 12 + (length - 6) * 5
 
 
-# --- Undo/Clear/Hint Buttons ---
-
-func _save_undo_state() -> void:
-	# Deep copy the grid
-	undo_grid.clear()
-	for row in grid:
-		var row_copy: Array = []
-		for cell in row:
-			row_copy.append(cell)
-		undo_grid.append(row_copy)
-	undo_score = score
-	can_undo = true
-	_update_button_states()
-
-
-func _on_undo_pressed() -> void:
-	if not can_undo:
-		return
-
-	# Restore previous state
-	grid.clear()
-	for row in undo_grid:
-		var row_copy: Array = []
-		for cell in row:
-			row_copy.append(cell)
-		grid.append(row_copy)
-
-	score = undo_score
-	_update_score_display()
-	_update_grid_display()
-
-	can_undo = false
-	_update_button_states()
-	word_label.text = "Undone"
-
-
-func _on_clear_pressed() -> void:
-	if is_selecting:
-		selected_path.clear()
-		_clear_selection_visuals()
-		is_selecting = false
-		word_label.text = ""
-
+# --- Hint Button ---
 
 func _on_hint_pressed() -> void:
 	if not is_selecting or selected_path.is_empty():
@@ -463,10 +408,6 @@ func _on_hint_pressed() -> void:
 		word_label.text = "Not in dictionary"
 	else:
 		word_label.text = "Valid! Release to accept"
-
-
-func _update_button_states() -> void:
-	undo_button.disabled = not can_undo
 
 
 # --- Gravity ---
