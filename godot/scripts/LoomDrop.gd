@@ -18,7 +18,13 @@ var score: int = 0
 
 var dictionary: DictionaryService
 
-var letter_bag: String = "EEEEEEEEEEEEAAAAAAAAAIIIIIIIIIOOOOOOOOONNNNNNRRRRRRTTTTTTTTLLLLSSSSUUUUUDDDDGGGBBCCMMPPFFHHVVWWYYKJXQZ"
+# Scrabble-like distribution (Total: 98 tiles)
+const LETTER_WEIGHTS: Dictionary = {
+	"E": 12, "A": 9, "I": 9, "O": 8, "N": 6, "R": 6, "T": 6, "L": 4, "S": 4, "U": 4,
+	"D": 4, "G": 3, "B": 2, "C": 2, "M": 2, "P": 2, "F": 2, "H": 2, "V": 2, "W": 2,
+	"Y": 2, "K": 1, "J": 1, "X": 1, "Q": 1, "Z": 1
+}
+var _bag_distribution: Array = []
 
 const DROP_INTERVAL: float = 8.0  # seconds between letter drops
 const VOWELS: String = "AEIOU"
@@ -55,9 +61,18 @@ var _rescue_letters_remaining: Array = []
 func _ready() -> void:
 	back_button.pressed.connect(_on_back_pressed)
 	dictionary = DictionaryService.new()
+	_build_weighted_bag()
 	_initialize_grid()
 	_update_score_display()
 	_start_drop_timer()
+
+
+func _build_weighted_bag() -> void:
+	_bag_distribution.clear()
+	for letter in LETTER_WEIGHTS:
+		var count: int = LETTER_WEIGHTS[letter]
+		for i in range(count):
+			_bag_distribution.append(letter)
 
 
 func _initialize_grid() -> void:
@@ -154,7 +169,7 @@ func _seed_words() -> void:
 
 
 func _random_letter() -> String:
-	return letter_bag[randi() % letter_bag.length()]
+	return _bag_distribution[randi() % _bag_distribution.size()]
 
 
 func _smart_letter(col: int) -> String:
