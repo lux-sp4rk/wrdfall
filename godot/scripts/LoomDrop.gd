@@ -5,10 +5,10 @@ extends Control
 @onready var word_label: Label = %"WordLabel"
 @onready var score_label: Label = %"ScoreLabel"
 
-const ROWS: int = 12
+const ROWS: int = 8
 const COLS: int = 8
 const MIN_WORD_LENGTH: int = 3
-const INITIAL_FILL_ROWS: int = 8
+const INITIAL_FILL_ROWS: int = 5
 
 var grid: Array = []       # 2D [row][col] of String
 var buttons: Array = []    # 2D [row][col] of Button
