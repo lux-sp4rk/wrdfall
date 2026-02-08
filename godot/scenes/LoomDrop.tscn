@@ -25,23 +25,14 @@ theme_override_constants/margin_bottom = 24
 
 [node name="VBox" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
-[node name="HeaderRow" type="HBoxContainer" parent="MarginContainer/VBox"]
-layout_mode = 2
-
-[node name="Header" type="Label" parent="MarginContainer/VBox/HeaderRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 40
-text = "Loom Drop"
-
-[node name="ScoreLabel" type="Label" parent="MarginContainer/VBox/HeaderRow"]
+[node name="ScoreLabel" type="Label" parent="MarginContainer/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Score: 0"
-horizontal_alignment = 2
+horizontal_alignment = 1
 
 [node name="WordLabel" type="Label" parent="MarginContainer/VBox"]
 unique_name_in_owner = true
@@ -54,6 +45,7 @@ horizontal_alignment = 1
 [node name="GridCenter" type="CenterContainer" parent="MarginContainer/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
+size_flags_stretch_ratio = 0.7
 
 [node name="GridContainer" type="GridContainer" parent="MarginContainer/VBox/GridCenter"]
 unique_name_in_owner = true
@@ -62,14 +54,16 @@ theme_override_constants/h_separation = 4
 theme_override_constants/v_separation = 4
 columns = 7
 
-[node name="ActionButtons" type="HBoxContainer" parent="MarginContainer/VBox"]
+[node name="ButtonSpacer" type="Control" parent="MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 4)
 layout_mode = 2
-theme_override_constants/separation = 16
-alignment = 1
 
-[node name="HintButton" type="Button" parent="MarginContainer/VBox/ActionButtons"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 56)
+[node name="ActionButtons" type="CenterContainer" parent="MarginContainer/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Hint"
+
+[node name="ShakeButton" type="Button" parent="MarginContainer/VBox/ActionButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 72)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Shake"

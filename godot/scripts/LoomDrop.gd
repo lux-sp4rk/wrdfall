@@ -3,10 +3,10 @@ extends Control
 @onready var grid_container: GridContainer = %"GridContainer"
 @onready var word_label: Label = %"WordLabel"
 @onready var score_label: Label = %"ScoreLabel"
-@onready var hint_button: Button = %"HintButton"
+@onready var shake_button: Button = %"ShakeButton"
 
-const ROWS: int = 8
-const COLS: int = 7
+const ROWS: int = 7
+const COLS: int = 6
 const MIN_WORD_LENGTH: int = 3
 const INITIAL_FILL_ROWS: int = 5
 
@@ -26,7 +26,7 @@ const LETTER_WEIGHTS: Dictionary = {
 }
 var _bag_distribution: Array = []
 
-const DROP_INTERVAL: float = 7.0  # seconds between letter drops
+const DROP_INTERVAL: float = 6.0  # seconds between letter drops
 const VOWELS: String = "AEIOU"
 const TARGET_VOWEL_RATIO: float = 0.38
 # Common English bigrams — used to bias dropped letters toward playable neighbors
@@ -65,8 +65,8 @@ func _ready() -> void:
 	_update_score_display()
 	_start_drop_timer()
 
-	# Connect hint button
-	hint_button.pressed.connect(_on_hint_pressed)
+	# Connect buttons
+	shake_button.pressed.connect(_on_shake_pressed)
 
 
 func _build_weighted_bag() -> void:
@@ -102,8 +102,8 @@ func _initialize_grid() -> void:
 		for col in range(COLS):
 			var btn := Button.new()
 			btn.text = grid[row][col]
-			btn.custom_minimum_size = Vector2(64, 64)
-			btn.add_theme_font_size_override("font_size", 36)
+			btn.custom_minimum_size = Vector2(80, 80)
+			btn.add_theme_font_size_override("font_size", 44)
 			btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			grid_container.add_child(btn)
 			btn_row.append(btn)
@@ -113,60 +113,71 @@ func _initialize_grid() -> void:
 func _seed_words() -> void:
 	var empty_rows: int = ROWS - INITIAL_FILL_ROWS
 	var words: Array = SEED_WORDS.duplicate()
+	words.shuffle()
 
-	# Plant 3-5 words in random positions (horizontal, vertical, or diagonal)
-	var count: int = 3 + randi() % 3
-	for _i in range(count):
-		if words.is_empty():
+	# Guarantee at least 3 words are placed, try for up to 5
+	var target_count: int = 3 + randi() % 3
+	var placed_count: int = 0
+	var max_attempts: int = 50  # Safety limit to prevent infinite loops
+
+	for attempt in range(max_attempts):
+		if placed_count >= target_count or words.is_empty():
 			break
-		var idx: int = randi() % words.size()
-		var word: String = words[idx]
-		words.remove_at(idx)
 
-		# 0 = horizontal, 1 = vertical, 2 = diagonal-down-right, 3 = diagonal-down-left
-		var direction: int = randi() % 4
+		var word: String = words.pop_front()
+
+		# Try all 4 directions for this word
+		var directions: Array = [0, 1, 2, 3]
+		directions.shuffle()
 		var placed: bool = false
 
-		for _attempt in range(20):
-			var row: int
-			var col: int
-			var dr: int  # row delta per letter
-			var dc: int  # col delta per letter
+		for direction in directions:
+			if placed:
+				break
 
-			match direction:
-				0:  # horizontal
-					dr = 0; dc = 1
-					if word.length() > COLS:
-						break
-					row = empty_rows + randi() % INITIAL_FILL_ROWS
-					col = randi() % (COLS - word.length() + 1)
-				1:  # vertical
-					dr = 1; dc = 0
-					if word.length() > INITIAL_FILL_ROWS:
-						break
-					col = randi() % COLS
-					row = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
-				2:  # diagonal down-right
-					dr = 1; dc = 1
-					var max_len: int = mini(COLS, INITIAL_FILL_ROWS)
-					if word.length() > max_len:
-						break
-					row = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
-					col = randi() % (COLS - word.length() + 1)
-				3:  # diagonal down-left
-					dr = 1; dc = -1
-					var max_len2: int = mini(COLS, INITIAL_FILL_ROWS)
-					if word.length() > max_len2:
-						break
-					row = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
-					col = word.length() - 1 + randi() % (COLS - word.length() + 1)
+			for _retry in range(10):
+				var row: int
+				var col: int
+				var dr: int  # row delta per letter
+				var dc: int  # col delta per letter
 
-			for i in range(word.length()):
-				grid[row + dr * i][col + dc * i] = word[i]
-			placed = true
-			break
+				match direction:
+					0:  # horizontal
+						dr = 0; dc = 1
+						if word.length() > COLS:
+							break
+						row = empty_rows + randi() % INITIAL_FILL_ROWS
+						col = randi() % (COLS - word.length() + 1)
+					1:  # vertical
+						dr = 1; dc = 0
+						if word.length() > INITIAL_FILL_ROWS:
+							break
+						col = randi() % COLS
+						row = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
+					2:  # diagonal down-right
+						dr = 1; dc = 1
+						var max_len: int = mini(COLS, INITIAL_FILL_ROWS)
+						if word.length() > max_len:
+							break
+						row = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
+						col = randi() % (COLS - word.length() + 1)
+					3:  # diagonal down-left
+						dr = 1; dc = -1
+						var max_len2: int = mini(COLS, INITIAL_FILL_ROWS)
+						if word.length() > max_len2:
+							break
+						row = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
+						col = word.length() - 1 + randi() % (COLS - word.length() + 1)
 
-		if not placed:
+				# Place the word
+				for i in range(word.length()):
+					grid[row + dr * i][col + dc * i] = word[i]
+				placed = true
+				placed_count += 1
+				break
+
+		# If we didn't place this word and we haven't met minimum, add it back
+		if not placed and placed_count < 3:
 			words.append(word)
 
 
@@ -376,6 +387,16 @@ func _accept_word(word: String) -> void:
 	_apply_gravity()
 	_update_grid_display()
 
+	# Check for win conditions
+	if _is_grid_empty():
+		_trigger_win()
+		return
+
+	# Win if there are letters but no valid words remain
+	if not _is_grid_empty() and not _find_any_word_on_grid():
+		_trigger_win()
+		return
+
 	# After clearing, check if a rescue is needed for upcoming drops
 	if not _find_any_word_on_grid():
 		_plan_rescue_word()
@@ -394,20 +415,67 @@ func _score_word(word: String) -> int:
 		_: return 12 + (length - 6) * 5
 
 
-# --- Hint Button ---
+# --- Shake Button ---
 
-func _on_hint_pressed() -> void:
-	if not is_selecting or selected_path.is_empty():
-		word_label.text = "Select letters to get a hint"
+func _on_shake_pressed() -> void:
+	if game_over:
 		return
 
-	var word: String = _get_selected_word()
-	if selected_path.size() < MIN_WORD_LENGTH:
-		word_label.text = "Select at least 3 letters"
-	elif not dictionary.is_valid_word(word):
-		word_label.text = "Not in dictionary"
+	_shake_grid()
+	word_label.text = "Grid shaken!"
+
+
+func _shake_grid() -> void:
+	# Collect all non-empty letters from the grid
+	var letters: Array = []
+	for row in range(ROWS):
+		for col in range(COLS):
+			if grid[row][col] != "":
+				letters.append(grid[row][col])
+
+	# Clear the grid
+	for row in range(ROWS):
+		for col in range(COLS):
+			grid[row][col] = ""
+
+	# Shuffle the letters
+	letters.shuffle()
+
+	# Redistribute letters randomly across the grid
+	for letter in letters:
+		# Find a random empty cell
+		var placed: bool = false
+		for _attempt in range(100):  # Max attempts to find an empty spot
+			var row: int = randi() % ROWS
+			var col: int = randi() % COLS
+			if grid[row][col] == "":
+				grid[row][col] = letter
+				placed = true
+				break
+
+		# Fallback: if somehow no empty cell found (shouldn't happen), skip
+		if not placed:
+			break
+
+	# Apply gravity to settle letters
+	_apply_gravity()
+	_update_grid_display()
+
+	# Check for win conditions after shaking
+	if _is_grid_empty():
+		_trigger_win()
+		return
+
+	# Win if there are letters but no valid words remain
+	if not _is_grid_empty() and not _find_any_word_on_grid():
+		_trigger_win()
+		return
+
+	# After shaking, check if we need a rescue word
+	if not _find_any_word_on_grid():
+		_plan_rescue_word()
 	else:
-		word_label.text = "Valid! Release to accept"
+		_clear_rescue()
 
 
 # --- Gravity ---
@@ -477,6 +545,20 @@ func _drop_letter() -> void:
 
 	_apply_gravity()
 	_update_grid_display()
+
+
+func _is_grid_empty() -> bool:
+	for row in range(ROWS):
+		for col in range(COLS):
+			if grid[row][col] != "":
+				return false
+	return true
+
+
+func _trigger_win() -> void:
+	game_over = true
+	drop_timer.stop()
+	word_label.text = "You Win! Score: %d" % score
 
 
 func _trigger_game_over() -> void:
