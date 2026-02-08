@@ -1,0 +1,18 @@
+# Word Loom local dictionary (seed list)
+# One uppercase word per line. Keep small for now.
+
+TEST
+WORD
+HELLO
+WORLD
+GODOT
+LOOM
+DROP
+PUZZLE
+VALID
+INVALID
+RULE
+LENGTH
+ALPHA
+SUBMIT
+GUESS

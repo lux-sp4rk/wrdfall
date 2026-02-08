@@ -15,6 +15,8 @@ var selected_path: Array = []  # Array of Vector2i (x=col, y=row)
 var is_selecting: bool = false
 var score: int = 0
 
+var dictionary: DictionaryService
+
 var letter_bag: String = "EEEEEEEEEEEEAAAAAAAAAIIIIIIIIIOOOOOOOOONNNNNNRRRRRRTTTTTTTTLLLLSSSSUUUUUDDDDGGGBBCCMMPPFFHHVVWWYYKJXQZ"
 
 const COLOR_SELECTED: Color = Color(0.35, 0.65, 1.0)
@@ -23,6 +25,7 @@ const COLOR_TOO_SHORT: Color = Color(0.7, 0.7, 0.7)
 
 func _ready() -> void:
 	back_button.pressed.connect(_on_back_pressed)
+	dictionary = DictionaryService.new()
 	_initialize_grid()
 	_update_score_display()
 
@@ -118,7 +121,7 @@ func _end_selection() -> void:
 		_accept_word(word)
 	_clear_selection_visuals()
 	selected_path.clear()
-	word_label.text = ""
+	# Keep last feedback visible (score / error)
 
 
 func _get_selected_word() -> String:
@@ -131,10 +134,16 @@ func _get_selected_word() -> String:
 # --- Word acceptance ---
 
 func _accept_word(word: String) -> void:
-	# TODO: validate against a dictionary
+	# Offline validation (Issue #5)
+	if not dictionary.is_valid_word(word):
+		# short, friendly, actionable
+		word_label.text = "Not a valid word."
+		return
+
 	var points: int = _score_word(word)
 	score += points
 	_update_score_display()
+	word_label.text = "+%d" % points
 
 	# Clear the selected cells
 	for cell in selected_path:
