@@ -389,8 +389,13 @@ func _accept_word(word: String) -> void:
 	_apply_gravity()
 	_update_grid_display()
 
-	# Check for win condition
+	# Check for win conditions
 	if _is_grid_empty():
+		_trigger_win()
+		return
+
+	# Win if there are letters but no valid words remain
+	if not _is_grid_empty() and not _find_any_word_on_grid():
 		_trigger_win()
 		return
 
@@ -473,6 +478,16 @@ func _shake_grid() -> void:
 	# Apply gravity to settle letters
 	_apply_gravity()
 	_update_grid_display()
+
+	# Check for win conditions after shaking
+	if _is_grid_empty():
+		_trigger_win()
+		return
+
+	# Win if there are letters but no valid words remain
+	if not _is_grid_empty() and not _find_any_word_on_grid():
+		_trigger_win()
+		return
 
 	# After shaking, check if we need a rescue word
 	if not _find_any_word_on_grid():
