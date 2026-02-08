@@ -1,34 +1,41 @@
 # CLAUDE.md — Word Loom Instructions
 
 ## Project Context
-Word Loom is a calm, senior-first word puzzle game built with **Godot 4.x (GDScript)**.
+Word Loom is a calm, senior-first word puzzle game built with **Godot 4.6 (GDScript)**.
 - **Target**: iPad, phone, browser (HTML5).
 - **Style**: No ads, no timers, high contrast, large tap targets.
-- **Game mode**: **Loom Drop** — Tetris-style falling letters on an 8×8 grid with word-swiping.
+- **Game mode**: **Loom Drop** — Tetris-style falling letters on a 7×6 grid with word-swiping.
 
 ## Project Structure
 ```
 godot/
-  project.godot
-  scenes/          # LoomDrop.tscn
-  scripts/         # GDScript files (see below)
-  data/            # words.txt (dictionary)
-  dist/            # HTML5 export output
-docs/              # Research notes, monetization ideas, verification guides
-dist/              # Deployed web build (Netlify)
+  project.godot      # Godot 4.6 config (main scene: LoomDrop.tscn)
+  scenes/
+    LoomDrop.tscn    # Main game scene
+  scripts/
+    LoomDrop.gd      # Main game logic
+    Dictionary.gd    # Word lookup service
+  data/
+    words.txt        # SOWPODS dictionary (Scrabble-compliant)
+  dist/              # HTML5 export output (ignored in git)
+docs/
+  research/          # Game design research
+  monetization/      # Monetization strategy
+  issue-5-verify.md  # Verification guide
+dist/                # Deployed web build (Netlify)
 ```
 
 ### Key Scripts
 | Script | Purpose |
 |---|---|
-| `LoomDrop.gd` | Main game — 8×8 grid, drag-select words, gravity, Scrabble-weighted letter bag |
-| `Dictionary.gd` | Loads `words.txt` and provides word lookup |
+| `LoomDrop.gd` | Main game — 7×6 grid, 8-directional word selection, gravity, shake mechanic, win detection |
+| `Dictionary.gd` | Loads SOWPODS word list and provides validation |
 
 ## Core Workflows
-- **Build/Run**: Open `godot/project.godot` in Godot 4.3+ and press F5.
-- **HTML5 Export**: Project > Export > Web preset > Export Project. Serve with `python3 -m http.server -d godot/dist/ 8000`.
-- **Data**: Word dictionary in `godot/data/words.txt`.
-- **Deploy**: Web build is in `dist/` and served via Netlify. Build output ignored via `.gitignore`.
+- **Build/Run**: Open `godot/project.godot` in Godot 4.6+ and press F5 (launches LoomDrop directly).
+- **HTML5 Export**: Project > Export > Web preset > Export Project to `godot/dist/`. Serve locally with `python3 -m http.server -d godot/dist/ 8000`.
+- **Data**: SOWPODS dictionary in `godot/data/words.txt` (~270k words).
+- **Deploy**: Web build deployed from `dist/` via Netlify (see `netlify.toml`).
 
 ## Code Style (GDScript)
 - **Signals**: Use `signal_name.connect(callable)` syntax (Godot 4).
@@ -42,6 +49,15 @@ dist/              # Deployed web build (Netlify)
 - **PRs**: Include a summary of changes and mention which issue is being addressed.
 - **Updates**: Keep this `CLAUDE.md` updated with new build commands or style shifts.
 
+## Game Features
+- **7×6 grid** with 8-directional word selection (horizontal, vertical, diagonal)
+- **Shake mechanic** (unlimited uses) — reshuffles grid to create new word opportunities
+- **Win condition** — game ends when no valid 3+ letter words exist on the board
+- **Letter distribution** — Scrabble-weighted bag + bigram-aware drops + guaranteed seed words
+- **Drop interval** — 6 seconds between automatic letter drops
+- **Gravity** — letters cascade down after word clears
+
 ## Key Docs
-- `docs/research/`: Research notes (lenses, oracle mechanics).
-- `docs/monetization/`: Monetization strategy notes.
+- `docs/research/`: Game design research notes
+- `docs/monetization/`: Monetization strategy
+- `docs/issue-5-verify.md`: Verification workflow guide

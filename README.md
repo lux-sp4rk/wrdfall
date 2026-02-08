@@ -1,17 +1,16 @@
 # Word Loom
 
-A calm, senior-first word puzzle game — no ads, no timers, high contrast, large tap targets. Built with Godot 4.x (GDScript) for iPad, phone, and browser.
+A calm, senior-first word puzzle game — no ads, no timers, high contrast, large tap targets. Built with Godot 4.6 (GDScript) for iPad, phone, and browser.
 
-## Game Modes
+## Game Mode
 
-- **Puzzle** — Classic mode: drag letters from a tray into loom slots to form words.
-- **Loom Drop** — Tetris-meets-word-search: letters fall onto an 8×8 grid. Swipe to select words in any direction (including diagonals). Valid words clear, gravity pulls letters down, and new letters drop in using a Scrabble-weighted distribution.
+**Loom Drop** — Tetris-meets-word-search: letters fall onto a 7×6 grid. Swipe to select words in any direction (including diagonals). Valid words clear, gravity pulls letters down, and new letters drop in using a Scrabble-weighted distribution. Shake the grid when stuck to reshuffle letters. The game ends when no valid words remain.
 
 ## Running the game
 
-1. Install [Godot 4.3+](https://godotengine.org/download/) (standard or .NET edition).
+1. Install [Godot 4.6+](https://godotengine.org/download/) (standard edition).
 2. Open Godot and choose **Import** > navigate to `godot/project.godot`.
-3. Press **F5** (or the Play button) to run the Title screen.
+3. Press **F5** (or the Play button) to launch Loom Drop.
 
 ## HTML5 export (for browser/iPad testing)
 
@@ -25,34 +24,28 @@ A pre-built web version is deployed via Netlify from the `dist/` directory.
 
 ```
 godot/
-  project.godot           # Godot project config
+  project.godot    # Godot 4.6 config (main scene: LoomDrop.tscn)
   scenes/
-    Title.tscn            # Title screen — routes to Puzzle or Loom Drop
-    Puzzle.tscn           # Classic puzzle mode
-    LoomDrop.tscn         # Loom Drop mode (8×8 grid)
+    LoomDrop.tscn  # Main game scene
   scripts/
-    Title.gd              # Title screen navigation
-    Puzzle.gd             # Classic puzzle logic
-    LoomDrop.gd           # Loom Drop — grid, selection, gravity, scoring
-    Dictionary.gd         # Word lookup service (loads words.txt)
-    RuleChecker.gd        # Word validation rules
-    PuzzleLoader.gd       # Loads puzzle data from JSON
-    ValidationSmokeTest.gd # Smoke test for validation
+    LoomDrop.gd    # Main game logic — grid, selection, gravity, shake, win detection
+    Dictionary.gd  # Word validation service
   data/
-    puzzles.json          # Puzzle definitions
-    words.txt             # English word dictionary
-docs/                     # Research notes, verification guides
-dist/                     # Deployed web build (Netlify)
+    words.txt      # SOWPODS dictionary (Scrabble-compliant, ~270k words)
+  dist/            # HTML5 export output (gitignored)
+docs/              # Research notes, monetization strategy, verification guides
+dist/              # Deployed web build (Netlify)
+netlify.toml       # Netlify deployment config
 ```
 
-## Key features implemented
+## Key features
 
-- 8×8 grid with 8-directional word selection (including diagonals)
-- Offline word validation against a full English dictionary
-- Scrabble-weighted letter bag for balanced letter distribution
-- Bigram-aware letter drops for more playable boards
-- Rescue word system guaranteeing a valid word always exists
-- Gravity and cascading after word clears
-- Calm pacing: 8-second drop interval, game-over detection
+- **7×6 grid** with 8-directional word selection (horizontal, vertical, diagonal)
+- **Shake mechanic** — unlimited reshuffles to create new opportunities
+- **Win condition** — game ends when no valid 3+ letter words exist
+- **SOWPODS dictionary** — Scrabble-compliant word validation (~270k words)
+- **Smart letter generation** — Scrabble-weighted bag + bigram-aware drops + seed words
+- **Gravity** — letters cascade down after word clears
+- **Calm pacing** — 6-second drop interval, high contrast UI, large tap targets
 
 See `CLAUDE.md` for development guidelines and code style.
