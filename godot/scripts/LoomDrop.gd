@@ -4,11 +4,13 @@ extends Control
 @onready var word_label: Label = %"WordLabel"
 @onready var score_label: Label = %"ScoreLabel"
 @onready var hint_button: Button = %"HintButton"
+@onready var shake_button: Button = %"ShakeButton"
 
 const ROWS: int = 8
 const COLS: int = 7
 const MIN_WORD_LENGTH: int = 3
 const INITIAL_FILL_ROWS: int = 5
+const INITIAL_SHAKES: int = 2
 
 var grid: Array = []       # 2D [row][col] of String
 var buttons: Array = []    # 2D [row][col] of Button
@@ -51,6 +53,7 @@ const COLOR_TOO_SHORT: Color = Color(0.7, 0.7, 0.7)
 
 var drop_timer: Timer
 var game_over: bool = false
+var shake_count: int = INITIAL_SHAKES
 
 # Rescue word drip-feed: when no valid word exists, bias drops to build one
 var _rescue_word: String = ""
@@ -63,10 +66,12 @@ func _ready() -> void:
 	_build_weighted_bag()
 	_initialize_grid()
 	_update_score_display()
+	_update_shake_button()
 	_start_drop_timer()
 
-	# Connect hint button
+	# Connect buttons
 	hint_button.pressed.connect(_on_hint_pressed)
+	shake_button.pressed.connect(_on_shake_pressed)
 
 
 func _build_weighted_bag() -> void:
@@ -376,6 +381,11 @@ func _accept_word(word: String) -> void:
 	_apply_gravity()
 	_update_grid_display()
 
+	# Check for win condition
+	if _is_grid_empty():
+		_trigger_win()
+		return
+
 	# After clearing, check if a rescue is needed for upcoming drops
 	if not _find_any_word_on_grid():
 		_plan_rescue_word()
@@ -408,6 +418,66 @@ func _on_hint_pressed() -> void:
 		word_label.text = "Not in dictionary"
 	else:
 		word_label.text = "Valid! Release to accept"
+
+
+# --- Shake Button ---
+
+func _on_shake_pressed() -> void:
+	if shake_count <= 0:
+		return
+
+	shake_count -= 1
+	_shake_grid()
+	_update_shake_button()
+	word_label.text = "Grid shaken!"
+
+
+func _update_shake_button() -> void:
+	shake_button.text = "Shake (%d)" % shake_count
+	shake_button.disabled = shake_count <= 0
+
+
+func _shake_grid() -> void:
+	# Collect all non-empty letters from the grid
+	var letters: Array = []
+	for row in range(ROWS):
+		for col in range(COLS):
+			if grid[row][col] != "":
+				letters.append(grid[row][col])
+
+	# Clear the grid
+	for row in range(ROWS):
+		for col in range(COLS):
+			grid[row][col] = ""
+
+	# Shuffle the letters
+	letters.shuffle()
+
+	# Redistribute letters randomly across the grid
+	for letter in letters:
+		# Find a random empty cell
+		var placed: bool = false
+		for _attempt in range(100):  # Max attempts to find an empty spot
+			var row: int = randi() % ROWS
+			var col: int = randi() % COLS
+			if grid[row][col] == "":
+				grid[row][col] = letter
+				placed = true
+				break
+
+		# Fallback: if somehow no empty cell found (shouldn't happen), skip
+		if not placed:
+			break
+
+	# Apply gravity to settle letters
+	_apply_gravity()
+	_update_grid_display()
+
+	# After shaking, check if we need a rescue word
+	if not _find_any_word_on_grid():
+		_plan_rescue_word()
+	else:
+		_clear_rescue()
 
 
 # --- Gravity ---
@@ -477,6 +547,20 @@ func _drop_letter() -> void:
 
 	_apply_gravity()
 	_update_grid_display()
+
+
+func _is_grid_empty() -> bool:
+	for row in range(ROWS):
+		for col in range(COLS):
+			if grid[row][col] != "":
+				return false
+	return true
+
+
+func _trigger_win() -> void:
+	game_over = true
+	drop_timer.stop()
+	word_label.text = "You Win! Score: %d" % score
 
 
 func _trigger_game_over() -> void:
