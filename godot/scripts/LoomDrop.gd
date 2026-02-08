@@ -10,7 +10,6 @@ const ROWS: int = 8
 const COLS: int = 7
 const MIN_WORD_LENGTH: int = 3
 const INITIAL_FILL_ROWS: int = 5
-const INITIAL_SHAKES: int = 2
 
 var grid: Array = []       # 2D [row][col] of String
 var buttons: Array = []    # 2D [row][col] of Button
@@ -53,7 +52,6 @@ const COLOR_TOO_SHORT: Color = Color(0.7, 0.7, 0.7)
 
 var drop_timer: Timer
 var game_over: bool = false
-var shake_count: int = INITIAL_SHAKES
 
 # Rescue word drip-feed: when no valid word exists, bias drops to build one
 var _rescue_word: String = ""
@@ -66,7 +64,6 @@ func _ready() -> void:
 	_build_weighted_bag()
 	_initialize_grid()
 	_update_score_display()
-	_update_shake_button()
 	_start_drop_timer()
 
 	# Connect buttons
@@ -423,18 +420,11 @@ func _on_hint_pressed() -> void:
 # --- Shake Button ---
 
 func _on_shake_pressed() -> void:
-	if shake_count <= 0:
+	if game_over:
 		return
 
-	shake_count -= 1
 	_shake_grid()
-	_update_shake_button()
 	word_label.text = "Grid shaken!"
-
-
-func _update_shake_button() -> void:
-	shake_button.text = "Shake (%d)" % shake_count
-	shake_button.disabled = shake_count <= 0
 
 
 func _shake_grid() -> void:
