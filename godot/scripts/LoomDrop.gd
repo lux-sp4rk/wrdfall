@@ -20,7 +20,7 @@ var dictionary: DictionaryService
 
 var letter_bag: String = "EEEEEEEEEEEEAAAAAAAAAIIIIIIIIIOOOOOOOOONNNNNNRRRRRRTTTTTTTTLLLLSSSSUUUUUDDDDGGGBBCCMMPPFFHHVVWWYYKJXQZ"
 
-const DROP_INTERVAL: float = 3.0  # seconds between letter drops
+const DROP_INTERVAL: float = 4.0  # seconds between letter drops
 const VOWELS: String = "AEIOU"
 const TARGET_VOWEL_RATIO: float = 0.38
 # Common English bigrams — used to bias dropped letters toward playable neighbors
@@ -92,7 +92,7 @@ func _seed_words() -> void:
 	var empty_rows: int = ROWS - INITIAL_FILL_ROWS
 	var words: Array = SEED_WORDS.duplicate()
 
-	# Plant 3-5 words in random positions (horizontal or vertical)
+	# Plant 3-5 words in random positions (horizontal, vertical, or diagonal)
 	var count: int = 3 + randi() % 3
 	for _i in range(count):
 		if words.is_empty():
@@ -101,30 +101,48 @@ func _seed_words() -> void:
 		var word: String = words[idx]
 		words.remove_at(idx)
 
-		var horizontal: bool = randf() < 0.5
+		# 0 = horizontal, 1 = vertical, 2 = diagonal-down-right, 3 = diagonal-down-left
+		var direction: int = randi() % 4
 		var placed: bool = false
 
-		# Try a few random positions
 		for _attempt in range(20):
-			if horizontal:
-				if word.length() > COLS:
-					break
-				var row: int = empty_rows + randi() % INITIAL_FILL_ROWS
-				var col: int = randi() % (COLS - word.length() + 1)
-				# Write the word into the row
-				for c in range(word.length()):
-					grid[row][col + c] = word[c]
-				placed = true
-				break
-			else:
-				if word.length() > INITIAL_FILL_ROWS:
-					break
-				var col: int = randi() % COLS
-				var row: int = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
-				for r in range(word.length()):
-					grid[row + r][col] = word[r]
-				placed = true
-				break
+			var row: int
+			var col: int
+			var dr: int  # row delta per letter
+			var dc: int  # col delta per letter
+
+			match direction:
+				0:  # horizontal
+					dr = 0; dc = 1
+					if word.length() > COLS:
+						break
+					row = empty_rows + randi() % INITIAL_FILL_ROWS
+					col = randi() % (COLS - word.length() + 1)
+				1:  # vertical
+					dr = 1; dc = 0
+					if word.length() > INITIAL_FILL_ROWS:
+						break
+					col = randi() % COLS
+					row = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
+				2:  # diagonal down-right
+					dr = 1; dc = 1
+					var max_len: int = mini(COLS, INITIAL_FILL_ROWS)
+					if word.length() > max_len:
+						break
+					row = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
+					col = randi() % (COLS - word.length() + 1)
+				3:  # diagonal down-left
+					dr = 1; dc = -1
+					var max_len2: int = mini(COLS, INITIAL_FILL_ROWS)
+					if word.length() > max_len2:
+						break
+					row = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
+					col = word.length() - 1 + randi() % (COLS - word.length() + 1)
+
+			for i in range(word.length()):
+				grid[row + dr * i][col + dc * i] = word[i]
+			placed = true
+			break
 
 		if not placed:
 			words.append(word)
@@ -223,10 +241,10 @@ func _extend_selection(cell: Vector2i) -> void:
 		if c == cell:
 			return
 
-	# Must be 4-directionally adjacent to the last cell
+	# Must be 8-directionally adjacent (including diagonals)
 	var last: Vector2i = selected_path[selected_path.size() - 1]
 	var diff: Vector2i = cell - last
-	if absi(diff.x) + absi(diff.y) == 1:
+	if absi(diff.x) <= 1 and absi(diff.y) <= 1:
 		selected_path.append(cell)
 		_update_selection_visuals()
 
