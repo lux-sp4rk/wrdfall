@@ -2,10 +2,11 @@ extends Control
 
 @onready var grid_container: GridContainer = %"GridContainer"
 @onready var word_label: Label = %"WordLabel"
-@ontml:parameter name="score_label: Label = %"ScoreLabel"
+@onready var score_label: Label = %"ScoreLabel"
+@onready var hint_button: Button = %"HintButton"
 
 const ROWS: int = 8
-const COLS: int = 8
+const COLS: int = 7
 const MIN_WORD_LENGTH: int = 3
 const INITIAL_FILL_ROWS: int = 5
 
@@ -25,7 +26,7 @@ const LETTER_WEIGHTS: Dictionary = {
 }
 var _bag_distribution: Array = []
 
-const DROP_INTERVAL: float = 8.0  # seconds between letter drops
+const DROP_INTERVAL: float = 7.0  # seconds between letter drops
 const VOWELS: String = "AEIOU"
 const TARGET_VOWEL_RATIO: float = 0.38
 # Common English bigrams — used to bias dropped letters toward playable neighbors
@@ -64,6 +65,9 @@ func _ready() -> void:
 	_update_score_display()
 	_start_drop_timer()
 
+	# Connect hint button
+	hint_button.pressed.connect(_on_hint_pressed)
+
 
 func _build_weighted_bag() -> void:
 	_bag_distribution.clear()
@@ -98,8 +102,8 @@ func _initialize_grid() -> void:
 		for col in range(COLS):
 			var btn := Button.new()
 			btn.text = grid[row][col]
-			btn.custom_minimum_size = Vector2(48, 48)
-			btn.add_theme_font_size_override("font_size", 24)
+			btn.custom_minimum_size = Vector2(64, 64)
+			btn.add_theme_font_size_override("font_size", 36)
 			btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			grid_container.add_child(btn)
 			btn_row.append(btn)
@@ -388,6 +392,22 @@ func _score_word(word: String) -> int:
 		5: return 8
 		6: return 12
 		_: return 12 + (length - 6) * 5
+
+
+# --- Hint Button ---
+
+func _on_hint_pressed() -> void:
+	if not is_selecting or selected_path.is_empty():
+		word_label.text = "Select letters to get a hint"
+		return
+
+	var word: String = _get_selected_word()
+	if selected_path.size() < MIN_WORD_LENGTH:
+		word_label.text = "Select at least 3 letters"
+	elif not dictionary.is_valid_word(word):
+		word_label.text = "Not in dictionary"
+	else:
+		word_label.text = "Valid! Release to accept"
 
 
 # --- Gravity ---
