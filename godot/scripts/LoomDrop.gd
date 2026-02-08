@@ -1,9 +1,8 @@
 extends Control
 
 @onready var grid_container: GridContainer = %"GridContainer"
-@onready var back_button: Button = %"BackButton"
 @onready var word_label: Label = %"WordLabel"
-@onready var score_label: Label = %"ScoreLabel"
+@ontml:parameter name="score_label: Label = %"ScoreLabel"
 
 const ROWS: int = 8
 const COLS: int = 8
@@ -59,7 +58,6 @@ var _rescue_letters_remaining: Array = []
 
 
 func _ready() -> void:
-	back_button.pressed.connect(_on_back_pressed)
 	dictionary = DictionaryService.new()
 	_build_weighted_bag()
 	_initialize_grid()
@@ -516,7 +514,3 @@ func _make_stylebox(color: Color) -> StyleBoxFlat:
 
 func _update_score_display() -> void:
 	score_label.text = "Score: %d" % score
-
-
-func _on_back_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/Title.tscn")
