@@ -20,8 +20,12 @@ var dictionary: DictionaryService
 
 var letter_bag: String = "EEEEEEEEEEEEAAAAAAAAAIIIIIIIIIOOOOOOOOONNNNNNRRRRRRTTTTTTTTLLLLSSSSUUUUUDDDDGGGBBCCMMPPFFHHVVWWYYKJXQZ"
 
+const DROP_INTERVAL: float = 1.0  # seconds between letter drops
+
 const COLOR_SELECTED: Color = Color(0.35, 0.65, 1.0)
 const COLOR_TOO_SHORT: Color = Color(0.7, 0.7, 0.7)
+
+var drop_timer: Timer
 
 
 func _ready() -> void:
@@ -29,6 +33,7 @@ func _ready() -> void:
 	dictionary = DictionaryService.new()
 	_initialize_grid()
 	_update_score_display()
+	_start_drop_timer()
 
 
 func _initialize_grid() -> void:
@@ -152,7 +157,6 @@ func _accept_word(word: String) -> void:
 		grid[cell.y][cell.x] = ""
 
 	_apply_gravity()
-	_spawn_new_letters()
 	_update_grid_display()
 
 
@@ -186,11 +190,28 @@ func _apply_gravity() -> void:
 				grid[row][col] = ""
 
 
-func _spawn_new_letters() -> void:
-	for row in range(ROWS):
-		for col in range(COLS):
-			if grid[row][col] == "":
-				grid[row][col] = _random_letter()
+func _start_drop_timer() -> void:
+	drop_timer = Timer.new()
+	drop_timer.wait_time = DROP_INTERVAL
+	drop_timer.timeout.connect(_drop_letter)
+	add_child(drop_timer)
+	drop_timer.start()
+
+
+func _drop_letter() -> void:
+	# Find columns that have space (top row is empty)
+	var open_cols: Array = []
+	for col in range(COLS):
+		if grid[0][col] == "":
+			open_cols.append(col)
+
+	if open_cols.is_empty():
+		return
+
+	var col: int = open_cols[randi() % open_cols.size()]
+	grid[0][col] = _random_letter()
+	_apply_gravity()
+	_update_grid_display()
 
 
 func _update_grid_display() -> void:
