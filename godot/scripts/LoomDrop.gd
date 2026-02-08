@@ -115,60 +115,71 @@ func _initialize_grid() -> void:
 func _seed_words() -> void:
 	var empty_rows: int = ROWS - INITIAL_FILL_ROWS
 	var words: Array = SEED_WORDS.duplicate()
+	words.shuffle()
 
-	# Plant 3-5 words in random positions (horizontal, vertical, or diagonal)
-	var count: int = 3 + randi() % 3
-	for _i in range(count):
-		if words.is_empty():
+	# Guarantee at least 3 words are placed, try for up to 5
+	var target_count: int = 3 + randi() % 3
+	var placed_count: int = 0
+	var max_attempts: int = 50  # Safety limit to prevent infinite loops
+
+	for attempt in range(max_attempts):
+		if placed_count >= target_count or words.is_empty():
 			break
-		var idx: int = randi() % words.size()
-		var word: String = words[idx]
-		words.remove_at(idx)
 
-		# 0 = horizontal, 1 = vertical, 2 = diagonal-down-right, 3 = diagonal-down-left
-		var direction: int = randi() % 4
+		var word: String = words.pop_front()
+
+		# Try all 4 directions for this word
+		var directions: Array = [0, 1, 2, 3]
+		directions.shuffle()
 		var placed: bool = false
 
-		for _attempt in range(20):
-			var row: int
-			var col: int
-			var dr: int  # row delta per letter
-			var dc: int  # col delta per letter
+		for direction in directions:
+			if placed:
+				break
 
-			match direction:
-				0:  # horizontal
-					dr = 0; dc = 1
-					if word.length() > COLS:
-						break
-					row = empty_rows + randi() % INITIAL_FILL_ROWS
-					col = randi() % (COLS - word.length() + 1)
-				1:  # vertical
-					dr = 1; dc = 0
-					if word.length() > INITIAL_FILL_ROWS:
-						break
-					col = randi() % COLS
-					row = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
-				2:  # diagonal down-right
-					dr = 1; dc = 1
-					var max_len: int = mini(COLS, INITIAL_FILL_ROWS)
-					if word.length() > max_len:
-						break
-					row = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
-					col = randi() % (COLS - word.length() + 1)
-				3:  # diagonal down-left
-					dr = 1; dc = -1
-					var max_len2: int = mini(COLS, INITIAL_FILL_ROWS)
-					if word.length() > max_len2:
-						break
-					row = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
-					col = word.length() - 1 + randi() % (COLS - word.length() + 1)
+			for _retry in range(10):
+				var row: int
+				var col: int
+				var dr: int  # row delta per letter
+				var dc: int  # col delta per letter
 
-			for i in range(word.length()):
-				grid[row + dr * i][col + dc * i] = word[i]
-			placed = true
-			break
+				match direction:
+					0:  # horizontal
+						dr = 0; dc = 1
+						if word.length() > COLS:
+							break
+						row = empty_rows + randi() % INITIAL_FILL_ROWS
+						col = randi() % (COLS - word.length() + 1)
+					1:  # vertical
+						dr = 1; dc = 0
+						if word.length() > INITIAL_FILL_ROWS:
+							break
+						col = randi() % COLS
+						row = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
+					2:  # diagonal down-right
+						dr = 1; dc = 1
+						var max_len: int = mini(COLS, INITIAL_FILL_ROWS)
+						if word.length() > max_len:
+							break
+						row = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
+						col = randi() % (COLS - word.length() + 1)
+					3:  # diagonal down-left
+						dr = 1; dc = -1
+						var max_len2: int = mini(COLS, INITIAL_FILL_ROWS)
+						if word.length() > max_len2:
+							break
+						row = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
+						col = word.length() - 1 + randi() % (COLS - word.length() + 1)
 
-		if not placed:
+				# Place the word
+				for i in range(word.length()):
+					grid[row + dr * i][col + dc * i] = word[i]
+				placed = true
+				placed_count += 1
+				break
+
+		# If we didn't place this word and we haven't met minimum, add it back
+		if not placed and placed_count < 3:
 			words.append(word)
 
 
