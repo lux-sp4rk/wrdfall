@@ -8,7 +8,7 @@ Word Loom is a calm, senior-first word puzzle game built with **Godot 4.6 (GDScr
 
 ## Project Structure
 ```
-god/
+godot/
   project.godot      # Godot 4.6 config (main scene: Home.tscn)
   scenes/
     Home.tscn        # Main menu / Home screen
@@ -45,6 +45,11 @@ dist/                # Deployed web build (Netlify)
 - **Data**: English (SOWPODS) in `godot/data/words_en.txt`, Spanish (FISE 2017) in `godot/data/words_es.txt`.
 - **Deploy**: Web build deployed from `dist/` via Netlify (see `netlify.toml`).
 
+## Display Config
+- **Viewport**: 720×1280 portrait orientation
+- **Stretch mode**: `canvas_items` with `expand` aspect — UI scales to fill screen
+- **Renderer**: GL Compatibility (required for HTML5/mobile export)
+
 ## Code Style (GDScript)
 - **Signals**: Use `signal_name.connect(callable)` syntax (Godot 4).
 - **Typing**: Use static typing where possible (e.g., `var x: int = 5`).
@@ -70,3 +75,4 @@ dist/                # Deployed web build (Netlify)
 - `docs/research/`: Game design research notes
 - `docs/monetization/`: Monetization strategy
 - `docs/issue-5-verify.md`: Verification workflow guide
+- `docs/navigation-update.md`: Navigation/scene transition notes
