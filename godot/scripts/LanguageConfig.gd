@@ -72,6 +72,14 @@ static func english() -> LanguageConfig:
 		"tile_destroyed": "Tile destroyed! (-%d)",
 		"shake": "Shake",
 		"hammer": "Hammer",
+		"swap": "Swap",
+		"need_swap": "Need %d points to swap!",
+		"swap_first": "Select first tile to swap",
+		"swap_second": "Now select an adjacent tile",
+		"swap_not_adjacent": "Tiles must be adjacent!",
+		"swap_empty": "Both tiles must have letters!",
+		"swap_done": "Swapped! (-%d)",
+		"swap_cancel": "Swap canceled",
 		"cancel": "Cancel",
 	}
 	return cfg
@@ -122,6 +130,14 @@ static func spanish() -> LanguageConfig:
 		"tile_destroyed": "\u00a1Letra destruida! (-%d)",
 		"shake": "Mezclar",
 		"hammer": "Martillo",
+		"swap": "Cambiar",
+		"need_swap": "\u00a1Necesitas %d puntos para cambiar!",
+		"swap_first": "Selecciona la primera letra",
+		"swap_second": "Ahora selecciona una letra adyacente",
+		"swap_not_adjacent": "\u00a1Las letras deben ser adyacentes!",
+		"swap_empty": "\u00a1Ambas casillas deben tener letras!",
+		"swap_done": "\u00a1Cambiado! (-%d)",
+		"swap_cancel": "Cambio cancelado",
 		"cancel": "Cancelar",
 	}
 	return cfg
