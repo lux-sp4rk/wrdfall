@@ -55,6 +55,10 @@ func _ready() -> void:
 	hammer_button.pressed.connect(_on_hammer_pressed)
 	home_button.pressed.connect(_on_home_pressed)
 
+	# Dynamic grid sizing
+	grid_center.resized.connect(_resize_grid)
+	call_deferred("_resize_grid")
+
 func _on_home_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/Home.tscn")
 
