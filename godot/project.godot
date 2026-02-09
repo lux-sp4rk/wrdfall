@@ -22,7 +22,6 @@ config/features=PackedStringArray("4.6")
 [autoload]
 
 GameSettings="*res://scripts/GameSettings.gd"
-config/features=PackedStringArray("4.6", "GL Compatibility")
 
 [display]
 
