@@ -10,6 +10,11 @@ extends Control
 @onready var home_button: Button = %"HomeButton"
 @onready var background: ColorRect = $ColorRect
 @onready var margin_container: MarginContainer = $MarginContainer
+@onready var game_over_modal: ColorRect = %"GameOverModal"
+@onready var modal_message_label: Label = %"MessageLabel"
+@onready var modal_score_label: Label = %"ScoreLabel"
+@onready var retry_button: Button = %"RetryButton"
+@onready var quit_button: Button = %"QuitButton"
 
 const ROWS: int = 7
 const COLS: int = 6
@@ -73,12 +78,26 @@ func _ready() -> void:
 	hammer_button.pressed.connect(_on_hammer_pressed)
 	swap_button.pressed.connect(_on_swap_pressed)
 	home_button.pressed.connect(_on_home_pressed)
+	retry_button.pressed.connect(_on_retry_pressed)
+	quit_button.pressed.connect(_on_quit_pressed)
+
+	# Hide modal initially
+	game_over_modal.hide()
 
 	# Dynamic grid sizing
 	grid_center.resized.connect(_resize_grid)
 	call_deferred("_resize_grid")
 
 func _on_home_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/Home.tscn")
+
+
+func _on_retry_pressed() -> void:
+	# Restart the game
+	_restart_game()
+
+
+func _on_quit_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/Home.tscn")
 
 
@@ -377,8 +396,8 @@ func _input(event: InputEvent) -> void:
 			_cancel_swap_targeting()
 			return
 
-	# Debug keys to test animations (W for win, L for lose)
-	if event is InputEventKey and event.pressed:
+	# Debug keys to test animations (development only)
+	if OS.is_debug_build() and event is InputEventKey and event.pressed:
 		if event.keycode == KEY_W and Input.is_key_pressed(KEY_CTRL):
 			_trigger_win()
 			return
@@ -1028,6 +1047,11 @@ func _play_win_animation() -> void:
 	word_label.modulate.a = 0.0
 	var label_tween := create_tween()
 	label_tween.tween_property(word_label, "modulate:a", 1.0, 0.3)
+	await label_tween.finished
+
+	# Show game over modal after a brief pause
+	await get_tree().create_timer(0.5).timeout
+	_show_game_over_modal(true)
 
 
 func _play_lose_animation() -> void:
@@ -1061,3 +1085,65 @@ func _play_lose_animation() -> void:
 	word_label.modulate.a = 0.0
 	var label_tween := create_tween()
 	label_tween.tween_property(word_label, "modulate:a", 1.0, 0.4)
+	await label_tween.finished
+
+	# Show game over modal after a brief pause
+	await get_tree().create_timer(0.5).timeout
+	_show_game_over_modal(false)
+
+
+func _show_game_over_modal(is_win: bool) -> void:
+	# Update modal text based on win/lose state (strings already include score)
+	if is_win:
+		modal_message_label.text = lang_config.ui_strings["you_win"] % score
+	else:
+		modal_message_label.text = lang_config.ui_strings["game_over"] % score
+
+	# Hide the separate score label since the message includes it
+	modal_score_label.hide()
+
+	# Update button labels
+	retry_button.text = lang_config.ui_strings["play_again"]
+	quit_button.text = lang_config.ui_strings["quit_to_menu"]
+
+	# Fade in modal
+	game_over_modal.modulate.a = 0.0
+	game_over_modal.show()
+	var fade_tween := create_tween()
+	fade_tween.tween_property(game_over_modal, "modulate:a", 1.0, 0.3)
+
+
+func _restart_game() -> void:
+	# Hide modal
+	game_over_modal.hide()
+
+	# Reset game state
+	score = 0
+	game_over = false
+	is_selecting = false
+	is_hammer_targeting = false
+	is_swap_targeting = false
+	swap_first_cell = Vector2i(-1, -1)
+	selected_path.clear()
+	_clear_rescue()
+
+	# Reset visual state
+	background.color = Color(0.17, 0.24, 0.31)  # Original slate color
+	margin_container.position = Vector2.ZERO
+	grid_center.position = Vector2.ZERO
+	grid_center.scale = Vector2.ONE
+	grid_center.modulate.a = 1.0
+	word_label.text = ""
+	word_label.modulate.a = 1.0
+
+	# Reinitialize grid
+	_initialize_grid()
+	_update_score_display()
+	_update_shake_button()
+	_update_hammer_button()
+	_update_swap_button()
+
+	# Restart drop timer
+	if drop_timer:
+		drop_timer.stop()
+		drop_timer.start()

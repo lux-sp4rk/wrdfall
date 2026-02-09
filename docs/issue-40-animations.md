@@ -6,6 +6,15 @@ Added polished, engaging animations for game-over states to make the transition 
 
 ## Features Implemented
 
+### Game Over Modal
+After the win/lose animation completes, a semi-transparent modal overlay appears with:
+- **Message**: Localized win/lose message with final score
+- **Play Again button**: Restarts the game with a fresh grid
+- **Quit to Menu button**: Returns to the home screen
+- **Fade-in animation**: 0.3s smooth appearance after 0.5s pause
+
+All text is fully localized (English/Spanish support).
+
 ### Win Animation (High Energy, Celebratory)
 **Duration:** ~1.3 seconds total
 
@@ -47,8 +56,11 @@ Added polished, engaging animations for game-over states to make the transition 
 
 - **Animation System:** Godot 4.6 Tween nodes
 - **Performance:** Lightweight, mobile/web-friendly
+- **Localization:** Full i18n support via LanguageConfig
 - **Files Modified:**
-  - `godot/scripts/LoomDrop.gd` - Added animation functions and debug triggers
+  - `godot/scripts/LoomDrop.gd` - Added animation functions, modal control, and debug triggers
+  - `godot/scenes/LoomDrop.tscn` - Added game over modal UI
+  - `godot/scripts/LanguageConfig.gd` - Added "play_again" and "quit_to_menu" strings
   - `godot/project.godot` - Fixed malformed autoload configuration
 
 ## Testing Instructions
@@ -57,7 +69,8 @@ Added polished, engaging animations for game-over states to make the transition 
 - **Win:** Clear the entire grid OR create a state where no valid words remain
 - **Lose:** Let letters stack until grid is full (top row fills up)
 
-### Debug Triggers (Quick Testing)
+### Debug Triggers (Development Only)
+**Note:** These only work in debug builds (Godot editor or debug exports), not in production.
 - Press **Ctrl+W** to instantly trigger win animation
 - Press **Ctrl+L** to instantly trigger lose animation
 

@@ -81,6 +81,8 @@ static func english() -> LanguageConfig:
 		"swap_done": "Swapped! (-%d)",
 		"swap_cancel": "Swap canceled",
 		"cancel": "Cancel",
+		"play_again": "Play Again",
+		"quit_to_menu": "Quit to Menu",
 	}
 	return cfg
 
@@ -139,5 +141,7 @@ static func spanish() -> LanguageConfig:
 		"swap_done": "\u00a1Cambiado! (-%d)",
 		"swap_cancel": "Cambio cancelado",
 		"cancel": "Cancelar",
+		"play_again": "Jugar de nuevo",
+		"quit_to_menu": "Volver al men\u00fa",
 	}
 	return cfg
