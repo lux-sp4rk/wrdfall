@@ -180,3 +180,8 @@ text = "Quit to Menu"
 [node name="BottomSpacer" type="Control" parent="GameOverModal/CenterContainer/Panel/VBox"]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
+
+[node name="DropSoundPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+volume_db = -5.0
+bus = &"Master"
