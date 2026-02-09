@@ -8,6 +8,8 @@ extends Control
 @onready var hammer_button: Button = %"HammerButton"
 @onready var swap_button: Button = %"SwapButton"
 @onready var home_button: Button = %"HomeButton"
+@onready var background: ColorRect = $ColorRect
+@onready var margin_container: MarginContainer = $MarginContainer
 
 const ROWS: int = 7
 const COLS: int = 6
@@ -373,6 +375,15 @@ func _input(event: InputEvent) -> void:
 			return
 		if is_swap_targeting:
 			_cancel_swap_targeting()
+			return
+
+	# Debug keys to test animations (W for win, L for lose)
+	if event is InputEventKey and event.pressed:
+		if event.keycode == KEY_W and Input.is_key_pressed(KEY_CTRL):
+			_trigger_win()
+			return
+		if event.keycode == KEY_L and Input.is_key_pressed(KEY_CTRL):
+			_trigger_game_over()
 			return
 
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -849,13 +860,13 @@ func _is_grid_empty() -> bool:
 func _trigger_win() -> void:
 	game_over = true
 	drop_timer.stop()
-	word_label.text = lang_config.ui_strings["you_win"] % score
+	_play_win_animation()
 
 
 func _trigger_game_over() -> void:
 	game_over = true
 	drop_timer.stop()
-	word_label.text = lang_config.ui_strings["game_over"] % score
+	_play_lose_animation()
 
 
 func _update_grid_display() -> void:
@@ -963,3 +974,90 @@ func _setup_icon_button(btn: Button, icon_text: String, label_text: String) -> v
 func _set_button_content(btn: Button, icon_text: String, label_text: String) -> void:
 	btn.get_node("Content/Icon").text = icon_text
 	btn.get_node("Content/Text").text = label_text
+
+
+# --- Win/Lose Animations ---
+
+func _play_win_animation() -> void:
+	# Celebratory, high-energy win animation with screen shake, color bursts, and grid bounce
+
+	# Store original positions for restoration
+	var orig_margin_pos: Vector2 = margin_container.position
+	var orig_grid_scale: Vector2 = grid_center.scale
+	var orig_bg_color: Color = background.color
+
+	# Create main animation timeline
+	var tween := create_tween().set_parallel(false)
+
+	# Phase 1: Initial impact - quick scale pop (0.15s)
+	var phase1 := create_tween().set_parallel(true)
+	phase1.tween_property(grid_center, "scale", Vector2(1.15, 1.15), 0.1).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	phase1.tween_property(background, "color", Color(0.3, 0.7, 0.4), 0.1)  # Bright green burst
+	await phase1.finished
+
+	# Phase 2: Screen shake (0.4s total)
+	for i in range(8):
+		var shake_offset: Vector2 = Vector2(
+			randf_range(-12, 12),
+			randf_range(-12, 12)
+		)
+		var shake_tween := create_tween()
+		shake_tween.tween_property(margin_container, "position", orig_margin_pos + shake_offset, 0.05)
+		await shake_tween.finished
+
+	# Phase 3: Celebratory bounce and color pulse (0.6s)
+	# Grid bounce sequence
+	var bounce_tween := create_tween()
+	bounce_tween.tween_property(grid_center, "scale", Vector2(0.95, 0.95), 0.15).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
+	bounce_tween.tween_property(grid_center, "scale", Vector2(1.05, 1.05), 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BOUNCE)
+	bounce_tween.tween_property(grid_center, "scale", orig_grid_scale, 0.3)
+
+	# Color pulse sequence (runs in parallel with bounce)
+	var color_tween := create_tween()
+	color_tween.tween_property(background, "color", Color(0.4, 0.5, 0.9), 0.2)  # Blue
+	color_tween.tween_property(background, "color", Color(0.9, 0.7, 0.2), 0.2)  # Gold
+	color_tween.tween_property(background, "color", orig_bg_color, 0.2)
+
+	await bounce_tween.finished
+
+	# Phase 4: Restore and display message
+	margin_container.position = orig_margin_pos
+	word_label.text = lang_config.ui_strings["you_win"] % score
+
+	# Animate word label appearance
+	word_label.modulate.a = 0.0
+	var label_tween := create_tween()
+	label_tween.tween_property(word_label, "modulate:a", 1.0, 0.3)
+
+
+func _play_lose_animation() -> void:
+	# Somber but encouraging lose animation with fade and downward drift
+
+	# Store original values
+	var orig_grid_pos: Vector2 = grid_center.position
+	var orig_bg_color: Color = background.color
+	var target_gray: Color = Color(0.12, 0.15, 0.18)  # Darker, desaturated
+
+	# Create animation timeline
+	var tween := create_tween().set_parallel(true)
+
+	# Darken background gradually (0.8s)
+	tween.tween_property(background, "color", target_gray, 0.8).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
+
+	# Grid drifts down slowly and fades slightly (0.8s)
+	tween.tween_property(grid_center, "position:y", orig_grid_pos.y + 30, 0.8).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(grid_center, "modulate:a", 0.6, 0.8).set_ease(Tween.EASE_IN)
+
+	# Desaturate grid buttons (0.8s)
+	for row in range(ROWS):
+		for col in range(COLS):
+			var btn: Button = buttons[row][col]
+			tween.tween_property(btn, "modulate", Color(0.6, 0.6, 0.6), 0.8)
+
+	await tween.finished
+
+	# Display encouraging message with fade-in
+	word_label.text = lang_config.ui_strings["game_over"] % score
+	word_label.modulate.a = 0.0
+	var label_tween := create_tween()
+	label_tween.tween_property(word_label, "modulate:a", 1.0, 0.4)
