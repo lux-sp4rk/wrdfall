@@ -1,6 +1,7 @@
 extends Control
 
 @onready var grid_container: GridContainer = %"GridContainer"
+@onready var grid_center: CenterContainer = $MarginContainer/VBox/GridCenter
 @onready var word_label: Label = %"WordLabel"
 @onready var score_label: Label = %"ScoreLabel"
 @onready var shake_button: Button = %"ShakeButton"
@@ -27,7 +28,7 @@ const LETTER_WEIGHTS: Dictionary = {
 }
 var _bag_distribution: Array = []
 
-const DROP_INTERVAL: float = 5.0  # seconds between letter drops
+const DROP_INTERVAL: float = 6.0  # seconds between letter drops
 const VOWELS: String = "AEIOU"
 const TARGET_VOWEL_RATIO: float = 0.38
 # Common English bigrams — used to bias dropped letters toward playable neighbors
@@ -70,6 +71,10 @@ func _ready() -> void:
 	# Connect buttons
 	shake_button.pressed.connect(_on_shake_pressed)
 
+	# Dynamic grid sizing
+	grid_center.resized.connect(_resize_grid)
+	call_deferred("_resize_grid")
+
 
 func _build_weighted_bag() -> void:
 	_bag_distribution.clear()
@@ -104,12 +109,31 @@ func _initialize_grid() -> void:
 		for col in range(COLS):
 			var btn := Button.new()
 			btn.text = grid[row][col]
-			btn.custom_minimum_size = Vector2(80, 80)
+			btn.custom_minimum_size = Vector2(16, 16)
 			btn.add_theme_font_size_override("font_size", 44)
 			btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			grid_container.add_child(btn)
 			btn_row.append(btn)
 		buttons.append(btn_row)
+
+
+func _resize_grid() -> void:
+	if buttons.is_empty():
+		return
+	var h_sep: int = grid_container.get_theme_constant("h_separation")
+	var v_sep: int = grid_container.get_theme_constant("v_separation")
+	var avail: Vector2 = grid_center.size
+	var cell_w: float = (avail.x - (COLS - 1) * h_sep) / COLS
+	var cell_h: float = (avail.y - (ROWS - 1) * v_sep) / ROWS
+	var cell_size: float = floorf(minf(cell_w, cell_h))
+	if cell_size < 16.0:
+		cell_size = 16.0
+	var font_size: int = int(cell_size * 0.55)
+	for row in range(ROWS):
+		for col in range(COLS):
+			var btn: Button = buttons[row][col]
+			btn.custom_minimum_size = Vector2(cell_size, cell_size)
+			btn.add_theme_font_size_override("font_size", font_size)
 
 
 func _seed_words() -> void:
