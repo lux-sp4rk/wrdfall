@@ -58,28 +58,10 @@ func _ready() -> void:
 func _on_home_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/Home.tscn")
 
+
 	# Dynamic grid sizing
 	grid_center.resized.connect(_resize_grid)
 	call_deferred("_resize_grid")
-
-
-func _setup_language_selector() -> void:
-	language_button.clear()
-	var languages: Array = LanguageConfig.available_languages()
-	for i in range(languages.size()):
-		var lang: Dictionary = languages[i]
-		language_button.add_item(lang.display_name, i)
-		if lang.code == lang_config.code:
-			language_button.selected = i
-	language_button.item_selected.connect(_on_language_selected)
-
-
-func _on_language_selected(index: int) -> void:
-	var languages: Array = LanguageConfig.available_languages()
-	var code: String = languages[index].code
-	if code == lang_config.code:
-		return
-	_restart_with_language(code)
 
 
 func _restart_with_language(code: String) -> void:
