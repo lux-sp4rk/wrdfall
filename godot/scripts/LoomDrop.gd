@@ -9,6 +9,7 @@ const ROWS: int = 7
 const COLS: int = 6
 const MIN_WORD_LENGTH: int = 3
 const INITIAL_FILL_ROWS: int = 5
+const SHAKE_COST: int = 3
 
 var grid: Array = []       # 2D [row][col] of String
 var buttons: Array = []    # 2D [row][col] of Button
@@ -63,6 +64,7 @@ func _ready() -> void:
 	_build_weighted_bag()
 	_initialize_grid()
 	_update_score_display()
+	_update_shake_button()
 	_start_drop_timer()
 
 	# Connect buttons
@@ -378,6 +380,7 @@ func _accept_word(word: String) -> void:
 	var points: int = _score_word(word)
 	score += points
 	_update_score_display()
+	_update_shake_button()
 	word_label.text = "+%d" % points
 
 	# Clear the selected cells
@@ -408,11 +411,11 @@ func _score_word(word: String) -> int:
 	var length: int = word.length()
 	# Base points scale with length; longer words are worth more
 	match length:
-		3: return 3
-		4: return 5
-		5: return 8
-		6: return 12
-		_: return 12 + (length - 6) * 5
+		3: return 5
+		4: return 7
+		5: return 10
+		6: return 14
+		_: return 14 + (length - 6) * 5
 
 
 # --- Shake Button ---
@@ -421,8 +424,15 @@ func _on_shake_pressed() -> void:
 	if game_over:
 		return
 
+	if score < SHAKE_COST:
+		word_label.text = "Need %d points to shake!" % SHAKE_COST
+		return
+
+	score -= SHAKE_COST
+	_update_score_display()
+	_update_shake_button()
 	_shake_grid()
-	word_label.text = "Grid shaken!"
+	word_label.text = "Grid shaken! (-%d)" % SHAKE_COST
 
 
 func _shake_grid() -> void:
@@ -616,3 +626,7 @@ func _make_stylebox(color: Color) -> StyleBoxFlat:
 
 func _update_score_display() -> void:
 	score_label.text = "Score: %d" % score
+
+
+func _update_shake_button() -> void:
+	shake_button.disabled = score < SHAKE_COST
