@@ -17,6 +17,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 config/name="Word Loom"
 config/description="A calm, tactile word puzzle game"
 run/main_scene="res://scenes/Home.tscn"
+config/features=PackedStringArray("4.6")
 
 [autoload]
 
