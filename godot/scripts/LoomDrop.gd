@@ -6,7 +6,8 @@ extends Control
 @onready var score_label: Label = %"ScoreLabel"
 @onready var shake_button: Button = %"ShakeButton"
 @onready var hammer_button: Button = %"HammerButton"
-@onready var language_button: OptionButton = %"LanguageButton"
+@onready var swap_button: Button = %"SwapButton"
+@onready var home_button: Button = %"HomeButton"
 
 const ROWS: int = 7
 const COLS: int = 6
@@ -14,12 +15,15 @@ const MIN_WORD_LENGTH: int = 3
 const INITIAL_FILL_ROWS: int = 5
 const SHAKE_COST: int = 3
 const HAMMER_COST: int = 3
+const SWAP_COST: int = 3
 
 var grid: Array = []       # 2D [row][col] of String
 var buttons: Array = []    # 2D [row][col] of Button
 var selected_path: Array = []  # Array of Vector2i (x=col, y=row)
 var is_selecting: bool = false
 var is_hammer_targeting: bool = false
+var is_swap_targeting: bool = false
+var swap_first_cell: Vector2i = Vector2i(-1, -1)
 var score: int = 0
 
 var dictionary: DictionaryService
@@ -31,6 +35,11 @@ const DROP_INTERVAL: float = 10.0  # seconds between letter drops
 const COLOR_SELECTED: Color = Color(0.35, 0.65, 1.0)
 const COLOR_TOO_SHORT: Color = Color(0.7, 0.7, 0.7)
 
+const ICON_SHAKE: String = "\u21bb"   # ↻
+const ICON_HAMMER: String = "\u2692"  # ⚒
+const ICON_SWAP: String = "\u21c4"    # ⇄
+const ICON_CANCEL: String = "\u2715"  # ✕
+
 var drop_timer: Timer
 var game_over: bool = false
 
@@ -41,42 +50,39 @@ var _rescue_letters_remaining: Array = []
 
 
 func _ready() -> void:
-	lang_config = LanguageConfig.get_config("en")
+	lang_config = LanguageConfig.get_config(GameSettings.current_language)
 	dictionary = DictionaryService.new(lang_config.wordlist_path, lang_config.extra_alpha)
 	_build_weighted_bag()
 	_initialize_grid()
+
+	# Set up icon buttons (must happen before update calls)
+	_setup_icon_button(shake_button, ICON_SHAKE, lang_config.ui_strings["shake"])
+	_setup_icon_button(hammer_button, ICON_HAMMER, lang_config.ui_strings["hammer"])
+	_setup_icon_button(swap_button, ICON_SWAP, lang_config.ui_strings["swap"])
+
 	_update_score_display()
 	_update_shake_button()
 	_update_hammer_button()
-	_setup_language_selector()
+	_update_swap_button()
 	_start_drop_timer()
 
 	# Connect buttons
 	shake_button.pressed.connect(_on_shake_pressed)
 	hammer_button.pressed.connect(_on_hammer_pressed)
+	swap_button.pressed.connect(_on_swap_pressed)
+	home_button.pressed.connect(_on_home_pressed)
 
 	# Dynamic grid sizing
 	grid_center.resized.connect(_resize_grid)
 	call_deferred("_resize_grid")
 
-
-func _setup_language_selector() -> void:
-	language_button.clear()
-	var languages: Array = LanguageConfig.available_languages()
-	for i in range(languages.size()):
-		var lang: Dictionary = languages[i]
-		language_button.add_item(lang.display_name, i)
-		if lang.code == lang_config.code:
-			language_button.selected = i
-	language_button.item_selected.connect(_on_language_selected)
+func _on_home_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/Home.tscn")
 
 
-func _on_language_selected(index: int) -> void:
-	var languages: Array = LanguageConfig.available_languages()
-	var code: String = languages[index].code
-	if code == lang_config.code:
-		return
-	_restart_with_language(code)
+	# Dynamic grid sizing
+	grid_center.resized.connect(_resize_grid)
+	call_deferred("_resize_grid")
 
 
 func _restart_with_language(code: String) -> void:
@@ -89,18 +95,22 @@ func _restart_with_language(code: String) -> void:
 	game_over = false
 	is_selecting = false
 	is_hammer_targeting = false
+	is_swap_targeting = false
+	swap_first_cell = Vector2i(-1, -1)
 	selected_path.clear()
 	_clear_rescue()
 
 	# Update UI labels
-	shake_button.text = lang_config.ui_strings["shake"]
-	hammer_button.text = lang_config.ui_strings["hammer"]
+	_set_button_content(shake_button, ICON_SHAKE, lang_config.ui_strings["shake"])
+	_set_button_content(hammer_button, ICON_HAMMER, lang_config.ui_strings["hammer"])
+	_set_button_content(swap_button, ICON_SWAP, lang_config.ui_strings["swap"])
 	word_label.text = ""
 
 	_initialize_grid()
 	_update_score_display()
 	_update_shake_button()
 	_update_hammer_button()
+	_update_swap_button()
 
 	# Restart the drop timer
 	if drop_timer:
@@ -356,19 +366,24 @@ func _input(event: InputEvent) -> void:
 	if game_over:
 		return
 
-	# Cancel hammer targeting with ESC
+	# Cancel targeting modes with ESC
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		if is_hammer_targeting:
 			_cancel_hammer_targeting()
+			return
+		if is_swap_targeting:
+			_cancel_swap_targeting()
 			return
 
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			var cell := _cell_at(event.global_position)
 			if cell != Vector2i(-1, -1):
-				# Handle hammer targeting mode
+				# Handle targeting modes
 				if is_hammer_targeting:
 					_handle_hammer_targeting(cell)
+				elif is_swap_targeting:
+					_handle_swap_targeting(cell)
 				else:
 					_start_selection(cell)
 		elif is_selecting:
@@ -448,6 +463,7 @@ func _accept_word(word: String) -> void:
 	_update_score_display()
 	_update_shake_button()
 	_update_hammer_button()
+	_update_swap_button()
 	word_label.text = "+%d" % points
 
 	# Clear the selected cells
@@ -499,6 +515,7 @@ func _on_shake_pressed() -> void:
 	_update_score_display()
 	_update_shake_button()
 	_update_hammer_button()
+	_update_swap_button()
 	_shake_grid()
 	word_label.text = lang_config.ui_strings["grid_shaken"] % SHAKE_COST
 
@@ -571,6 +588,10 @@ func _on_hammer_pressed() -> void:
 		word_label.text = lang_config.ui_strings["need_hammer"] % HAMMER_COST
 		return
 
+	# Cancel swap if active
+	if is_swap_targeting:
+		_cancel_swap_targeting()
+
 	# Enter targeting mode
 	is_hammer_targeting = true
 	_update_hammer_button()
@@ -594,6 +615,7 @@ func _handle_hammer_targeting(cell: Vector2i) -> void:
 	_update_score_display()
 	_update_shake_button()
 	_update_hammer_button()
+	_update_swap_button()
 
 	# Destroy the tile
 	grid[cell.y][cell.x] = ""
@@ -617,6 +639,130 @@ func _handle_hammer_targeting(cell: Vector2i) -> void:
 		return
 
 	# After destroying, check if we need a rescue word
+	if not _find_any_word_on_grid():
+		_plan_rescue_word()
+	else:
+		_clear_rescue()
+
+
+# --- Swap Button ---
+
+func _on_swap_pressed() -> void:
+	if game_over:
+		return
+
+	# If already in targeting mode, cancel it
+	if is_swap_targeting:
+		_cancel_swap_targeting()
+		return
+
+	if score < SWAP_COST:
+		word_label.text = lang_config.ui_strings["need_swap"] % SWAP_COST
+		return
+
+	# Cancel hammer if active
+	if is_hammer_targeting:
+		_cancel_hammer_targeting()
+
+	# Enter swap targeting mode (step 1: pick first tile)
+	is_swap_targeting = true
+	swap_first_cell = Vector2i(-1, -1)
+	_update_swap_button()
+	word_label.text = lang_config.ui_strings["swap_first"]
+
+
+func _cancel_swap_targeting() -> void:
+	is_swap_targeting = false
+	swap_first_cell = Vector2i(-1, -1)
+	_clear_selection_visuals()
+	_update_swap_button()
+	word_label.text = lang_config.ui_strings["swap_cancel"]
+
+
+func _handle_swap_targeting(cell: Vector2i) -> void:
+	# Both tiles must have letters
+	if grid[cell.y][cell.x] == "":
+		word_label.text = lang_config.ui_strings["swap_empty"]
+		return
+
+	if swap_first_cell == Vector2i(-1, -1):
+		# Step 1: select first tile
+		swap_first_cell = cell
+		_highlight_cell(cell, COLOR_SELECTED)
+		word_label.text = lang_config.ui_strings["swap_second"]
+	else:
+		# Step 2: select second tile — must be adjacent
+		var diff: Vector2i = cell - swap_first_cell
+		if absi(diff.x) > 1 or absi(diff.y) > 1 or (diff.x == 0 and diff.y == 0):
+			word_label.text = lang_config.ui_strings["swap_not_adjacent"]
+			return
+
+		var first := swap_first_cell
+
+		# Deduct cost and exit targeting mode before animation
+		score -= SWAP_COST
+		_update_score_display()
+		_update_shake_button()
+		_update_hammer_button()
+		_update_swap_button()
+		word_label.text = lang_config.ui_strings["swap_done"] % SWAP_COST
+
+		is_swap_targeting = false
+		swap_first_cell = Vector2i(-1, -1)
+
+		# Execute swap with animation (runs as coroutine)
+		_execute_swap(first, cell)
+
+
+func _highlight_cell(cell: Vector2i, color: Color) -> void:
+	var btn: Button = buttons[cell.y][cell.x]
+	btn.add_theme_color_override("font_color", Color.WHITE)
+	btn.add_theme_stylebox_override("normal", _make_stylebox(color))
+	btn.add_theme_stylebox_override("hover", _make_stylebox(color))
+
+
+func _execute_swap(cell_a: Vector2i, cell_b: Vector2i) -> void:
+	var btn_a: Button = buttons[cell_a.y][cell_a.x]
+	var btn_b: Button = buttons[cell_b.y][cell_b.x]
+
+	# Highlight both cells
+	_highlight_cell(cell_a, COLOR_SELECTED)
+	_highlight_cell(cell_b, COLOR_SELECTED)
+
+	# Fade out
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(btn_a, "modulate:a", 0.0, 0.12)
+	tween.tween_property(btn_b, "modulate:a", 0.0, 0.12)
+	await tween.finished
+
+	# Swap grid data
+	var tmp: String = grid[cell_a.y][cell_a.x]
+	grid[cell_a.y][cell_a.x] = grid[cell_b.y][cell_b.x]
+	grid[cell_b.y][cell_b.x] = tmp
+	btn_a.text = grid[cell_a.y][cell_a.x]
+	btn_b.text = grid[cell_b.y][cell_b.x]
+
+	# Fade in
+	var tween2 := create_tween().set_parallel(true)
+	tween2.tween_property(btn_a, "modulate:a", 1.0, 0.12)
+	tween2.tween_property(btn_b, "modulate:a", 1.0, 0.12)
+	await tween2.finished
+
+	_clear_selection_visuals()
+
+	# Apply gravity and update display
+	_apply_gravity()
+	_update_grid_display()
+
+	# Check win conditions
+	if _is_grid_empty():
+		_trigger_win()
+		return
+	if not _is_grid_empty() and not _find_any_word_on_grid():
+		_trigger_win()
+		return
+
+	# Check if rescue needed
 	if not _find_any_word_on_grid():
 		_plan_rescue_word()
 	else:
@@ -769,8 +915,51 @@ func _update_shake_button() -> void:
 
 func _update_hammer_button() -> void:
 	if is_hammer_targeting:
-		hammer_button.text = lang_config.ui_strings["cancel"]
+		_set_button_content(hammer_button, ICON_CANCEL, lang_config.ui_strings["cancel"])
 		hammer_button.disabled = false
 	else:
-		hammer_button.text = lang_config.ui_strings["hammer"]
+		_set_button_content(hammer_button, ICON_HAMMER, lang_config.ui_strings["hammer"])
 		hammer_button.disabled = score < HAMMER_COST
+
+
+func _update_swap_button() -> void:
+	if is_swap_targeting:
+		_set_button_content(swap_button, ICON_CANCEL, lang_config.ui_strings["cancel"])
+		swap_button.disabled = false
+	else:
+		_set_button_content(swap_button, ICON_SWAP, lang_config.ui_strings["swap"])
+		swap_button.disabled = score < SWAP_COST
+
+
+func _setup_icon_button(btn: Button, icon_text: String, label_text: String) -> void:
+	btn.text = ""
+	if btn.has_theme_font_size_override("font_size"):
+		btn.remove_theme_font_size_override("font_size")
+
+	var vbox := VBoxContainer.new()
+	vbox.name = "Content"
+	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	btn.add_child(vbox)
+
+	var icon_label := Label.new()
+	icon_label.name = "Icon"
+	icon_label.text = icon_text
+	icon_label.add_theme_font_size_override("font_size", 36)
+	icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	icon_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(icon_label)
+
+	var text_label := Label.new()
+	text_label.name = "Text"
+	text_label.text = label_text
+	text_label.add_theme_font_size_override("font_size", 14)
+	text_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	text_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(text_label)
+
+
+func _set_button_content(btn: Button, icon_text: String, label_text: String) -> void:
+	btn.get_node("Content/Icon").text = icon_text
+	btn.get_node("Content/Text").text = label_text
