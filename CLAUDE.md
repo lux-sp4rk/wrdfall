@@ -14,9 +14,11 @@ godot/
     LoomDrop.tscn    # Main game scene
   scripts/
     LoomDrop.gd      # Main game logic
-    Dictionary.gd    # Word lookup service
+    Dictionary.gd    # Word lookup service (multi-language)
+    LanguageConfig.gd # Per-language data (weights, bigrams, UI strings)
   data/
-    words.txt        # SOWPODS dictionary (Scrabble-compliant)
+    words_en.txt     # SOWPODS English dictionary (~270k words)
+    words_es.txt     # FISE 2017 Spanish dictionary (~639k words)
   dist/              # HTML5 export output (ignored in git)
 docs/
   research/          # Game design research
@@ -29,12 +31,13 @@ dist/                # Deployed web build (Netlify)
 | Script | Purpose |
 |---|---|
 | `LoomDrop.gd` | Main game — 7×6 grid, 8-directional word selection, gravity, shake mechanic, win detection |
-| `Dictionary.gd` | Loads SOWPODS word list and provides validation |
+| `Dictionary.gd` | Loads word list with configurable path and extra alphabet support (e.g. Ñ) |
+| `LanguageConfig.gd` | Per-language config: letter weights, bigrams, seed words, UI strings |
 
 ## Core Workflows
 - **Build/Run**: Open `godot/project.godot` in Godot 4.6+ and press F5 (launches LoomDrop directly).
 - **HTML5 Export**: Project > Export > Web preset > Export Project to `godot/dist/`. Serve locally with `python3 -m http.server -d godot/dist/ 8000`.
-- **Data**: SOWPODS dictionary in `godot/data/words.txt` (~270k words).
+- **Data**: English (SOWPODS) in `godot/data/words_en.txt`, Spanish (FISE 2017) in `godot/data/words_es.txt`.
 - **Deploy**: Web build deployed from `dist/` via Netlify (see `netlify.toml`).
 
 ## Code Style (GDScript)
@@ -56,6 +59,7 @@ dist/                # Deployed web build (Netlify)
 - **Letter distribution** — Scrabble-weighted bag + bigram-aware drops + guaranteed seed words
 - **Drop interval** — 6 seconds between automatic letter drops
 - **Gravity** — letters cascade down after word clears
+- **Multi-language** — English and Spanish with in-game language switcher
 
 ## Key Docs
 - `docs/research/`: Game design research notes
