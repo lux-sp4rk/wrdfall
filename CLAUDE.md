@@ -8,11 +8,16 @@ Word Loom is a calm, senior-first word puzzle game built with **Godot 4.6 (GDScr
 
 ## Project Structure
 ```
-godot/
-  project.godot      # Godot 4.6 config (main scene: LoomDrop.tscn)
+god/
+  project.godot      # Godot 4.6 config (main scene: Home.tscn)
   scenes/
+    Home.tscn        # Main menu / Home screen
+    Settings.tscn    # Settings screen (Language select)
     LoomDrop.tscn    # Main game scene
   scripts/
+    Home.gd          # Home screen logic
+    Settings.gd      # Settings screen logic
+    GameSettings.gd  # Global autoload for settings
     LoomDrop.gd      # Main game logic
     Dictionary.gd    # Word lookup service (multi-language)
     LanguageConfig.gd # Per-language data (weights, bigrams, UI strings)

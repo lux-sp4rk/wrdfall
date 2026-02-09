@@ -6,7 +6,7 @@ extends Control
 @onready var score_label: Label = %"ScoreLabel"
 @onready var shake_button: Button = %"ShakeButton"
 @onready var hammer_button: Button = %"HammerButton"
-@onready var language_button: OptionButton = %"LanguageButton"
+@onready var home_button: Button = %"HomeButton"
 
 const ROWS: int = 7
 const COLS: int = 6
@@ -41,19 +41,22 @@ var _rescue_letters_remaining: Array = []
 
 
 func _ready() -> void:
-	lang_config = LanguageConfig.get_config("en")
+	lang_config = LanguageConfig.get_config(GameSettings.current_language)
 	dictionary = DictionaryService.new(lang_config.wordlist_path, lang_config.extra_alpha)
 	_build_weighted_bag()
 	_initialize_grid()
 	_update_score_display()
 	_update_shake_button()
 	_update_hammer_button()
-	_setup_language_selector()
 	_start_drop_timer()
 
 	# Connect buttons
 	shake_button.pressed.connect(_on_shake_pressed)
 	hammer_button.pressed.connect(_on_hammer_pressed)
+	home_button.pressed.connect(_on_home_pressed)
+
+func _on_home_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/Home.tscn")
 
 	# Dynamic grid sizing
 	grid_center.resized.connect(_resize_grid)
