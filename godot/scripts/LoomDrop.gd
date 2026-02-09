@@ -6,6 +6,7 @@ extends Control
 @onready var score_label: Label = %"ScoreLabel"
 @onready var shake_button: Button = %"ShakeButton"
 @onready var hammer_button: Button = %"HammerButton"
+@onready var language_button: OptionButton = %"LanguageButton"
 
 const ROWS: int = 7
 const COLS: int = 6
@@ -22,34 +23,10 @@ var is_hammer_targeting: bool = false
 var score: int = 0
 
 var dictionary: DictionaryService
-
-# Scrabble-like distribution (Total: 98 tiles)
-const LETTER_WEIGHTS: Dictionary = {
-	"E": 12, "A": 9, "I": 9, "O": 8, "N": 6, "R": 6, "T": 6, "L": 4, "S": 4, "U": 4,
-	"D": 4, "G": 3, "B": 2, "C": 2, "M": 2, "P": 2, "F": 2, "H": 2, "V": 2, "W": 2,
-	"Y": 2, "K": 1, "J": 1, "X": 1, "Q": 1, "Z": 1
-}
+var lang_config: LanguageConfig
 var _bag_distribution: Array = []
 
 const DROP_INTERVAL: float = 6.0  # seconds between letter drops
-const VOWELS: String = "AEIOU"
-const TARGET_VOWEL_RATIO: float = 0.38
-# Common English bigrams — used to bias dropped letters toward playable neighbors
-const BIGRAMS: Dictionary = {
-	"T": "HEIOA", "H": "EAIOU", "S": "THECO", "R": "EAIOU", "N": "GDEOT",
-	"E": "RSDNA", "A": "NTRLS", "I": "NTSCO", "O": "NRFUT", "L": "EIAOY",
-	"D": "EIAOS", "C": "OAHEK", "U": "RSTLN", "P": "RLAEO", "M": "AEION",
-	"G": "EOAHR", "B": "ELAOU", "F": "OIRAE", "W": "AIHOE", "Y": "SOEIA",
-	"V": "EIAOU", "K": "EISAN", "J": "UOAEI", "X": "PTIAE", "Q": "UUUUU",
-	"Z": "EAIOU",
-}
-
-const SEED_WORDS: Array = [
-	"STAR", "LOOM", "DROP", "RAIN", "FIRE", "GLOW", "WIND", "TREE",
-	"LAKE", "WAVE", "RISE", "GOLD", "IRON", "BONE", "GUST", "MIST",
-	"TORN", "HAZE", "DUNE", "FERN", "SAGE", "LIME", "PINE", "ARCH",
-	"ROPE", "NEST", "CAVE", "PALE", "WREN", "GATE", "VINE", "HELM",
-]
 
 const COLOR_SELECTED: Color = Color(0.35, 0.65, 1.0)
 const COLOR_TOO_SHORT: Color = Color(0.7, 0.7, 0.7)
@@ -64,12 +41,14 @@ var _rescue_letters_remaining: Array = []
 
 
 func _ready() -> void:
-	dictionary = DictionaryService.new()
+	lang_config = LanguageConfig.get_config("en")
+	dictionary = DictionaryService.new(lang_config.wordlist_path, lang_config.extra_alpha)
 	_build_weighted_bag()
 	_initialize_grid()
 	_update_score_display()
 	_update_shake_button()
 	_update_hammer_button()
+	_setup_language_selector()
 	_start_drop_timer()
 
 	# Connect buttons
@@ -81,10 +60,58 @@ func _ready() -> void:
 	call_deferred("_resize_grid")
 
 
+func _setup_language_selector() -> void:
+	language_button.clear()
+	var languages: Array = LanguageConfig.available_languages()
+	for i in range(languages.size()):
+		var lang: Dictionary = languages[i]
+		language_button.add_item(lang.display_name, i)
+		if lang.code == lang_config.code:
+			language_button.selected = i
+	language_button.item_selected.connect(_on_language_selected)
+
+
+func _on_language_selected(index: int) -> void:
+	var languages: Array = LanguageConfig.available_languages()
+	var code: String = languages[index].code
+	if code == lang_config.code:
+		return
+	_restart_with_language(code)
+
+
+func _restart_with_language(code: String) -> void:
+	lang_config = LanguageConfig.get_config(code)
+	dictionary.reload(lang_config.wordlist_path, lang_config.extra_alpha)
+	_build_weighted_bag()
+
+	# Reset game state
+	score = 0
+	game_over = false
+	is_selecting = false
+	is_hammer_targeting = false
+	selected_path.clear()
+	_clear_rescue()
+
+	# Update UI labels
+	shake_button.text = lang_config.ui_strings["shake"]
+	hammer_button.text = lang_config.ui_strings["hammer"]
+	word_label.text = ""
+
+	_initialize_grid()
+	_update_score_display()
+	_update_shake_button()
+	_update_hammer_button()
+
+	# Restart the drop timer
+	if drop_timer:
+		drop_timer.stop()
+		drop_timer.start()
+
+
 func _build_weighted_bag() -> void:
 	_bag_distribution.clear()
-	for letter in LETTER_WEIGHTS:
-		var count: int = LETTER_WEIGHTS[letter]
+	for letter in lang_config.letter_weights:
+		var count: int = lang_config.letter_weights[letter]
 		for i in range(count):
 			_bag_distribution.append(letter)
 
@@ -143,7 +170,7 @@ func _resize_grid() -> void:
 
 func _seed_words() -> void:
 	var empty_rows: int = ROWS - INITIAL_FILL_ROWS
-	var words: Array = SEED_WORDS.duplicate()
+	var words: Array = lang_config.seed_words.duplicate()
 	words.shuffle()
 
 	# Guarantee at least 3 words are placed, try for up to 5
@@ -224,13 +251,13 @@ func _smart_letter(col: int) -> String:
 		for c in range(COLS):
 			if grid[r][c] != "":
 				total_count += 1
-				if VOWELS.find(grid[r][c]) != -1:
+				if lang_config.vowels.find(grid[r][c]) != -1:
 					vowel_count += 1
 
 	var need_vowel: bool = false
 	if total_count > 0:
 		var ratio: float = float(vowel_count) / float(total_count)
-		need_vowel = ratio < TARGET_VOWEL_RATIO
+		need_vowel = ratio < lang_config.target_vowel_ratio
 
 	# 2) Find the neighbor letter where this drop will land
 	var land_row: int = -1
@@ -246,12 +273,12 @@ func _smart_letter(col: int) -> String:
 		neighbor = grid[land_row + 1][col]  # letter below landing spot
 
 	# 3) Pick letter: 50% bigram-aware, 50% bag-weighted (with vowel bias)
-	if neighbor != "" and BIGRAMS.has(neighbor) and randf() < 0.5:
-		var candidates: String = BIGRAMS[neighbor]
+	if neighbor != "" and lang_config.bigrams.has(neighbor) and randf() < 0.5:
+		var candidates: String = lang_config.bigrams[neighbor]
 		return candidates[randi() % candidates.length()]
 
 	if need_vowel:
-		return VOWELS[randi() % VOWELS.length()]
+		return lang_config.vowels[randi() % lang_config.vowels.length()]
 
 	return _random_letter()
 
@@ -293,7 +320,7 @@ func _find_any_word_on_grid() -> bool:
 
 
 func _plan_rescue_word() -> void:
-	var candidates: Array = SEED_WORDS.duplicate()
+	var candidates: Array = lang_config.seed_words.duplicate()
 	candidates.shuffle()
 	for word in candidates:
 		if word.length() > 4:
@@ -413,8 +440,7 @@ func _get_selected_word() -> String:
 func _accept_word(word: String) -> void:
 	# Offline validation (Issue #5)
 	if not dictionary.is_valid_word(word):
-		# short, friendly, actionable
-		word_label.text = "Not a valid word."
+		word_label.text = lang_config.ui_strings["not_valid"]
 		return
 
 	var points: int = _score_word(word)
@@ -466,7 +492,7 @@ func _on_shake_pressed() -> void:
 		return
 
 	if score < SHAKE_COST:
-		word_label.text = "Need %d points to shake!" % SHAKE_COST
+		word_label.text = lang_config.ui_strings["need_shake"] % SHAKE_COST
 		return
 
 	score -= SHAKE_COST
@@ -474,7 +500,7 @@ func _on_shake_pressed() -> void:
 	_update_shake_button()
 	_update_hammer_button()
 	_shake_grid()
-	word_label.text = "Grid shaken! (-%d)" % SHAKE_COST
+	word_label.text = lang_config.ui_strings["grid_shaken"] % SHAKE_COST
 
 
 func _shake_grid() -> void:
@@ -542,25 +568,25 @@ func _on_hammer_pressed() -> void:
 		return
 
 	if score < HAMMER_COST:
-		word_label.text = "Need %d points for hammer!" % HAMMER_COST
+		word_label.text = lang_config.ui_strings["need_hammer"] % HAMMER_COST
 		return
 
 	# Enter targeting mode
 	is_hammer_targeting = true
 	_update_hammer_button()
-	word_label.text = "Click a tile to destroy it (ESC to cancel)"
+	word_label.text = lang_config.ui_strings["hammer_target"]
 
 
 func _cancel_hammer_targeting() -> void:
 	is_hammer_targeting = false
 	_update_hammer_button()
-	word_label.text = "Hammer canceled"
+	word_label.text = lang_config.ui_strings["hammer_cancel"]
 
 
 func _handle_hammer_targeting(cell: Vector2i) -> void:
 	# Check if the cell has a letter
 	if grid[cell.y][cell.x] == "":
-		word_label.text = "Empty tile! Click a letter"
+		word_label.text = lang_config.ui_strings["hammer_empty"]
 		return
 
 	# Deduct the cost
@@ -571,7 +597,7 @@ func _handle_hammer_targeting(cell: Vector2i) -> void:
 
 	# Destroy the tile
 	grid[cell.y][cell.x] = ""
-	word_label.text = "Tile destroyed! (-%d)" % HAMMER_COST
+	word_label.text = lang_config.ui_strings["tile_destroyed"] % HAMMER_COST
 
 	# Exit targeting mode
 	is_hammer_targeting = false
@@ -677,13 +703,13 @@ func _is_grid_empty() -> bool:
 func _trigger_win() -> void:
 	game_over = true
 	drop_timer.stop()
-	word_label.text = "You Win! Score: %d" % score
+	word_label.text = lang_config.ui_strings["you_win"] % score
 
 
 func _trigger_game_over() -> void:
 	game_over = true
 	drop_timer.stop()
-	word_label.text = "Game Over! Score: %d" % score
+	word_label.text = lang_config.ui_strings["game_over"] % score
 
 
 func _update_grid_display() -> void:
@@ -734,7 +760,7 @@ func _make_stylebox(color: Color) -> StyleBoxFlat:
 
 
 func _update_score_display() -> void:
-	score_label.text = "Score: %d" % score
+	score_label.text = lang_config.ui_strings["score"] % score
 
 
 func _update_shake_button() -> void:
@@ -743,8 +769,8 @@ func _update_shake_button() -> void:
 
 func _update_hammer_button() -> void:
 	if is_hammer_targeting:
-		hammer_button.text = "Cancel"
+		hammer_button.text = lang_config.ui_strings["cancel"]
 		hammer_button.disabled = false
 	else:
-		hammer_button.text = "Hammer"
+		hammer_button.text = lang_config.ui_strings["hammer"]
 		hammer_button.disabled = score < HAMMER_COST

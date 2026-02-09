@@ -1,14 +1,29 @@
 extends RefCounted
 class_name DictionaryService
 
-# Loads a local word list from res://data/words.txt and performs offline membership checks.
+# Loads a word list and performs offline membership checks.
 # - Case-insensitive
 # - Rejects empty / non-alpha tokens
-
-const WORDLIST_PATH := "res://data/words.txt"
+# - Supports extra codepoints (e.g. Ñ for Spanish)
 
 var _loaded: bool = false
 var _words := {} # Dictionary used as a Set: word -> true
+var _path: String = "res://data/words_en.txt"
+var _extra_alpha: Array = []  # extra allowed Unicode codepoints
+
+
+func _init(path: String = "res://data/words_en.txt", extra_alpha: Array = []) -> void:
+	_path = path
+	_extra_alpha = extra_alpha
+
+
+func reload(path: String, extra_alpha: Array = []) -> void:
+	_path = path
+	_extra_alpha = extra_alpha
+	_loaded = false
+	_words.clear()
+	_ensure_loaded()
+
 
 func _ensure_loaded() -> void:
 	if _loaded:
@@ -16,11 +31,10 @@ func _ensure_loaded() -> void:
 	_loaded = true
 	_words.clear()
 
-	if not FileAccess.file_exists(WORDLIST_PATH):
-		# No dictionary shipped (shouldn\x27t happen once Issue #5 is implemented)
+	if not FileAccess.file_exists(_path):
 		return
 
-	var f := FileAccess.open(WORDLIST_PATH, FileAccess.READ)
+	var f := FileAccess.open(_path, FileAccess.READ)
 	if f == null:
 		return
 
@@ -36,6 +50,7 @@ func _ensure_loaded() -> void:
 
 	f.close()
 
+
 func is_valid_word(word: String) -> bool:
 	_ensure_loaded()
 	var w := word.strip_edges().to_upper()
@@ -45,10 +60,13 @@ func is_valid_word(word: String) -> bool:
 		return false
 	return _words.has(w)
 
+
 func _is_alpha_only(s: String) -> bool:
-	# Godot 4: String.length(), String.unicode_at(i)
 	for i in range(s.length()):
 		var c := s.unicode_at(i)
-		if c < 65 or c > 90:
-			return false
+		if c >= 65 and c <= 90:
+			continue  # A-Z
+		if _extra_alpha.has(c):
+			continue  # e.g. Ñ (209)
+		return false
 	return true
