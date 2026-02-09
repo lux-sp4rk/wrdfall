@@ -5,17 +5,20 @@ extends Control
 @onready var word_label: Label = %"WordLabel"
 @onready var score_label: Label = %"ScoreLabel"
 @onready var shake_button: Button = %"ShakeButton"
+@onready var hammer_button: Button = %"HammerButton"
 
 const ROWS: int = 7
 const COLS: int = 6
 const MIN_WORD_LENGTH: int = 3
 const INITIAL_FILL_ROWS: int = 5
 const SHAKE_COST: int = 3
+const HAMMER_COST: int = 3
 
 var grid: Array = []       # 2D [row][col] of String
 var buttons: Array = []    # 2D [row][col] of Button
 var selected_path: Array = []  # Array of Vector2i (x=col, y=row)
 var is_selecting: bool = false
+var is_hammer_targeting: bool = false
 var score: int = 0
 
 var dictionary: DictionaryService
@@ -66,10 +69,12 @@ func _ready() -> void:
 	_initialize_grid()
 	_update_score_display()
 	_update_shake_button()
+	_update_hammer_button()
 	_start_drop_timer()
 
 	# Connect buttons
 	shake_button.pressed.connect(_on_shake_pressed)
+	hammer_button.pressed.connect(_on_hammer_pressed)
 
 	# Dynamic grid sizing
 	grid_center.resized.connect(_resize_grid)
@@ -323,11 +328,22 @@ func _clear_rescue() -> void:
 func _input(event: InputEvent) -> void:
 	if game_over:
 		return
+
+	# Cancel hammer targeting with ESC
+	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		if is_hammer_targeting:
+			_cancel_hammer_targeting()
+			return
+
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			var cell := _cell_at(event.global_position)
 			if cell != Vector2i(-1, -1):
-				_start_selection(cell)
+				# Handle hammer targeting mode
+				if is_hammer_targeting:
+					_handle_hammer_targeting(cell)
+				else:
+					_start_selection(cell)
 		elif is_selecting:
 			_end_selection()
 	elif event is InputEventMouseMotion and is_selecting:
@@ -405,6 +421,7 @@ func _accept_word(word: String) -> void:
 	score += points
 	_update_score_display()
 	_update_shake_button()
+	_update_hammer_button()
 	word_label.text = "+%d" % points
 
 	# Clear the selected cells
@@ -455,6 +472,7 @@ func _on_shake_pressed() -> void:
 	score -= SHAKE_COST
 	_update_score_display()
 	_update_shake_button()
+	_update_hammer_button()
 	_shake_grid()
 	word_label.text = "Grid shaken! (-%d)" % SHAKE_COST
 
@@ -506,6 +524,73 @@ func _shake_grid() -> void:
 		return
 
 	# After shaking, check if we need a rescue word
+	if not _find_any_word_on_grid():
+		_plan_rescue_word()
+	else:
+		_clear_rescue()
+
+
+# --- Hammer Button ---
+
+func _on_hammer_pressed() -> void:
+	if game_over:
+		return
+
+	# If already in targeting mode, cancel it
+	if is_hammer_targeting:
+		_cancel_hammer_targeting()
+		return
+
+	if score < HAMMER_COST:
+		word_label.text = "Need %d points for hammer!" % HAMMER_COST
+		return
+
+	# Enter targeting mode
+	is_hammer_targeting = true
+	_update_hammer_button()
+	word_label.text = "Click a tile to destroy it (ESC to cancel)"
+
+
+func _cancel_hammer_targeting() -> void:
+	is_hammer_targeting = false
+	_update_hammer_button()
+	word_label.text = "Hammer canceled"
+
+
+func _handle_hammer_targeting(cell: Vector2i) -> void:
+	# Check if the cell has a letter
+	if grid[cell.y][cell.x] == "":
+		word_label.text = "Empty tile! Click a letter"
+		return
+
+	# Deduct the cost
+	score -= HAMMER_COST
+	_update_score_display()
+	_update_shake_button()
+	_update_hammer_button()
+
+	# Destroy the tile
+	grid[cell.y][cell.x] = ""
+	word_label.text = "Tile destroyed! (-%d)" % HAMMER_COST
+
+	# Exit targeting mode
+	is_hammer_targeting = false
+
+	# Apply gravity to settle letters
+	_apply_gravity()
+	_update_grid_display()
+
+	# Check for win conditions
+	if _is_grid_empty():
+		_trigger_win()
+		return
+
+	# Win if there are letters but no valid words remain
+	if not _is_grid_empty() and not _find_any_word_on_grid():
+		_trigger_win()
+		return
+
+	# After destroying, check if we need a rescue word
 	if not _find_any_word_on_grid():
 		_plan_rescue_word()
 	else:
@@ -654,3 +739,12 @@ func _update_score_display() -> void:
 
 func _update_shake_button() -> void:
 	shake_button.disabled = score < SHAKE_COST
+
+
+func _update_hammer_button() -> void:
+	if is_hammer_targeting:
+		hammer_button.text = "Cancel"
+		hammer_button.disabled = false
+	else:
+		hammer_button.text = "Hammer"
+		hammer_button.disabled = score < HAMMER_COST
