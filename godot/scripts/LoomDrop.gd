@@ -26,7 +26,7 @@ var dictionary: DictionaryService
 var lang_config: LanguageConfig
 var _bag_distribution: Array = []
 
-const DROP_INTERVAL: float = 6.0  # seconds between letter drops
+const DROP_INTERVAL: float = 10.0  # seconds between letter drops
 
 const COLOR_SELECTED: Color = Color(0.35, 0.65, 1.0)
 const COLOR_TOO_SHORT: Color = Color(0.7, 0.7, 0.7)
