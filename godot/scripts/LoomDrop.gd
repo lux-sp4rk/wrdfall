@@ -6,6 +6,7 @@ extends Control
 @onready var score_label: Label = %"ScoreLabel"
 @onready var shake_button: Button = %"ShakeButton"
 @onready var hammer_button: Button = %"HammerButton"
+@onready var swap_button: Button = %"SwapButton"
 
 const ROWS: int = 7
 const COLS: int = 6
@@ -13,12 +14,15 @@ const MIN_WORD_LENGTH: int = 3
 const INITIAL_FILL_ROWS: int = 5
 const SHAKE_COST: int = 3
 const HAMMER_COST: int = 3
+const SWAP_COST: int = 3
 
 var grid: Array = []       # 2D [row][col] of String
 var buttons: Array = []    # 2D [row][col] of Button
 var selected_path: Array = []  # Array of Vector2i (x=col, y=row)
 var is_selecting: bool = false
 var is_hammer_targeting: bool = false
+var is_swap_selecting: bool = false
+var swap_first_cell: Vector2i = Vector2i(-1, -1)
 var score: int = 0
 
 var dictionary: DictionaryService
@@ -70,11 +74,13 @@ func _ready() -> void:
 	_update_score_display()
 	_update_shake_button()
 	_update_hammer_button()
+	_update_swap_button()
 	_start_drop_timer()
 
 	# Connect buttons
 	shake_button.pressed.connect(_on_shake_pressed)
 	hammer_button.pressed.connect(_on_hammer_pressed)
+	swap_button.pressed.connect(_on_swap_pressed)
 
 	# Dynamic grid sizing
 	grid_center.resized.connect(_resize_grid)
@@ -329,10 +335,13 @@ func _input(event: InputEvent) -> void:
 	if game_over:
 		return
 
-	# Cancel hammer targeting with ESC
+	# Cancel hammer or swap targeting with ESC
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		if is_hammer_targeting:
 			_cancel_hammer_targeting()
+			return
+		elif is_swap_selecting:
+			_cancel_swap_selection()
 			return
 
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -342,6 +351,9 @@ func _input(event: InputEvent) -> void:
 				# Handle hammer targeting mode
 				if is_hammer_targeting:
 					_handle_hammer_targeting(cell)
+				# Handle swap selection mode
+				elif is_swap_selecting:
+					_handle_swap_selection(cell)
 				else:
 					_start_selection(cell)
 		elif is_selecting:
@@ -422,6 +434,7 @@ func _accept_word(word: String) -> void:
 	_update_score_display()
 	_update_shake_button()
 	_update_hammer_button()
+	_update_swap_button()
 	word_label.text = "+%d" % points
 
 	# Clear the selected cells
@@ -473,6 +486,7 @@ func _on_shake_pressed() -> void:
 	_update_score_display()
 	_update_shake_button()
 	_update_hammer_button()
+	_update_swap_button()
 	_shake_grid()
 	word_label.text = "Grid shaken! (-%d)" % SHAKE_COST
 
@@ -568,6 +582,7 @@ func _handle_hammer_targeting(cell: Vector2i) -> void:
 	_update_score_display()
 	_update_shake_button()
 	_update_hammer_button()
+	_update_swap_button()
 
 	# Destroy the tile
 	grid[cell.y][cell.x] = ""
@@ -595,6 +610,118 @@ func _handle_hammer_targeting(cell: Vector2i) -> void:
 		_plan_rescue_word()
 	else:
 		_clear_rescue()
+
+
+# --- Swap Button ---
+
+func _on_swap_pressed() -> void:
+	if game_over:
+		return
+
+	# If already in swap mode, cancel it
+	if is_swap_selecting:
+		_cancel_swap_selection()
+		return
+
+	if score < SWAP_COST:
+		word_label.text = "Need %d points to swap!" % SWAP_COST
+		return
+
+	# Enter swap selection mode
+	is_swap_selecting = true
+	swap_first_cell = Vector2i(-1, -1)
+	_update_swap_button()
+	word_label.text = "Click first tile to swap (ESC to cancel)"
+
+
+func _cancel_swap_selection() -> void:
+	is_swap_selecting = false
+	swap_first_cell = Vector2i(-1, -1)
+	_clear_selection_visuals()
+	_update_swap_button()
+	word_label.text = "Swap canceled"
+
+
+func _handle_swap_selection(cell: Vector2i) -> void:
+	# Check if the cell has a letter
+	if grid[cell.y][cell.x] == "":
+		word_label.text = "Empty tile! Click a letter"
+		return
+
+	# If this is the first tile selection
+	if swap_first_cell == Vector2i(-1, -1):
+		swap_first_cell = cell
+		_highlight_swap_cell(cell)
+		word_label.text = "Click adjacent tile to swap with"
+		return
+
+	# If clicking the same tile again, deselect it
+	if cell == swap_first_cell:
+		swap_first_cell = Vector2i(-1, -1)
+		_clear_selection_visuals()
+		word_label.text = "Click first tile to swap (ESC to cancel)"
+		return
+
+	# Check if the second tile is adjacent to the first
+	if not _are_adjacent(swap_first_cell, cell):
+		word_label.text = "Tiles must be adjacent!"
+		return
+
+	# Perform the swap
+	_perform_swap(swap_first_cell, cell)
+
+
+func _are_adjacent(cell1: Vector2i, cell2: Vector2i) -> bool:
+	var diff: Vector2i = cell2 - cell1
+	return absi(diff.x) <= 1 and absi(diff.y) <= 1 and (diff.x != 0 or diff.y != 0)
+
+
+func _perform_swap(cell1: Vector2i, cell2: Vector2i) -> void:
+	# Deduct the cost
+	score -= SWAP_COST
+	_update_score_display()
+	_update_shake_button()
+	_update_hammer_button()
+	_update_swap_button()
+
+	# Swap the tiles
+	var temp: String = grid[cell1.y][cell1.x]
+	grid[cell1.y][cell1.x] = grid[cell2.y][cell2.x]
+	grid[cell2.y][cell2.x] = temp
+
+	word_label.text = "Tiles swapped! (-%d)" % SWAP_COST
+
+	# Exit swap mode
+	is_swap_selecting = false
+	swap_first_cell = Vector2i(-1, -1)
+	_clear_selection_visuals()
+
+	# Update display (no gravity needed for swap)
+	_update_grid_display()
+
+	# Check for win conditions
+	if _is_grid_empty():
+		_trigger_win()
+		return
+
+	# Win if there are letters but no valid words remain
+	if not _is_grid_empty() and not _find_any_word_on_grid():
+		_trigger_win()
+		return
+
+	# After swapping, check if we need a rescue word
+	if not _find_any_word_on_grid():
+		_plan_rescue_word()
+	else:
+		_clear_rescue()
+
+
+func _highlight_swap_cell(cell: Vector2i) -> void:
+	_clear_selection_visuals()
+	var btn: Button = buttons[cell.y][cell.x]
+	btn.add_theme_color_override("font_color", Color.WHITE)
+	btn.add_theme_stylebox_override("normal", _make_stylebox(COLOR_SELECTED))
+	btn.add_theme_stylebox_override("hover", _make_stylebox(COLOR_SELECTED))
 
 
 # --- Gravity ---
@@ -748,3 +875,12 @@ func _update_hammer_button() -> void:
 	else:
 		hammer_button.text = "Hammer"
 		hammer_button.disabled = score < HAMMER_COST
+
+
+func _update_swap_button() -> void:
+	if is_swap_selecting:
+		swap_button.text = "Cancel"
+		swap_button.disabled = false
+	else:
+		swap_button.text = "Swap"
+		swap_button.disabled = score < SWAP_COST
