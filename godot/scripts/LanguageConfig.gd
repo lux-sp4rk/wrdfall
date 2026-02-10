@@ -87,6 +87,9 @@ static func english() -> LanguageConfig:
 		"cancel": "Cancel",
 		"play_again": "Play Again",
 		"quit_to_menu": "Quit to Menu",
+		"difficulty_label": "Difficulty",
+		"difficulty_easy": "Easy",
+		"difficulty_hard": "Hard",
 	}
 	return cfg
 
@@ -151,5 +154,8 @@ static func spanish() -> LanguageConfig:
 		"cancel": "Cancelar",
 		"play_again": "Jugar de nuevo",
 		"quit_to_menu": "Volver al men\u00fa",
+		"difficulty_label": "Dificultad",
+		"difficulty_easy": "F\u00e1cil",
+		"difficulty_hard": "Dif\u00edcil",
 	}
 	return cfg

@@ -939,7 +939,7 @@ func _apply_gravity() -> void:
 
 func _start_drop_timer() -> void:
 	drop_timer = Timer.new()
-	drop_timer.wait_time = DROP_INTERVAL
+	drop_timer.wait_time = GameSettings.get_drop_interval()
 	drop_timer.timeout.connect(_drop_letter)
 	add_child(drop_timer)
 	drop_timer.start()
