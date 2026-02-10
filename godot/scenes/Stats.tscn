@@ -1,0 +1,286 @@
+[gd_scene load_steps=2 format=3 uid="uid://stats_scene"]
+
+[ext_resource type="Script" path="res://scripts/Stats.gd" id="1"]
+
+[node name="Stats" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.17, 0.24, 0.31, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 40
+
+[node name="VBox" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 32
+
+[node name="Title" type="Label" parent="MarginContainer/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 72
+text = "Stats"
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ContentVBox" type="VBoxContainer" parent="MarginContainer/VBox/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 40
+
+[node name="RecordsSection" type="VBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ContentVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SectionTitle" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/RecordsSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "Records"
+horizontal_alignment = 1
+
+[node name="HighScoreRow" type="HBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/RecordsSection"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/RecordsSection/HighScoreRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
+text = "High Score"
+
+[node name="HighScoreValue" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/RecordsSection/HighScoreRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "0"
+horizontal_alignment = 2
+
+[node name="LongestWordRow" type="HBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/RecordsSection"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/RecordsSection/LongestWordRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
+text = "Longest Word"
+
+[node name="LongestWordValue" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/RecordsSection/LongestWordRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "—"
+horizontal_alignment = 2
+
+[node name="MaxWPMRow" type="HBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/RecordsSection"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/RecordsSection/MaxWPMRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
+text = "Max WPM"
+
+[node name="MaxWPMValue" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/RecordsSection/MaxWPMRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "0.0"
+horizontal_alignment = 2
+
+[node name="Separator1" type="HSeparator" parent="MarginContainer/VBox/ScrollContainer/ContentVBox"]
+layout_mode = 2
+
+[node name="TotalsSection" type="VBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ContentVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SectionTitle" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/TotalsSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "Career Totals"
+horizontal_alignment = 1
+
+[node name="TotalWordsRow" type="HBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/TotalsSection"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/TotalsSection/TotalWordsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
+text = "Total Words"
+
+[node name="TotalWordsValue" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/TotalsSection/TotalWordsRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "0"
+horizontal_alignment = 2
+
+[node name="TotalTilesRow" type="HBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/TotalsSection"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/TotalsSection/TotalTilesRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
+text = "Total Tiles Cleared"
+
+[node name="TotalTilesValue" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/TotalsSection/TotalTilesRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "0"
+horizontal_alignment = 2
+
+[node name="TotalTimeRow" type="HBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/TotalsSection"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/TotalsSection/TotalTimeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
+text = "Time Played"
+
+[node name="TotalTimeValue" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/TotalsSection/TotalTimeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "<1m"
+horizontal_alignment = 2
+
+[node name="Separator2" type="HSeparator" parent="MarginContainer/VBox/ScrollContainer/ContentVBox"]
+layout_mode = 2
+
+[node name="HistorySection" type="VBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ContentVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SectionTitle" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/HistorySection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "Recent Games"
+horizontal_alignment = 1
+
+[node name="HistoryChart" type="Control" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/HistorySection"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+
+[node name="Separator3" type="HSeparator" parent="MarginContainer/VBox/ScrollContainer/ContentVBox"]
+layout_mode = 2
+
+[node name="AveragesSection" type="VBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ContentVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SectionTitle" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/AveragesSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "Averages"
+horizontal_alignment = 1
+
+[node name="GamesPlayedRow" type="HBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/AveragesSection"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/AveragesSection/GamesPlayedRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
+text = "Games Played"
+
+[node name="GamesPlayedValue" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/AveragesSection/GamesPlayedRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "0"
+horizontal_alignment = 2
+
+[node name="AvgScoreRow" type="HBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/AveragesSection"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/AveragesSection/AvgScoreRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
+text = "Average Score"
+
+[node name="AvgScoreValue" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/AveragesSection/AvgScoreRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "0"
+horizontal_alignment = 2
+
+[node name="AvgWPMRow" type="HBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/AveragesSection"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/AveragesSection/AvgWPMRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
+text = "Average WPM"
+
+[node name="AvgWPMValue" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/AveragesSection/AvgWPMRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "0.0"
+horizontal_alignment = 2
+
+[node name="ButtonRow" type="HBoxContainer" parent="MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="ResetButton" type="Button" parent="MarginContainer/VBox/ButtonRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 32
+text = "Reset Stats"
+
+[node name="ShareButton" type="Button" parent="MarginContainer/VBox/ButtonRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 32
+text = "Share"
+
+[node name="BackButton" type="Button" parent="MarginContainer/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "Back"
+
+[node name="ConfirmDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Reset Stats"
+initial_position = 2
+size = Vector2i(400, 150)
+dialog_text = "Are you sure?"
+ok_button_text = "Reset"

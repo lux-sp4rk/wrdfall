@@ -63,6 +63,9 @@ func _ready() -> void:
 	_build_weighted_bag()
 	_initialize_grid()
 
+	# Start tracking session stats
+	StatsManager.start_session()
+
 	# Set up icon buttons (must happen before update calls)
 	_setup_icon_button(shake_button, ICON_SHAKE, lang_config.ui_strings["shake"])
 	_setup_icon_button(hammer_button, ICON_HAMMER, lang_config.ui_strings["hammer"])
@@ -497,6 +500,9 @@ func _accept_word(word: String) -> void:
 	_update_swap_button()
 	word_label.text = "+%d" % points
 
+	# Track word and tiles cleared
+	StatsManager.record_word(word, selected_path.size())
+
 	# Clear the selected cells
 	for cell in selected_path:
 		grid[cell.y][cell.x] = ""
@@ -884,12 +890,14 @@ func _is_grid_empty() -> bool:
 func _trigger_win() -> void:
 	game_over = true
 	drop_timer.stop()
+	StatsManager.end_session(score)
 	_play_win_animation()
 
 
 func _trigger_game_over() -> void:
 	game_over = true
 	drop_timer.stop()
+	StatsManager.end_session(score)
 	_play_lose_animation()
 
 
@@ -1147,6 +1155,9 @@ func _restart_game() -> void:
 	_update_shake_button()
 	_update_hammer_button()
 	_update_swap_button()
+
+	# Start tracking new session
+	StatsManager.start_session()
 
 	# Restart drop timer
 	if drop_timer:
