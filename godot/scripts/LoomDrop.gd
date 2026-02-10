@@ -15,6 +15,7 @@ extends Control
 @onready var modal_score_label: Label = %"ScoreLabel"
 @onready var retry_button: Button = %"RetryButton"
 @onready var quit_button: Button = %"QuitButton"
+@onready var drop_sound: AudioStreamPlayer = %"DropSoundPlayer"
 
 const ROWS: int = 7
 const COLS: int = 6
@@ -866,6 +867,10 @@ func _drop_letter() -> void:
 
 	_apply_gravity()
 	_update_grid_display()
+
+	# Play drop sound
+	if drop_sound and drop_sound.stream:
+		drop_sound.play()
 
 
 func _is_grid_empty() -> bool:
