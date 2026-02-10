@@ -15,7 +15,7 @@ extends Control
 # Totals section
 @onready var total_words_label: Label = %TotalWordsValue
 @onready var total_tiles_label: Label = %TotalTilesValue
-@ontml:parameter name="total_time_label: Label = %TotalTimeValue
+@onready var total_time_label: Label = %TotalTimeValue
 
 # Averages section
 @onready var avg_score_label: Label = %AvgScoreValue
