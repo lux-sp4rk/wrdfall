@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://tpwlf1je2pe8" path="res://scripts/LoomDrop.gd" id="1"]
 [ext_resource type="AudioStream" uid="uid://jq64cnhbl25m" path="res://audio/drop.wav" id="2_83v8n"]
+[ext_resource type="AudioStream" path="res://audio/word_score.wav" id="3_word_score"]
+[ext_resource type="AudioStream" path="res://audio/shake.wav" id="4_shake"]
 
 [node name="LoomDrop" type="Control" unique_id=20148124]
 layout_mode = 3
@@ -189,3 +191,13 @@ layout_mode = 2
 unique_name_in_owner = true
 stream = ExtResource("2_83v8n")
 volume_db = -5.0
+
+[node name="WordScoreSoundPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("3_word_score")
+volume_db = -3.0
+
+[node name="ShakeSoundPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("4_shake")
+volume_db = -2.0

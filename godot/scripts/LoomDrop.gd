@@ -17,6 +17,8 @@ extends Control
 @onready var retry_button: Button = %"RetryButton"
 @onready var quit_button: Button = %"QuitButton"
 @onready var drop_sound: AudioStreamPlayer = %"DropSoundPlayer"
+@onready var word_score_sound: AudioStreamPlayer = %"WordScoreSoundPlayer"
+@onready var shake_sound: AudioStreamPlayer = %"ShakeSoundPlayer"
 
 const ROWS: int = 7
 const COLS: int = 6
@@ -512,6 +514,10 @@ func _accept_word(word: String) -> void:
 	# Track word and tiles cleared
 	StatsManager.record_word(word, selected_path.size())
 
+	# Play word score sound
+	if word_score_sound and word_score_sound.stream:
+		word_score_sound.play()
+
 	# Clear the selected cells
 	for cell in selected_path:
 		grid[cell.y][cell.x] = ""
@@ -563,11 +569,37 @@ func _on_shake_pressed() -> void:
 	_update_hammer_button()
 	_update_swap_button()
 	_update_draw_more_button()
-	_shake_grid()
+
+	# Play shake sound
+	if shake_sound and shake_sound.stream:
+		shake_sound.play()
+
+	# Perform shake animation (async)
+	await _shake_grid()
 	word_label.text = lang_config.ui_strings["grid_shaken"] % SHAKE_COST
 
 
 func _shake_grid() -> void:
+	# Visual shake animation: rapid position changes
+	var original_pos: Vector2 = grid_center.position
+	var shake_intensity: float = 12.0
+	var shake_duration: float = 0.4  # Match the sound duration
+	var shake_count: int = 12
+
+	# Perform rapid shakes
+	for i in range(shake_count):
+		var offset := Vector2(
+			randf_range(-shake_intensity, shake_intensity),
+			randf_range(-shake_intensity, shake_intensity)
+		)
+		var tween := create_tween()
+		tween.tween_property(grid_center, "position", original_pos + offset, shake_duration / shake_count)
+		await tween.finished
+
+	# Return to original position
+	grid_center.position = original_pos
+
+	# Now shuffle the letters
 	# Collect all non-empty letters from the grid
 	var letters: Array = []
 	for row in range(ROWS):
