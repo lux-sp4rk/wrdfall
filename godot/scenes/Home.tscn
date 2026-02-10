@@ -65,6 +65,13 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 48
 text = "Play"
 
+[node name="StatsButton" type="Button" parent="CenterContainer/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(400, 100)
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "Stats"
+
 [node name="SettingsButton" type="Button" parent="CenterContainer/VBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(400, 100)
