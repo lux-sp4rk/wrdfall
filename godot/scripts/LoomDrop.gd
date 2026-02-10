@@ -7,6 +7,7 @@ extends Control
 @onready var shake_button: Button = %"ShakeButton"
 @onready var hammer_button: Button = %"HammerButton"
 @onready var swap_button: Button = %"SwapButton"
+@onready var draw_more_button: Button = %"DrawMoreButton"
 @onready var home_button: Button = %"HomeButton"
 @onready var background: ColorRect = $ColorRect
 @onready var margin_container: MarginContainer = $MarginContainer
@@ -24,6 +25,7 @@ const INITIAL_FILL_ROWS: int = 5
 const SHAKE_COST: int = 5
 const HAMMER_COST: int = 8
 const SWAP_COST: int = 3
+const DRAW_MORE_COST: int = 15
 
 var grid: Array = []       # 2D [row][col] of String
 var buttons: Array = []    # 2D [row][col] of Button
@@ -46,6 +48,7 @@ const COLOR_TOO_SHORT: Color = Color(0.7, 0.7, 0.7)
 const ICON_SHAKE: String = "\u21bb"   # ↻
 const ICON_HAMMER: String = "\u2692"  # ⚒
 const ICON_SWAP: String = "\u21c4"    # ⇄
+const ICON_DRAW_MORE: String = "\u2295"  # ⊕
 const ICON_CANCEL: String = "\u2715"  # ✕
 
 var drop_timer: Timer
@@ -70,17 +73,20 @@ func _ready() -> void:
 	_setup_icon_button(shake_button, ICON_SHAKE, lang_config.ui_strings["shake"])
 	_setup_icon_button(hammer_button, ICON_HAMMER, lang_config.ui_strings["hammer"])
 	_setup_icon_button(swap_button, ICON_SWAP, lang_config.ui_strings["swap"])
+	_setup_icon_button(draw_more_button, ICON_DRAW_MORE, lang_config.ui_strings["draw_more"])
 
 	_update_score_display()
 	_update_shake_button()
 	_update_hammer_button()
 	_update_swap_button()
+	_update_draw_more_button()
 	_start_drop_timer()
 
 	# Connect buttons
 	shake_button.pressed.connect(_on_shake_pressed)
 	hammer_button.pressed.connect(_on_hammer_pressed)
 	swap_button.pressed.connect(_on_swap_pressed)
+	draw_more_button.pressed.connect(_on_draw_more_pressed)
 	home_button.pressed.connect(_on_home_pressed)
 	retry_button.pressed.connect(_on_retry_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
@@ -129,6 +135,7 @@ func _restart_with_language(code: String) -> void:
 	_set_button_content(shake_button, ICON_SHAKE, lang_config.ui_strings["shake"])
 	_set_button_content(hammer_button, ICON_HAMMER, lang_config.ui_strings["hammer"])
 	_set_button_content(swap_button, ICON_SWAP, lang_config.ui_strings["swap"])
+	_set_button_content(draw_more_button, ICON_DRAW_MORE, lang_config.ui_strings["draw_more"])
 	word_label.text = ""
 
 	_initialize_grid()
@@ -136,6 +143,7 @@ func _restart_with_language(code: String) -> void:
 	_update_shake_button()
 	_update_hammer_button()
 	_update_swap_button()
+	_update_draw_more_button()
 
 	# Restart the drop timer
 	if drop_timer:
@@ -498,6 +506,7 @@ func _accept_word(word: String) -> void:
 	_update_shake_button()
 	_update_hammer_button()
 	_update_swap_button()
+	_update_draw_more_button()
 	word_label.text = "+%d" % points
 
 	# Track word and tiles cleared
@@ -553,6 +562,7 @@ func _on_shake_pressed() -> void:
 	_update_shake_button()
 	_update_hammer_button()
 	_update_swap_button()
+	_update_draw_more_button()
 	_shake_grid()
 	word_label.text = lang_config.ui_strings["grid_shaken"] % SHAKE_COST
 
@@ -653,6 +663,7 @@ func _handle_hammer_targeting(cell: Vector2i) -> void:
 	_update_shake_button()
 	_update_hammer_button()
 	_update_swap_button()
+	_update_draw_more_button()
 
 	# Destroy the tile
 	grid[cell.y][cell.x] = ""
@@ -742,6 +753,7 @@ func _handle_swap_targeting(cell: Vector2i) -> void:
 		_update_shake_button()
 		_update_hammer_button()
 		_update_swap_button()
+		_update_draw_more_button()
 		word_label.text = lang_config.ui_strings["swap_done"] % SWAP_COST
 
 		is_swap_targeting = false
@@ -800,6 +812,74 @@ func _execute_swap(cell_a: Vector2i, cell_b: Vector2i) -> void:
 		return
 
 	# Check if rescue needed
+	if not _find_any_word_on_grid():
+		_plan_rescue_word()
+	else:
+		_clear_rescue()
+
+
+# --- Draw More Button ---
+
+func _on_draw_more_pressed() -> void:
+	if game_over:
+		return
+
+	if score < DRAW_MORE_COST:
+		word_label.text = lang_config.ui_strings["need_draw_more"] % DRAW_MORE_COST
+		return
+
+	# Find columns that have space (top row is empty)
+	var open_cols: Array = []
+	for col in range(COLS):
+		if grid[0][col] == "":
+			open_cols.append(col)
+
+	if open_cols.is_empty():
+		word_label.text = lang_config.ui_strings["draw_more_no_space"]
+		return
+
+	# Deduct cost
+	score -= DRAW_MORE_COST
+	_update_score_display()
+	_update_shake_button()
+	_update_hammer_button()
+	_update_swap_button()
+	_update_draw_more_button()
+
+	# Draw letters
+	_draw_more_letters(open_cols)
+
+
+func _draw_more_letters(open_cols: Array) -> void:
+	# Draw up to 5 letters, or as many as we have open columns
+	var letters_to_draw: int = mini(5, open_cols.size())
+
+	# Shuffle the open columns so we place letters randomly
+	open_cols.shuffle()
+
+	# Place letters in the top row of random open columns
+	for i in range(letters_to_draw):
+		var col: int = open_cols[i]
+		grid[0][col] = _smart_letter(col)
+
+	# Apply gravity to settle letters
+	_apply_gravity()
+	_update_grid_display()
+
+	# Show feedback
+	word_label.text = lang_config.ui_strings["draw_more_success"] % [letters_to_draw, DRAW_MORE_COST]
+
+	# Check for win conditions
+	if _is_grid_empty():
+		_trigger_win()
+		return
+
+	# Win if there are letters but no valid words remain
+	if not _is_grid_empty() and not _find_any_word_on_grid():
+		_trigger_win()
+		return
+
+	# After drawing, check if we need a rescue word
 	if not _find_any_word_on_grid():
 		_plan_rescue_word()
 	else:
@@ -972,6 +1052,10 @@ func _update_swap_button() -> void:
 	else:
 		_set_button_content(swap_button, ICON_SWAP, lang_config.ui_strings["swap"])
 		swap_button.disabled = score < SWAP_COST
+
+
+func _update_draw_more_button() -> void:
+	draw_more_button.disabled = score < DRAW_MORE_COST
 
 
 func _setup_icon_button(btn: Button, icon_text: String, label_text: String) -> void:
@@ -1155,6 +1239,7 @@ func _restart_game() -> void:
 	_update_shake_button()
 	_update_hammer_button()
 	_update_swap_button()
+	_update_draw_more_button()
 
 	# Start tracking new session
 	StatsManager.start_session()
