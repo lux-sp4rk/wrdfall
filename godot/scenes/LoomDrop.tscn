@@ -1,8 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://loom_drop_scene"]
+[gd_scene format=3 uid="uid://vlw5wxodhn1m"]
 
-[ext_resource type="Script" path="res://scripts/LoomDrop.gd" id="1"]
+[ext_resource type="Script" uid="uid://tpwlf1je2pe8" path="res://scripts/LoomDrop.gd" id="1"]
+[ext_resource type="AudioStream" uid="uid://jq64cnhbl25m" path="res://audio/drop.wav" id="2_83v8n"]
 
-[node name="LoomDrop" type="Control"]
+[node name="LoomDrop" type="Control" unique_id=20148124]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,7 +12,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1547882878]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -20,7 +21,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.17, 0.24, 0.31, 1)
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1510335802]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -32,22 +33,22 @@ theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 24
 
-[node name="VBox" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBox" type="VBoxContainer" parent="MarginContainer" unique_id=1524492021]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="TopBar" type="HBoxContainer" parent="MarginContainer/VBox"]
+[node name="TopBar" type="HBoxContainer" parent="MarginContainer/VBox" unique_id=1791762259]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="HomeButton" type="Button" parent="MarginContainer/VBox/TopBar"]
+[node name="HomeButton" type="Button" parent="MarginContainer/VBox/TopBar" unique_id=1372198348]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(80, 48)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Exit"
 
-[node name="ScoreLabel" type="Label" parent="MarginContainer/VBox/TopBar"]
+[node name="ScoreLabel" type="Label" parent="MarginContainer/VBox/TopBar" unique_id=1151936533]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -55,54 +56,53 @@ theme_override_font_sizes/font_size = 32
 text = "Score: 0"
 horizontal_alignment = 1
 
-[node name="TopSpacer" type="Control" parent="MarginContainer/VBox/TopBar"]
+[node name="TopSpacer" type="Control" parent="MarginContainer/VBox/TopBar" unique_id=47869987]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 
-[node name="WordLabel" type="Label" parent="MarginContainer/VBox"]
+[node name="WordLabel" type="Label" parent="MarginContainer/VBox" unique_id=391275284]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
 theme_override_font_sizes/font_size = 36
-text = ""
 horizontal_alignment = 1
 
-[node name="GridCenter" type="CenterContainer" parent="MarginContainer/VBox"]
+[node name="GridCenter" type="CenterContainer" parent="MarginContainer/VBox" unique_id=245311753]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBox/GridCenter"]
+[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBox/GridCenter" unique_id=1796082259]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 4
 theme_override_constants/v_separation = 4
 columns = 7
 
-[node name="ButtonSpacer" type="Control" parent="MarginContainer/VBox"]
+[node name="ButtonSpacer" type="Control" parent="MarginContainer/VBox" unique_id=1484329959]
 custom_minimum_size = Vector2(0, 4)
 layout_mode = 2
 
-[node name="ActionButtons" type="HBoxContainer" parent="MarginContainer/VBox"]
+[node name="ActionButtons" type="HBoxContainer" parent="MarginContainer/VBox" unique_id=25641394]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 16
+alignment = 1
 
-[node name="ShakeButton" type="Button" parent="MarginContainer/VBox/ActionButtons"]
+[node name="ShakeButton" type="Button" parent="MarginContainer/VBox/ActionButtons" unique_id=228822977]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(160, 96)
 layout_mode = 2
 
-[node name="SwapButton" type="Button" parent="MarginContainer/VBox/ActionButtons"]
+[node name="SwapButton" type="Button" parent="MarginContainer/VBox/ActionButtons" unique_id=868050866]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(160, 96)
 layout_mode = 2
 
-[node name="HammerButton" type="Button" parent="MarginContainer/VBox/ActionButtons"]
+[node name="HammerButton" type="Button" parent="MarginContainer/VBox/ActionButtons" unique_id=1432274338]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(160, 96)
 layout_mode = 2
 
-[node name="GameOverModal" type="ColorRect" parent="."]
+[node name="GameOverModal" type="ColorRect" parent="." unique_id=413505439]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
@@ -113,7 +113,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.7)
 
-[node name="CenterContainer" type="CenterContainer" parent="GameOverModal"]
+[node name="CenterContainer" type="CenterContainer" parent="GameOverModal" unique_id=1242133377]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -121,11 +121,11 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Panel" type="Panel" parent="GameOverModal/CenterContainer"]
+[node name="Panel" type="Panel" parent="GameOverModal/CenterContainer" unique_id=168660986]
 custom_minimum_size = Vector2(500, 400)
 layout_mode = 2
 
-[node name="VBox" type="VBoxContainer" parent="GameOverModal/CenterContainer/Panel"]
+[node name="VBox" type="VBoxContainer" parent="GameOverModal/CenterContainer/Panel" unique_id=1816266748]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -134,34 +134,33 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 24
 
-[node name="TopSpacer" type="Control" parent="GameOverModal/CenterContainer/Panel/VBox"]
+[node name="TopSpacer" type="Control" parent="GameOverModal/CenterContainer/Panel/VBox" unique_id=266848416]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 
-[node name="MessageLabel" type="Label" parent="GameOverModal/CenterContainer/Panel/VBox"]
+[node name="MessageLabel" type="Label" parent="GameOverModal/CenterContainer/Panel/VBox" unique_id=1060311077]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 48
 text = "You Win!"
 horizontal_alignment = 1
 
-[node name="ScoreLabel" type="Label" parent="GameOverModal/CenterContainer/Panel/VBox"]
-unique_name_in_owner = true
+[node name="ScoreLabel" type="Label" parent="GameOverModal/CenterContainer/Panel/VBox" unique_id=1377184746]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Score: 0"
 horizontal_alignment = 1
 
-[node name="MiddleSpacer" type="Control" parent="GameOverModal/CenterContainer/Panel/VBox"]
+[node name="MiddleSpacer" type="Control" parent="GameOverModal/CenterContainer/Panel/VBox" unique_id=2009156182]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ButtonContainer" type="VBoxContainer" parent="GameOverModal/CenterContainer/Panel/VBox"]
+[node name="ButtonContainer" type="VBoxContainer" parent="GameOverModal/CenterContainer/Panel/VBox" unique_id=1202157202]
 layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="RetryButton" type="Button" parent="GameOverModal/CenterContainer/Panel/VBox/ButtonContainer"]
+[node name="RetryButton" type="Button" parent="GameOverModal/CenterContainer/Panel/VBox/ButtonContainer" unique_id=2063112390]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(300, 80)
 layout_mode = 2
@@ -169,7 +168,7 @@ size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 28
 text = "Play Again"
 
-[node name="QuitButton" type="Button" parent="GameOverModal/CenterContainer/Panel/VBox/ButtonContainer"]
+[node name="QuitButton" type="Button" parent="GameOverModal/CenterContainer/Panel/VBox/ButtonContainer" unique_id=671124874]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(300, 80)
 layout_mode = 2
@@ -177,11 +176,11 @@ size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 28
 text = "Quit to Menu"
 
-[node name="BottomSpacer" type="Control" parent="GameOverModal/CenterContainer/Panel/VBox"]
+[node name="BottomSpacer" type="Control" parent="GameOverModal/CenterContainer/Panel/VBox" unique_id=1997048629]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 
-[node name="DropSoundPlayer" type="AudioStreamPlayer" parent="."]
+[node name="DropSoundPlayer" type="AudioStreamPlayer" parent="." unique_id=2046695954]
 unique_name_in_owner = true
+stream = ExtResource("2_83v8n")
 volume_db = -5.0
-bus = &"Master"
