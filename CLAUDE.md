@@ -83,7 +83,7 @@ All power-ups cost points earned from clearing words. After using a power-up, gr
 |----------|------|----------|
 | **Shake** | 5 pts | Randomly redistribute all letters on board, then apply gravity |
 | **Hammer** | 8 pts | Click to target a single tile, destroy it, then apply gravity |
-| **Swap** | 3 pts | Click two adjacent tiles (8-directional), swap them, then apply gravity |
+| **Swap** | 3 pts | Click any two tiles on the board, swap them, then apply gravity |
 | **Draw More** | 15 pts | Draw up to 5 new letters in random open columns (top row must have space) |
 
 **Targeting Modes:** Hammer and Swap enter targeting mode when clicked (shows cancel icon). Press ESC or click the power-up button again to cancel.

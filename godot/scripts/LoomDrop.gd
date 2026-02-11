@@ -804,10 +804,8 @@ func _handle_swap_targeting(cell: Vector2i) -> void:
 		_highlight_cell(cell, COLOR_SELECTED)
 		word_label.text = lang_config.ui_strings["swap_second"]
 	else:
-		# Step 2: select second tile — must be adjacent
-		var diff: Vector2i = cell - swap_first_cell
-		if absi(diff.x) > 1 or absi(diff.y) > 1 or (diff.x == 0 and diff.y == 0):
-			word_label.text = lang_config.ui_strings["swap_not_adjacent"]
+		# Step 2: select second tile (any tile on the board)
+		if cell == swap_first_cell:
 			return
 
 		var first := swap_first_cell
