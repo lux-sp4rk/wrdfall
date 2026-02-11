@@ -26,7 +26,7 @@ const INITIAL_FILL_ROWS: int = 4
 const SHAKE_COST: int = 5
 const HAMMER_COST: int = 3
 const SWAP_COST: int = 3
-const DRAW_MORE_COST: int = 15
+const DRAW_MORE_COST: int = 8
 
 var grid: Array = []       # 2D [row][col] of String
 var buttons: Array = []    # 2D [row][col] of Button
