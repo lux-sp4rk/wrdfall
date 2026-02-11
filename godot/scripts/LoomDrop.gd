@@ -100,13 +100,50 @@ func _ready() -> void:
 	grid_center.resized.connect(_resize_grid)
 	call_deferred("_resize_grid")
 
+	# Dev toolbar (debug builds only)
+	if OS.is_debug_build():
+		_setup_dev_toolbar()
+
+func _setup_dev_toolbar() -> void:
+	var bar := HBoxContainer.new()
+	bar.name = "DevToolbar"
+	bar.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	bar.offset_top = -36
+	bar.alignment = BoxContainer.ALIGNMENT_CENTER
+	bar.add_theme_constant_override("separation", 8)
+	add_child(bar)
+
+	var win_btn := Button.new()
+	win_btn.text = "Win"
+	win_btn.custom_minimum_size = Vector2(70, 32)
+	win_btn.pressed.connect(_trigger_win)
+	bar.add_child(win_btn)
+
+	var lose_btn := Button.new()
+	lose_btn.text = "Lose"
+	lose_btn.custom_minimum_size = Vector2(70, 32)
+	lose_btn.pressed.connect(_trigger_game_over)
+	bar.add_child(lose_btn)
+
+	var fill_btn := Button.new()
+	fill_btn.text = "Fill"
+	fill_btn.custom_minimum_size = Vector2(70, 32)
+	fill_btn.pressed.connect(_debug_fill_grid)
+	bar.add_child(fill_btn)
+
+func _debug_fill_grid() -> void:
+	for row in range(ROWS):
+		for col in range(COLS):
+			if grid[row][col] == "":
+				grid[row][col] = _random_letter()
+	_update_grid_display()
+
 func _on_home_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/Home.tscn")
 
 
 func _on_retry_pressed() -> void:
-	# Restart the game
-	_restart_game()
+	get_tree().reload_current_scene()
 
 
 func _on_quit_pressed() -> void:
@@ -114,39 +151,8 @@ func _on_quit_pressed() -> void:
 
 
 func _restart_with_language(code: String) -> void:
-	lang_config = LanguageConfig.get_config(code)
-	dictionary.reload(lang_config.wordlist_path, lang_config.extra_alpha)
-	_build_weighted_bag()
-
-	# Reset game state
-	score = 0
-	game_over = false
-	is_selecting = false
-	is_hammer_targeting = false
-	is_swap_targeting = false
-	swap_first_cell = Vector2i(-1, -1)
-	selected_path.clear()
-	_clear_rescue()
-
-	# Update UI labels
-	_set_button_content(shake_button, ICON_SHAKE, lang_config.ui_strings["shake"])
-	_set_button_content(hammer_button, ICON_HAMMER, lang_config.ui_strings["hammer"])
-	_set_button_content(swap_button, ICON_SWAP, lang_config.ui_strings["swap"])
-	_set_button_content(draw_more_button, ICON_DRAW_MORE, lang_config.ui_strings["draw_more"])
-	word_label.text = ""
-
-	_initialize_grid()
-	call_deferred("_resize_grid")
-	_update_score_display()
-	_update_shake_button()
-	_update_hammer_button()
-	_update_swap_button()
-	_update_draw_more_button()
-
-	# Restart the drop timer
-	if drop_timer:
-		drop_timer.stop()
-		drop_timer.start()
+	GameSettings.current_language = code
+	get_tree().reload_current_scene()
 
 
 func _build_weighted_bag() -> void:
@@ -1242,42 +1248,3 @@ func _show_game_over_modal(is_win: bool) -> void:
 	fade_tween.tween_property(game_over_modal, "modulate:a", 1.0, 0.3)
 
 
-func _restart_game() -> void:
-	# Hide modal
-	game_over_modal.hide()
-
-	# Reset game state
-	score = 0
-	game_over = false
-	is_selecting = false
-	is_hammer_targeting = false
-	is_swap_targeting = false
-	swap_first_cell = Vector2i(-1, -1)
-	selected_path.clear()
-	_clear_rescue()
-
-	# Reset visual state
-	background.color = Color(0.17, 0.24, 0.31)  # Original slate color
-	margin_container.position = Vector2.ZERO
-	grid_center.position = Vector2.ZERO
-	grid_center.scale = Vector2.ONE
-	grid_center.modulate.a = 1.0
-	word_label.text = ""
-	word_label.modulate.a = 1.0
-
-	# Reinitialize grid
-	_initialize_grid()
-	call_deferred("_resize_grid")
-	_update_score_display()
-	_update_shake_button()
-	_update_hammer_button()
-	_update_swap_button()
-	_update_draw_more_button()
-
-	# Start tracking new session
-	StatsManager.start_session()
-
-	# Restart drop timer
-	if drop_timer:
-		drop_timer.stop()
-		drop_timer.start()
