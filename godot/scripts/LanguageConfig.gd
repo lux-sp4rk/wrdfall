@@ -67,6 +67,8 @@ static func english() -> LanguageConfig:
 	]
 	cfg.ui_strings = {
 		"score": "Score: %d",
+		"game_complete": "Game Complete!\nScore: %d",
+		"new_high_score": "New High Score!\n",
 		"you_win": "You Win! Score: %d",
 		"game_over": "Game Over! Score: %d",
 		"not_valid": "Not a valid word.",
@@ -142,6 +144,8 @@ static func spanish() -> LanguageConfig:
 	]
 	cfg.ui_strings = {
 		"score": "Puntos: %d",
+		"game_complete": "\u00a1Juego Completado!\nPuntos: %d",
+		"new_high_score": "\u00a1Nueva Puntuaci\u00f3n M\u00e1xima!\n",
 		"you_win": "\u00a1Ganaste! Puntos: %d",
 		"game_over": "\u00a1Fin del juego! Puntos: %d",
 		"not_valid": "Palabra no v\u00e1lida.",

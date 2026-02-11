@@ -18,6 +18,8 @@ extends Control
 @onready var drop_sound: AudioStreamPlayer = %"DropSoundPlayer"
 @onready var word_score_sound: AudioStreamPlayer = %"WordScoreSoundPlayer"
 @onready var shake_sound: AudioStreamPlayer = %"ShakeSoundPlayer"
+@onready var game_complete_sound: AudioStreamPlayer = %"GameCompleteSoundPlayer"
+@onready var game_won_sound: AudioStreamPlayer = %"GameWonSoundPlayer"
 
 const ROWS: int = 5
 const COLS: int = 6
@@ -112,17 +114,11 @@ func _setup_dev_toolbar() -> void:
 	bar.add_theme_constant_override("separation", 8)
 	add_child(bar)
 
-	var win_btn := Button.new()
-	win_btn.text = "Win"
-	win_btn.custom_minimum_size = Vector2(70, 32)
-	win_btn.pressed.connect(_trigger_win)
-	bar.add_child(win_btn)
-
-	var lose_btn := Button.new()
-	lose_btn.text = "Lose"
-	lose_btn.custom_minimum_size = Vector2(70, 32)
-	lose_btn.pressed.connect(_trigger_game_over)
-	bar.add_child(lose_btn)
+	var complete_btn := Button.new()
+	complete_btn.text = "Complete"
+	complete_btn.custom_minimum_size = Vector2(80, 32)
+	complete_btn.pressed.connect(_trigger_game_complete)
+	bar.add_child(complete_btn)
 
 	var fill_btn := Button.new()
 	fill_btn.text = "Fill"
@@ -442,10 +438,10 @@ func _input(event: InputEvent) -> void:
 	# Debug keys to test animations (development only)
 	if OS.is_debug_build() and event is InputEventKey and event.pressed:
 		if event.keycode == KEY_W and Input.is_key_pressed(KEY_CTRL):
-			_trigger_win()
+			_trigger_game_complete()
 			return
 		if event.keycode == KEY_L and Input.is_key_pressed(KEY_CTRL):
-			_trigger_game_over()
+			_trigger_game_complete()
 			return
 
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -560,12 +556,12 @@ func _accept_word(word: String) -> void:
 
 	# Check for win conditions
 	if _is_grid_empty():
-		_trigger_win()
+		_trigger_game_complete()
 		return
 
 	# Check for game over (board full)
 	if _is_grid_full():
-		_trigger_game_over()
+		_trigger_game_complete()
 		return
 
 	# After clearing, check if a rescue is needed for upcoming drops
@@ -666,12 +662,12 @@ func _shake_grid() -> void:
 
 	# Check for win conditions after shaking
 	if _is_grid_empty():
-		_trigger_win()
+		_trigger_game_complete()
 		return
 
 	# Check for game over (board full)
 	if _is_grid_full():
-		_trigger_game_over()
+		_trigger_game_complete()
 		return
 
 	# After shaking, check if we need a rescue word
@@ -738,12 +734,12 @@ func _handle_hammer_targeting(cell: Vector2i) -> void:
 
 	# Check for win conditions
 	if _is_grid_empty():
-		_trigger_win()
+		_trigger_game_complete()
 		return
 
 	# Check for game over (board full)
 	if _is_grid_full():
-		_trigger_game_over()
+		_trigger_game_complete()
 		return
 
 	# After destroying, check if we need a rescue word
@@ -862,12 +858,12 @@ func _execute_swap(cell_a: Vector2i, cell_b: Vector2i) -> void:
 
 	# Check win conditions
 	if _is_grid_empty():
-		_trigger_win()
+		_trigger_game_complete()
 		return
 
 	# Check for game over (board full)
 	if _is_grid_full():
-		_trigger_game_over()
+		_trigger_game_complete()
 		return
 
 	# Check if rescue needed
@@ -929,12 +925,12 @@ func _draw_more_letters(open_cols: Array) -> void:
 
 	# Check for win conditions
 	if _is_grid_empty():
-		_trigger_win()
+		_trigger_game_complete()
 		return
 
 	# Check for game over (board full)
 	if _is_grid_full():
-		_trigger_game_over()
+		_trigger_game_complete()
 		return
 
 	# After drawing, check if we need a rescue word
@@ -1108,7 +1104,7 @@ func _drop_letter() -> void:
 			open_cols.append(col)
 
 	if open_cols.is_empty():
-		_trigger_game_over()
+		_trigger_game_complete()
 		return
 
 	var has_word: bool = _find_any_word_on_grid()
@@ -1143,7 +1139,7 @@ func _drop_letter() -> void:
 
 	# Check for game over (board full)
 	if _is_grid_full():
-		_trigger_game_over()
+		_trigger_game_complete()
 		return
 
 
@@ -1163,18 +1159,24 @@ func _is_grid_full() -> bool:
 	return true
 
 
-func _trigger_win() -> void:
+func _trigger_game_complete() -> void:
 	game_over = true
 	drop_timer.stop()
-	StatsManager.end_session(score)
-	_play_win_animation()
 
+	# Capture previous high score BEFORE ending session
+	var previous_high_score: int = StatsManager.high_score
 
-func _trigger_game_over() -> void:
-	game_over = true
-	drop_timer.stop()
+	# End session (this may update the high score)
 	StatsManager.end_session(score)
-	_play_lose_animation()
+
+	# Determine if this is a new high score
+	var is_new_high_score: bool = score > previous_high_score
+
+	# Play appropriate animation based on high score achievement
+	if is_new_high_score:
+		_play_win_animation(is_new_high_score)
+	else:
+		_play_lose_animation(is_new_high_score)
 
 
 func _update_grid_display() -> void:
@@ -1299,7 +1301,7 @@ func _set_button_content(btn: Button, icon_text: String, label_text: String) -> 
 
 # --- Win/Lose Animations ---
 
-func _play_win_animation() -> void:
+func _play_win_animation(is_new_high_score: bool) -> void:
 	# Celebratory, high-energy win animation with screen shake, color bursts, and grid bounce
 
 	# Store original positions for restoration
@@ -1353,10 +1355,10 @@ func _play_win_animation() -> void:
 
 	# Show game over modal after a brief pause
 	await get_tree().create_timer(0.5).timeout
-	_show_game_over_modal(true)
+	_show_game_over_modal(is_new_high_score)
 
 
-func _play_lose_animation() -> void:
+func _play_lose_animation(is_new_high_score: bool) -> void:
 	# Somber but encouraging lose animation with fade and downward drift
 
 	# Store original values
@@ -1391,15 +1393,27 @@ func _play_lose_animation() -> void:
 
 	# Show game over modal after a brief pause
 	await get_tree().create_timer(0.5).timeout
-	_show_game_over_modal(false)
+	_show_game_over_modal(is_new_high_score)
 
 
-func _show_game_over_modal(is_win: bool) -> void:
-	# Update modal text based on win/lose state (strings already include score)
-	if is_win:
-		modal_message_label.text = lang_config.ui_strings["you_win"] % score
+func _show_game_over_modal(is_new_high_score: bool) -> void:
+	# Play game complete sound when modal appears
+	if game_complete_sound and game_complete_sound.stream:
+		game_complete_sound.play()
+
+	# Base message: "Game Complete" with score
+	var base_message: String = lang_config.ui_strings.get("game_complete", "Game Complete!\nScore: %d") % score
+
+	# If new high score, add congratulatory text and play win sound
+	if is_new_high_score:
+		modal_message_label.text = lang_config.ui_strings.get("new_high_score", "New High Score!\n") + base_message
+
+		# Play game won sound after a brief delay
+		await get_tree().create_timer(0.3).timeout
+		if game_won_sound and game_won_sound.stream:
+			game_won_sound.play()
 	else:
-		modal_message_label.text = lang_config.ui_strings["game_over"] % score
+		modal_message_label.text = base_message
 
 	# Hide the separate score label since the message includes it
 	modal_score_label.hide()
