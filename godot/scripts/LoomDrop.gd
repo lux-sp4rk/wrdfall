@@ -113,11 +113,6 @@ func _on_quit_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/Home.tscn")
 
 
-	# Dynamic grid sizing
-	grid_center.resized.connect(_resize_grid)
-	call_deferred("_resize_grid")
-
-
 func _restart_with_language(code: String) -> void:
 	lang_config = LanguageConfig.get_config(code)
 	dictionary.reload(lang_config.wordlist_path, lang_config.extra_alpha)
@@ -1234,6 +1229,10 @@ func _show_game_over_modal(is_win: bool) -> void:
 	# Update button labels
 	retry_button.text = lang_config.ui_strings["play_again"]
 	quit_button.text = lang_config.ui_strings["quit_to_menu"]
+
+	# Ensure buttons don't auto-focus (prevents iOS zoom on focus)
+	retry_button.release_focus()
+	quit_button.release_focus()
 
 	# Fade in modal
 	game_over_modal.modulate.a = 0.0
