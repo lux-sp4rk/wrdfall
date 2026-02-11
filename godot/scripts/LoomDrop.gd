@@ -22,7 +22,7 @@ extends Control
 const ROWS: int = 6
 const COLS: int = 6
 const MIN_WORD_LENGTH: int = 3
-const INITIAL_FILL_ROWS: int = 5
+const INITIAL_FILL_ROWS: int = 4
 const SHAKE_COST: int = 5
 const HAMMER_COST: int = 3
 const SWAP_COST: int = 3
