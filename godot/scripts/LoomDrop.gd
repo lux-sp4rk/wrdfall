@@ -556,8 +556,7 @@ func _accept_word(word: String) -> void:
 	for cell in selected_path:
 		grid[cell.y][cell.x] = ""
 
-	_apply_gravity()
-	_update_grid_display()
+	await _apply_gravity_with_animation()
 
 	# Check for win conditions
 	if _is_grid_empty():
@@ -663,8 +662,7 @@ func _shake_grid() -> void:
 			break
 
 	# Apply gravity to settle letters
-	_apply_gravity()
-	_update_grid_display()
+	await _apply_gravity_with_animation()
 
 	# Check for win conditions after shaking
 	if _is_grid_empty():
@@ -736,8 +734,7 @@ func _handle_hammer_targeting(cell: Vector2i) -> void:
 	is_hammer_targeting = false
 
 	# Apply gravity to settle letters
-	_apply_gravity()
-	_update_grid_display()
+	await _apply_gravity_with_animation()
 
 	# Check for win conditions
 	if _is_grid_empty():
@@ -861,8 +858,7 @@ func _execute_swap(cell_a: Vector2i, cell_b: Vector2i) -> void:
 	_clear_selection_visuals()
 
 	# Apply gravity and update display
-	_apply_gravity()
-	_update_grid_display()
+	await _apply_gravity_with_animation()
 
 	# Check win conditions
 	if _is_grid_empty():
@@ -926,8 +922,7 @@ func _draw_more_letters(open_cols: Array) -> void:
 		grid[0][col] = _smart_letter(col)
 
 	# Apply gravity to settle letters
-	_apply_gravity()
-	_update_grid_display()
+	await _apply_gravity_with_animation()
 
 	# Show feedback
 	word_label.text = lang_config.ui_strings["draw_more_success"] % [letters_to_draw, DRAW_MORE_COST]
@@ -966,6 +961,132 @@ func _apply_gravity() -> void:
 				grid[row][col] = letters[idx]
 			else:
 				grid[row][col] = ""
+
+
+func _apply_gravity_with_animation() -> void:
+	# Calculate final positions for each tile after gravity
+	var fall_data: Array = []  # Array of {from_row, to_row, col, letter}
+
+	for col in range(COLS):
+		# Collect non-empty letters and their current rows
+		var tiles: Array = []  # Array of {row, letter}
+		for row in range(ROWS - 1, -1, -1):
+			if grid[row][col] != "":
+				tiles.append({"row": row, "letter": grid[row][col]})
+
+		# Calculate where each tile will land (bottom-up packing)
+		for i in range(tiles.size()):
+			var old_row: int = tiles[i].row
+			var new_row: int = ROWS - 1 - i  # Pack from bottom
+			if old_row != new_row:
+				fall_data.append({
+					"from_row": old_row,
+					"to_row": new_row,
+					"col": col,
+					"letter": tiles[i].letter,
+					"distance": new_row - old_row  # Positive = falling down
+				})
+
+	# If nothing moves, just apply gravity instantly
+	if fall_data.is_empty():
+		_apply_gravity()
+		_update_grid_display()
+		return
+
+	# Create visual duplicates for falling tiles
+	var falling_tiles: Array = []  # Array of Panel nodes
+
+	for data in fall_data:
+		var source_btn: Button = buttons[data.from_row][data.col]
+		var dest_btn: Button = buttons[data.to_row][data.col]
+
+		# Create a Panel to match button appearance
+		var tile_visual := Panel.new()
+		tile_visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+		# Create background style matching button
+		var stylebox := StyleBoxFlat.new()
+		stylebox.bg_color = Color(0.2, 0.2, 0.2)  # Default button color
+		stylebox.set_corner_radius_all(4)
+		stylebox.content_margin_left = 4.0
+		stylebox.content_margin_right = 4.0
+		stylebox.content_margin_top = 4.0
+		stylebox.content_margin_bottom = 4.0
+		tile_visual.add_theme_stylebox_override("panel", stylebox)
+
+		# Add letter label
+		var letter_label := Label.new()
+		letter_label.text = data.letter
+		letter_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		letter_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		letter_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+		letter_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+		# Get font size from source button
+		var font_size: int = source_btn.get_theme_font_size("font_size")
+		letter_label.add_theme_font_size_override("font_size", font_size)
+		tile_visual.add_child(letter_label)
+
+		# Add point value subscript
+		var pt_label := Label.new()
+		pt_label.text = str(lang_config.letter_points.get(data.letter, 1))
+		pt_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+		pt_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		pt_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+		pt_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		pt_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.55))
+		pt_label.add_theme_font_size_override("font_size", int(font_size * 0.4))
+		tile_visual.add_child(pt_label)
+
+		# Position at source button's global position
+		tile_visual.global_position = source_btn.global_position
+		tile_visual.size = source_btn.size
+		tile_visual.z_index = 10  # Draw on top
+
+		# Add to scene
+		add_child(tile_visual)
+		falling_tiles.append({
+			"visual": tile_visual,
+			"target_pos": dest_btn.global_position,
+			"duration": 0.15 + (data.distance * 0.05)
+		})
+
+	# Hide letters in source positions (they'll show in destination after gravity)
+	for data in fall_data:
+		buttons[data.from_row][data.col].modulate.a = 0.0
+
+	# Apply gravity to data grid
+	_apply_gravity()
+
+	# Update grid display (but destination buttons are still invisible)
+	_update_grid_display()
+
+	# Hide destination buttons during animation
+	for data in fall_data:
+		buttons[data.to_row][data.col].modulate.a = 0.0
+
+	# Animate the visual duplicates
+	var tween := create_tween().set_parallel(true)
+
+	for tile_data in falling_tiles:
+		tween.tween_property(
+			tile_data.visual,
+			"global_position",
+			tile_data.target_pos,
+			tile_data.duration
+		).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+
+	# Wait for animations to complete
+	await tween.finished
+
+	# Clean up: remove visual duplicates and restore button visibility
+	for tile_data in falling_tiles:
+		tile_data.visual.queue_free()
+
+	# Restore all button visibility
+	for row in range(ROWS):
+		for col in range(COLS):
+			buttons[row][col].modulate.a = 1.0
 
 
 func _start_drop_timer() -> void:
@@ -1014,8 +1135,7 @@ func _drop_letter() -> void:
 		var col: int = open_cols[randi() % open_cols.size()]
 		grid[0][col] = _smart_letter(col)
 
-	_apply_gravity()
-	_update_grid_display()
+	await _apply_gravity_with_animation()
 
 	# Play drop sound
 	if drop_sound and drop_sound.stream:

@@ -4,7 +4,7 @@ A calm, senior-first word puzzle game — no ads, no timers, high contrast, larg
 
 ## Game Mode
 
-**Loom Drop** — Tetris-meets-word-search: letters fall onto a 7×6 grid. Swipe to select words in any direction (including diagonals). Valid words clear, gravity pulls letters down, and new letters drop in using a Scrabble-weighted distribution. Shake the grid when stuck to reshuffle letters. The game ends when no valid words remain.
+**Loom Drop** — Tetris-meets-word-search: letters fall onto a 5×6 grid. Swipe to select words in any direction (including diagonals). Valid words clear, gravity pulls letters down, and new letters drop in using a Scrabble-weighted distribution. Shake the grid when stuck to reshuffle letters. The game ends when no valid words remain.
 
 ## Running the game
 
@@ -40,7 +40,7 @@ netlify.toml       # Netlify deployment config
 
 ## Key features
 
-- **7×6 grid** with 8-directional word selection (horizontal, vertical, diagonal)
+- **5×6 grid** with 8-directional word selection (horizontal, vertical, diagonal)
 - **Shake mechanic** — unlimited reshuffles to create new opportunities
 - **Win condition** — game ends when no valid 3+ letter words exist
 - **SOWPODS dictionary** — Scrabble-compliant word validation (~270k words)

@@ -4,7 +4,7 @@
 Word Loom is a calm, senior-first word puzzle game built with **Godot 4.6 (GDScript)**.
 - **Target**: iPad, phone, browser (HTML5).
 - **Style**: No ads, no timers, high contrast, large tap targets.
-- **Game mode**: **Loom Drop** — Tetris-style falling letters on a 7×6 grid with word-swiping.
+- **Game mode**: **Loom Drop** — Tetris-style falling letters on a 5×6 grid with word-swiping.
 
 ## Project Structure
 ```
@@ -35,7 +35,7 @@ dist/                # Deployed web build (Netlify)
 ### Key Scripts
 | Script | Purpose |
 |---|---|
-| `LoomDrop.gd` | Main game — 7×6 grid, 8-directional word selection, gravity, shake mechanic, win detection |
+| `LoomDrop.gd` | Main game — 5×6 grid, 8-directional word selection, gravity with falling animations, shake mechanic, win detection. Gravity uses visual overlay system: creates temporary Panel nodes that animate while preserving GridContainer layout. |
 | `Dictionary.gd` | Loads word list with configurable path and extra alphabet support (e.g. Ñ) |
 | `LanguageConfig.gd` | Per-language config: letter weights, bigrams, seed words, UI strings |
 
@@ -63,17 +63,17 @@ dist/                # Deployed web build (Netlify)
 - **Updates**: Keep this `CLAUDE.md` updated with new build commands or style shifts.
 
 ## Game Features
-- **7×6 grid** with 8-directional word selection (horizontal, vertical, diagonal)
+- **5×6 grid** with 8-directional word selection (horizontal, vertical, diagonal)
 - **Power-ups** — shake (5 pts), hammer (8 pts), swap (3 pts), draw more (15 pts)
 - **Game continues** even when no valid words exist (use power-ups to create opportunities)
 - **Letter distribution** — Scrabble-weighted bag + bigram-aware drops + guaranteed seed words
 - **Drop interval** — 10 seconds between automatic letter drops
-- **Gravity** — letters cascade down after word clears
+- **Gravity with animation** — letters cascade down after word clears, with Tetris/Connect 4 style falling animations (visual overlays animate while grid structure remains intact)
 - **Multi-language** — English and Spanish with in-game language switcher
 
 ## Game Over Conditions
-- **Win (Empty Board):** All letters cleared from the 7×6 grid (42 cells empty)
-- **Lose (Full Board):** All 42 cells occupied with letters, no space for next drop
+- **Win (Empty Board):** All letters cleared from the 5×6 grid (30 cells empty)
+- **Lose (Full Board):** All 30 cells occupied with letters, no space for next drop
 - **Important:** Game continues even when no valid 3+ letter words exist — players must use power-ups (shake/hammer/swap) to create word opportunities or risk filling the board
 
 ## Power-Ups (Score-Based)
