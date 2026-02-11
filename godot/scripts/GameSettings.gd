@@ -1,10 +1,9 @@
 extends Node
 
 var current_language: String = "en"
-var difficulty: String = "easy"
+var difficulty: String = "normal"
 
 const DIFFICULTIES = {
-	"easy": 10.0,
 	"normal": 8.0,
 	"hard": 5.0
 }
