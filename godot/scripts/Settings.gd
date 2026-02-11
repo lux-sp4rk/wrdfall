@@ -38,14 +38,19 @@ func _setup_difficulties() -> void:
 	
 	difficulty_option.add_item(cfg.ui_strings["difficulty_easy"], 0)
 	difficulty_option.set_item_metadata(0, "easy")
-	
-	difficulty_option.add_item(cfg.ui_strings["difficulty_hard"], 1)
-	difficulty_option.set_item_metadata(1, "hard")
-	
-	if GameSettings.difficulty == "hard":
-		difficulty_option.selected = 1
-	else:
-		difficulty_option.selected = 0
+
+	difficulty_option.add_item(cfg.ui_strings["difficulty_normal"], 1)
+	difficulty_option.set_item_metadata(1, "normal")
+
+	difficulty_option.add_item(cfg.ui_strings["difficulty_hard"], 2)
+	difficulty_option.set_item_metadata(2, "hard")
+
+	var selected_index: int = 0
+	for i in range(difficulty_option.get_item_count()):
+		if difficulty_option.get_item_metadata(i) == GameSettings.difficulty:
+			selected_index = i
+			break
+	difficulty_option.selected = selected_index
 		
 	if not difficulty_option.item_selected.is_connected(_on_difficulty_selected):
 		difficulty_option.item_selected.connect(_on_difficulty_selected)

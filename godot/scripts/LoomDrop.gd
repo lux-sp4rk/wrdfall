@@ -19,10 +19,10 @@ extends Control
 @onready var word_score_sound: AudioStreamPlayer = %"WordScoreSoundPlayer"
 @onready var shake_sound: AudioStreamPlayer = %"ShakeSoundPlayer"
 
-const ROWS: int = 6
+const ROWS: int = 5
 const COLS: int = 6
 const MIN_WORD_LENGTH: int = 3
-const INITIAL_FILL_ROWS: int = 4
+const INITIAL_FILL_ROWS: int = 3
 const SHAKE_COST: int = 5
 const HAMMER_COST: int = 3
 const SWAP_COST: int = 3
@@ -41,8 +41,6 @@ var score: int = 0
 var dictionary: DictionaryService
 var lang_config: LanguageConfig
 var _bag_distribution: Array = []
-
-const DROP_INTERVAL: float = 10.0  # seconds between letter drops
 
 const COLOR_SELECTED: Color = Color(0.35, 0.65, 1.0)
 const COLOR_TOO_SHORT: Color = Color(0.7, 0.7, 0.7)

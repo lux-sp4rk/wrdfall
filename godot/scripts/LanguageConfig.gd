@@ -96,6 +96,7 @@ static func english() -> LanguageConfig:
 		"quit_to_menu": "Quit to Menu",
 		"difficulty_label": "Difficulty",
 		"difficulty_easy": "Easy",
+		"difficulty_normal": "Normal",
 		"difficulty_hard": "Hard",
 		"paused": "Game Paused",
 	}
@@ -170,6 +171,7 @@ static func spanish() -> LanguageConfig:
 		"quit_to_menu": "Volver al men\u00fa",
 		"difficulty_label": "Dificultad",
 		"difficulty_easy": "F\u00e1cil",
+		"difficulty_normal": "Normal",
 		"difficulty_hard": "Dif\u00edcil",
 		"paused": "Juego pausado",
 	}

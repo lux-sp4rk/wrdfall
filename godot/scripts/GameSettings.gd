@@ -5,7 +5,8 @@ var difficulty: String = "easy"
 
 const DIFFICULTIES = {
 	"easy": 10.0,
-	"hard": 8.0
+	"normal": 8.0,
+	"hard": 5.0
 }
 
 func get_drop_interval() -> float:
