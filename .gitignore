@@ -19,6 +19,11 @@ build/
 .env
 .env.*
 
+# Firebase
+firebase-debug.log
+firebase-debug.*.log
+.firebase/
+
 # Editors
 .vscode/
 .idea/
