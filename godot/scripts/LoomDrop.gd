@@ -1270,5 +1270,3 @@ func _show_game_over_modal(is_win: bool) -> void:
 	game_over_modal.show()
 	var fade_tween := create_tween()
 	fade_tween.tween_property(game_over_modal, "modulate:a", 1.0, 0.3)
-
-
