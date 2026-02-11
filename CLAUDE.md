@@ -89,17 +89,19 @@ All power-ups cost points earned from clearing words. After using a power-up, gr
 **Targeting Modes:** Hammer and Swap enter targeting mode when clicked (shows cancel icon). Press ESC or click the power-up button again to cancel.
 
 ## Scoring System
-Points are awarded based on word length:
+Points use Scrabble-style per-letter values plus a length bonus:
 
-| Word Length | Points |
-|-------------|--------|
-| 3 letters | 5 pts |
-| 4 letters | 7 pts |
-| 5 letters | 10 pts |
-| 6 letters | 14 pts |
-| 7+ letters | 14 + (length - 6) × 5 |
+**Score = sum of letter points + length bonus**
+- **Letter points**: Each letter has a point value (e.g. A=1, J=8, Q=10, Z=10). See `LanguageConfig.gd` for full tables per language.
+- **Length bonus**: `max(0, word_length - 3) × 2` (3-letter words get no bonus, 4-letter +2, 5-letter +4, etc.)
 
-**Example:** An 8-letter word = 14 + (8-6) × 5 = 24 points
+| Word | Letter Sum | Length Bonus | Total |
+|------|-----------|-------------|-------|
+| CAT (3) | 3+1+1=5 | 0 | 5 |
+| THE (3) | 1+4+1=6 | 0 | 6 |
+| STAR (4) | 1+1+1+1=4 | 2 | 6 |
+| QUEST (5) | 10+1+1+1+1=14 | 4 | 18 |
+| JAZZ (4) | 8+1+10+10=29 | 2 | 31 |
 
 ## Key Docs
 - `docs/research/`: Game design research notes

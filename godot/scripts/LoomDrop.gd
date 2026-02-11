@@ -30,6 +30,7 @@ const DRAW_MORE_COST: int = 15
 
 var grid: Array = []       # 2D [row][col] of String
 var buttons: Array = []    # 2D [row][col] of Button
+var point_labels: Array = []  # 2D [row][col] of Label (subscript point values)
 var selected_path: Array = []  # Array of Vector2i (x=col, y=row)
 var is_selecting: bool = false
 var is_hammer_targeting: bool = false
@@ -179,6 +180,7 @@ func _initialize_grid() -> void:
 	grid_container.columns = COLS
 	grid.clear()
 	buttons.clear()
+	point_labels.clear()
 
 	# Build data grid: empty top rows, filled bottom rows
 	var empty_rows: int = ROWS - INITIAL_FILL_ROWS
@@ -194,15 +196,30 @@ func _initialize_grid() -> void:
 	# Create button grid from data
 	for row in range(ROWS):
 		var btn_row: Array = []
+		var pt_row: Array = []
 		for col in range(COLS):
 			var btn := Button.new()
 			btn.text = grid[row][col]
 			btn.custom_minimum_size = Vector2(16, 16)
 			btn.add_theme_font_size_override("font_size", 44)
 			btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			btn.clip_contents = true
 			grid_container.add_child(btn)
+
+			# Point value subscript (bottom-right, like Scrabble tiles)
+			var pt_label := Label.new()
+			pt_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+			pt_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+			pt_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+			pt_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			pt_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.55))
+			btn.add_child(pt_label)
+			_update_point_label(pt_label, grid[row][col])
+
 			btn_row.append(btn)
+			pt_row.append(pt_label)
 		buttons.append(btn_row)
+		point_labels.append(pt_row)
 
 
 func _resize_grid() -> void:
@@ -217,11 +234,14 @@ func _resize_grid() -> void:
 	if cell_size < 16.0:
 		cell_size = 16.0
 	var font_size: int = int(cell_size * 0.55)
+	var pt_font_size: int = int(cell_size * 0.22)
 	for row in range(ROWS):
 		for col in range(COLS):
 			var btn: Button = buttons[row][col]
 			btn.custom_minimum_size = Vector2(cell_size, cell_size)
 			btn.add_theme_font_size_override("font_size", font_size)
+			if not point_labels.is_empty():
+				point_labels[row][col].add_theme_font_size_override("font_size", pt_font_size)
 
 
 func _seed_words() -> void:
@@ -520,7 +540,12 @@ func _accept_word(word: String) -> void:
 	_update_hammer_button()
 	_update_swap_button()
 	_update_draw_more_button()
-	word_label.text = "+%d" % points
+	var length_bonus: int = maxi(0, word.length() - 3) * 2
+	if length_bonus > 0:
+		var letter_sum: int = points - length_bonus
+		word_label.text = "+%d (+%d length)" % [letter_sum, length_bonus]
+	else:
+		word_label.text = "+%d" % points
 
 	# Track word and tiles cleared
 	StatsManager.record_word(word, selected_path.size())
@@ -554,14 +579,11 @@ func _accept_word(word: String) -> void:
 
 
 func _score_word(word: String) -> int:
-	var length: int = word.length()
-	# Base points scale with length; longer words are worth more
-	match length:
-		3: return 5
-		4: return 7
-		5: return 10
-		6: return 14
-		_: return 14 + (length - 6) * 5
+	var letter_sum: int = 0
+	for ch in word:
+		letter_sum += lang_config.letter_points.get(ch, 1)
+	var length_bonus: int = maxi(0, word.length() - 3) * 2
+	return letter_sum + length_bonus
 
 
 # --- Shake Button ---
@@ -1043,6 +1065,8 @@ func _update_grid_display() -> void:
 	for row in range(ROWS):
 		for col in range(COLS):
 			buttons[row][col].text = grid[row][col]
+			if not point_labels.is_empty():
+				_update_point_label(point_labels[row][col], grid[row][col])
 
 
 # --- Visuals ---
@@ -1084,6 +1108,13 @@ func _make_stylebox(color: Color) -> StyleBoxFlat:
 	sb.content_margin_top = 4.0
 	sb.content_margin_bottom = 4.0
 	return sb
+
+
+func _update_point_label(pt_label: Label, letter: String) -> void:
+	if letter == "":
+		pt_label.text = ""
+	else:
+		pt_label.text = str(lang_config.letter_points.get(letter, 1))
 
 
 func _update_score_display() -> void:
