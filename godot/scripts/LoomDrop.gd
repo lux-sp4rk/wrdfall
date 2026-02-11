@@ -3,12 +3,11 @@ extends Control
 @onready var grid_container: GridContainer = %"GridContainer"
 @onready var grid_center: CenterContainer = $MarginContainer/VBox/GridCenter
 @onready var word_label: Label = %"WordLabel"
-@onready var score_label: Label = %"ScoreLabel"
+@onready var top_nav_bar = %"TopNavBar"
 @onready var shake_button: Button = %"ShakeButton"
 @onready var hammer_button: Button = %"HammerButton"
 @onready var swap_button: Button = %"SwapButton"
 @onready var draw_more_button: Button = %"DrawMoreButton"
-@onready var home_button: Button = %"HomeButton"
 @onready var background: ColorRect = $ColorRect
 @onready var margin_container: MarginContainer = $MarginContainer
 @onready var game_over_modal: ColorRect = %"GameOverModal"
@@ -89,7 +88,8 @@ func _ready() -> void:
 	hammer_button.pressed.connect(_on_hammer_pressed)
 	swap_button.pressed.connect(_on_swap_pressed)
 	draw_more_button.pressed.connect(_on_draw_more_pressed)
-	home_button.pressed.connect(_on_home_pressed)
+	top_nav_bar.exit_pressed.connect(_on_home_pressed)
+	top_nav_bar.pause_pressed.connect(_on_pause_pressed)
 	retry_button.pressed.connect(_on_retry_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
 
@@ -140,6 +140,15 @@ func _debug_fill_grid() -> void:
 
 func _on_home_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/Home.tscn")
+
+
+func _on_pause_pressed() -> void:
+	if top_nav_bar.is_paused:
+		drop_timer.paused = true
+		word_label.text = lang_config.ui_strings.get("paused", "Game Paused")
+	else:
+		drop_timer.paused = false
+		word_label.text = ""
 
 
 func _on_retry_pressed() -> void:
@@ -1063,7 +1072,7 @@ func _make_stylebox(color: Color) -> StyleBoxFlat:
 
 
 func _update_score_display() -> void:
-	score_label.text = lang_config.ui_strings["score"] % score
+	top_nav_bar.update_score(score)
 
 
 func _update_shake_button() -> void:

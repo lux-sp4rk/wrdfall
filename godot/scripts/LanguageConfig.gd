@@ -90,6 +90,7 @@ static func english() -> LanguageConfig:
 		"difficulty_label": "Difficulty",
 		"difficulty_easy": "Easy",
 		"difficulty_hard": "Hard",
+		"paused": "Game Paused",
 	}
 	return cfg
 
@@ -157,5 +158,6 @@ static func spanish() -> LanguageConfig:
 		"difficulty_label": "Dificultad",
 		"difficulty_easy": "F\u00e1cil",
 		"difficulty_hard": "Dif\u00edcil",
+		"paused": "Juego pausado",
 	}
 	return cfg
