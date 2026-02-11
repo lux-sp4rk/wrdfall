@@ -136,6 +136,7 @@ func _restart_with_language(code: String) -> void:
 	word_label.text = ""
 
 	_initialize_grid()
+	call_deferred("_resize_grid")
 	_update_score_display()
 	_update_shake_button()
 	_update_hammer_button()
@@ -1266,6 +1267,7 @@ func _restart_game() -> void:
 
 	# Reinitialize grid
 	_initialize_grid()
+	call_deferred("_resize_grid")
 	_update_score_display()
 	_update_shake_button()
 	_update_hammer_button()
