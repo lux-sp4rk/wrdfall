@@ -64,12 +64,42 @@ dist/                # Deployed web build (Netlify)
 
 ## Game Features
 - **7×6 grid** with 8-directional word selection (horizontal, vertical, diagonal)
-- **Shake mechanic** (unlimited uses) — reshuffles grid to create new word opportunities
-- **Win condition** — game ends when no valid 3+ letter words exist on the board
+- **Power-ups** — shake (5 pts), hammer (8 pts), swap (3 pts), draw more (15 pts)
+- **Game continues** even when no valid words exist (use power-ups to create opportunities)
 - **Letter distribution** — Scrabble-weighted bag + bigram-aware drops + guaranteed seed words
-- **Drop interval** — 6 seconds between automatic letter drops
+- **Drop interval** — 10 seconds between automatic letter drops
 - **Gravity** — letters cascade down after word clears
 - **Multi-language** — English and Spanish with in-game language switcher
+
+## Game Over Conditions
+- **Win (Empty Board):** All letters cleared from the 7×6 grid (42 cells empty)
+- **Lose (Full Board):** All 42 cells occupied with letters, no space for next drop
+- **Important:** Game continues even when no valid 3+ letter words exist — players must use power-ups (shake/hammer/swap) to create word opportunities or risk filling the board
+
+## Power-Ups (Score-Based)
+All power-ups cost points earned from clearing words. After using a power-up, gravity is applied.
+
+| Power-Up | Cost | Mechanic |
+|----------|------|----------|
+| **Shake** | 5 pts | Randomly redistribute all letters on board, then apply gravity |
+| **Hammer** | 8 pts | Click to target a single tile, destroy it, then apply gravity |
+| **Swap** | 3 pts | Click two adjacent tiles (8-directional), swap them, then apply gravity |
+| **Draw More** | 15 pts | Draw up to 5 new letters in random open columns (top row must have space) |
+
+**Targeting Modes:** Hammer and Swap enter targeting mode when clicked (shows cancel icon). Press ESC or click the power-up button again to cancel.
+
+## Scoring System
+Points are awarded based on word length:
+
+| Word Length | Points |
+|-------------|--------|
+| 3 letters | 5 pts |
+| 4 letters | 7 pts |
+| 5 letters | 10 pts |
+| 6 letters | 14 pts |
+| 7+ letters | 14 + (length - 6) × 5 |
+
+**Example:** An 8-letter word = 14 + (8-6) × 5 = 24 points
 
 ## Key Docs
 - `docs/research/`: Game design research notes

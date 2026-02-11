@@ -541,9 +541,9 @@ func _accept_word(word: String) -> void:
 		_trigger_win()
 		return
 
-	# Win if there are letters but no valid words remain
-	if not _is_grid_empty() and not _find_any_word_on_grid():
-		_trigger_win()
+	# Check for game over (board full)
+	if _is_grid_full():
+		_trigger_game_over()
 		return
 
 	# After clearing, check if a rescue is needed for upcoming drops
@@ -651,9 +651,9 @@ func _shake_grid() -> void:
 		_trigger_win()
 		return
 
-	# Win if there are letters but no valid words remain
-	if not _is_grid_empty() and not _find_any_word_on_grid():
-		_trigger_win()
+	# Check for game over (board full)
+	if _is_grid_full():
+		_trigger_game_over()
 		return
 
 	# After shaking, check if we need a rescue word
@@ -724,9 +724,9 @@ func _handle_hammer_targeting(cell: Vector2i) -> void:
 		_trigger_win()
 		return
 
-	# Win if there are letters but no valid words remain
-	if not _is_grid_empty() and not _find_any_word_on_grid():
-		_trigger_win()
+	# Check for game over (board full)
+	if _is_grid_full():
+		_trigger_game_over()
 		return
 
 	# After destroying, check if we need a rescue word
@@ -850,8 +850,10 @@ func _execute_swap(cell_a: Vector2i, cell_b: Vector2i) -> void:
 	if _is_grid_empty():
 		_trigger_win()
 		return
-	if not _is_grid_empty() and not _find_any_word_on_grid():
-		_trigger_win()
+
+	# Check for game over (board full)
+	if _is_grid_full():
+		_trigger_game_over()
 		return
 
 	# Check if rescue needed
@@ -917,9 +919,9 @@ func _draw_more_letters(open_cols: Array) -> void:
 		_trigger_win()
 		return
 
-	# Win if there are letters but no valid words remain
-	if not _is_grid_empty() and not _find_any_word_on_grid():
-		_trigger_win()
+	# Check for game over (board full)
+	if _is_grid_full():
+		_trigger_game_over()
 		return
 
 	# After drawing, check if we need a rescue word
@@ -1001,11 +1003,24 @@ func _drop_letter() -> void:
 	if drop_sound and drop_sound.stream:
 		drop_sound.play()
 
+	# Check for game over (board full)
+	if _is_grid_full():
+		_trigger_game_over()
+		return
+
 
 func _is_grid_empty() -> bool:
 	for row in range(ROWS):
 		for col in range(COLS):
 			if grid[row][col] != "":
+				return false
+	return true
+
+
+func _is_grid_full() -> bool:
+	for row in range(ROWS):
+		for col in range(COLS):
+			if grid[row][col] == "":
 				return false
 	return true
 
