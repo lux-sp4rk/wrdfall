@@ -225,19 +225,28 @@ func _resize_grid() -> void:
 	var cell_w: float = (avail.x - (COLS - 1) * h_sep) / COLS
 	var cell_h: float = (avail.y - (ROWS - 1) * v_sep) / ROWS
 
+	# Detect landscape mode (width > height)
+	var is_landscape: bool = avail.x > avail.y
+
 	# Allow rectangular cells to better utilize screen space
-	# Width is typically the constraint on mobile portrait
 	var cell_width: float = floorf(cell_w)
 	var cell_height: float = floorf(cell_h)
 
-	# Ensure minimum size and reasonable proportions
+	# In landscape mode, cap cell width to prevent grid from spanning full screen
+	# Use height as the constraint and make cells roughly square
+	if is_landscape:
+		var max_cell_width: float = cell_height * 1.1  # Allow slight width dominance
+		if cell_width > max_cell_width:
+			cell_width = max_cell_width
+
+	# Ensure minimum size
 	if cell_width < 16.0:
 		cell_width = 16.0
 	if cell_height < 16.0:
 		cell_height = 16.0
 
-	# Limit aspect ratio to prevent overly tall cells (max 1.6:1 height:width)
-	if cell_height > cell_width * 1.6:
+	# In portrait mode, limit aspect ratio to prevent overly tall cells (max 1.6:1)
+	if not is_landscape and cell_height > cell_width * 1.6:
 		cell_height = cell_width * 1.6
 
 	# Font size based on the smaller dimension for readability
