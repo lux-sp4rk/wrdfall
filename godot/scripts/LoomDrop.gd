@@ -757,7 +757,7 @@ func _handle_swap_targeting(cell: Vector2i) -> void:
 		score -= SWAP_COST
 		_update_score_display()
 		_update_shake_button()
-			_update_swap_button()
+		_update_swap_button()
 		_update_draw_more_button()
 		word_label.text = lang_config.ui_strings["swap_done"] % SWAP_COST
 
