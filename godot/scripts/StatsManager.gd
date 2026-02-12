@@ -3,11 +3,13 @@ extends Node
 ## Data persists via ConfigFile (maps to IndexedDB on web builds)
 
 const STATS_FILE: String = "user://stats.cfg"
+const TELEMETRY_URL: String = "https://hook.us1.make.com/6n3h27p3t5v5y5v5v5v5v5v5v5v5v5v5" # Placeholder - Uli can update
 
 # Current session tracking
 var session_start_time: float = 0.0
 var session_words_found: int = 0
 var session_tiles_cleared: int = 0
+var powerups_used: Dictionary = {"shake": 0, "hammer": 0, "swap": 0, "draw": 0}
 
 # Stats data (loaded from file)
 var total_tiles_cleared: int = 0
@@ -20,17 +22,26 @@ var max_wpm: float = 0.0
 
 var session_history: Array[Dictionary] = []  # [{timestamp, score, words_found, duration}]
 
+var _http_request: HTTPRequest
+
 func _ready() -> void:
 	load_stats()
+	_setup_telemetry()
 	start_session()
+
+func _setup_telemetry() -> void:
+	_http_request = HTTPRequest.new()
+	add_child(_http_request)
+	_http_request.request_completed.connect(_on_telemetry_completed)
 
 func start_session() -> void:
 	"""Begin tracking a new game session"""
 	session_start_time = Time.get_unix_time_from_system()
 	session_words_found = 0
 	session_tiles_cleared = 0
+	powerups_used = {"shake": 0, "hammer": 0, "swap": 0, "draw": 0}
 
-func end_session(final_score: int) -> void:
+func end_session(final_score: int, metadata: Dictionary = {}) -> void:
 	"""Save session data and update records"""
 	var duration: float = Time.get_unix_time_from_system() - session_start_time
 	var session_wpm: float = _calculate_wpm(session_words_found, duration)
@@ -47,20 +58,31 @@ func end_session(final_score: int) -> void:
 	if session_wpm > max_wpm:
 		max_wpm = session_wpm
 
-	# Save session to history
-	session_history.append({
+	# Build session record
+	var session_record: Dictionary = {
 		"timestamp": session_start_time,
 		"score": final_score,
 		"words_found": session_words_found,
 		"duration": duration,
-		"wpm": session_wpm
-	})
+		"wpm": session_wpm,
+		"powerups": powerups_used.duplicate(),
+		"difficulty": GameSettings.difficulty,
+		"language": GameSettings.current_language
+	}
+	
+	# Add any extra metadata (like loss reason)
+	for key in metadata:
+		session_record[key] = metadata[key]
+
+	# Save session to history
+	session_history.append(session_record)
 
 	# Keep only last 50 sessions to prevent file bloat
 	if session_history.size() > 50:
 		session_history = session_history.slice(-50)
 
 	save_stats()
+	send_telemetry(session_record)
 
 func record_word(word: String, tiles_cleared: int) -> void:
 	"""Track a word being found during gameplay"""
@@ -70,6 +92,24 @@ func record_word(word: String, tiles_cleared: int) -> void:
 	# Update longest word if applicable
 	if word.length() > longest_word.length():
 		longest_word = word
+
+func record_powerup(type: String) -> void:
+	"""Track power-up usage"""
+	if powerups_used.has(type):
+		powerups_used[type] += 1
+
+func send_telemetry(data: Dictionary) -> void:
+	"""Send session data to remote endpoint"""
+	if TELEMETRY_URL.contains("placeholder") or TELEMETRY_URL.is_empty():
+		return
+		
+	var json_data = JSON.stringify(data)
+	var headers = ["Content-Type: application/json"]
+	_http_request.request(TELEMETRY_URL, headers, HTTPClient.METHOD_POST, json_data)
+
+func _on_telemetry_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
+	if response_code != 200:
+		print("Telemetry failed: ", response_code)
 
 func save_stats() -> void:
 	"""Persist stats to disk/IndexedDB"""
