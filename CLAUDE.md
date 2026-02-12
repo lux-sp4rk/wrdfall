@@ -64,29 +64,44 @@ dist/                # Deployed web build (Netlify)
 
 ## Game Features
 - **5×5 grid** with 8-directional word selection (horizontal, vertical, diagonal)
-- **Power-ups** — shake (5 pts), hammer (8 pts), swap (3 pts), draw more (15 pts)
+- **Power-ups** — difficulty-based costs (see Difficulty Modes below)
 - **Game continues** even when no valid words exist (use power-ups to create opportunities)
 - **Letter distribution** — Scrabble-weighted bag + bigram-aware drops + guaranteed seed words
-- **Drop interval** — 10 seconds between automatic letter drops
+- **Drop interval** — difficulty-based (8s normal, 5s hard)
 - **Gravity with animation** — letters cascade down after word clears, with Tetris/Connect 4 style falling animations (visual overlays animate while grid structure remains intact)
 - **Multi-language** — English and Spanish with in-game language switcher
+- **Difficulty modes** — normal and hard with balanced challenge scaling
 
 ## Game Over Conditions
 - **Win (Empty Board):** All letters cleared from the 5×5 grid (25 cells empty)
 - **Lose (Full Board):** All 25 cells occupied with letters, no space for next drop
 - **Important:** Game continues even when no valid 3+ letter words exist — players must use power-ups (shake/hammer/swap) to create word opportunities or risk filling the board
 
+## Difficulty Modes
+The game offers two difficulty levels (configurable in Settings screen):
+
+### Normal Mode
+- **Drop interval:** 8 seconds
+- **Power-up costs:** Shake (5), Swap (3), Draw More (15)
+- **Vowel ratio:** Standard (38% for English, 42% for Spanish)
+- **Rescue words:** Enabled (auto-drops seed words when no valid words exist)
+
+### Hard Mode
+- **Drop interval:** 5 seconds (60% faster)
+- **Power-up costs:** Shake (8), Swap (5), Draw More (20)
+- **Vowel ratio:** Reduced by 25% (28.5% for English, 31.5% for Spanish)
+- **Rescue words:** Disabled (no safety net)
+
 ## Power-Ups (Score-Based)
-All power-ups cost points earned from clearing words. After using a power-up, gravity is applied.
+All power-ups cost points earned from clearing words. Costs vary by difficulty (see above). After using a power-up, gravity is applied.
 
-| Power-Up | Cost | Mechanic |
-|----------|------|----------|
-| **Shake** | 5 pts | Randomly redistribute all letters on board, then apply gravity |
-| **Hammer** | 8 pts | Click to target a single tile, destroy it, then apply gravity |
-| **Swap** | 3 pts | Click any two tiles on the board, swap them, then apply gravity |
-| **Draw More** | 15 pts | Draw up to 5 new letters in random open columns (top row must have space) |
+| Power-Up | Normal Cost | Hard Cost | Mechanic |
+|----------|------------|-----------|----------|
+| **Shake** | 5 pts | 8 pts | Randomly redistribute all letters on board, then apply gravity |
+| **Swap** | 3 pts | 5 pts | Click any two tiles on the board, swap them, then apply gravity |
+| **Draw More** | 15 pts | 20 pts | Draw up to 5 new letters in random open columns (top row must have space) |
 
-**Targeting Modes:** Hammer and Swap enter targeting mode when clicked (shows cancel icon). Press ESC or click the power-up button again to cancel.
+**Targeting Mode:** Swap enters targeting mode when clicked (shows cancel icon). Press ESC or click the power-up button again to cancel.
 
 ## Scoring System
 Points use Scrabble-style per-letter values plus a length bonus:

@@ -25,10 +25,12 @@ const ROWS: int = 5
 const COLS: int = 5
 const MIN_WORD_LENGTH: int = 3
 const INITIAL_FILL_ROWS: int = 3
-const SHAKE_COST: int = 0
-const HAMMER_COST: int = 0
-const SWAP_COST: int = 0
-const DRAW_MORE_COST: int = 0
+
+# Power-up costs are now loaded from GameSettings based on difficulty
+var SHAKE_COST: int = 0
+var HAMMER_COST: int = 0
+var SWAP_COST: int = 0
+var DRAW_MORE_COST: int = 0
 
 var grid: Array = []       # 2D [row][col] of String
 var buttons: Array = []    # 2D [row][col] of Button
@@ -64,6 +66,12 @@ var _rescue_letters_remaining: Array = []
 
 
 func _ready() -> void:
+	# Load difficulty-based settings
+	SHAKE_COST = GameSettings.get_power_up_cost("shake")
+	HAMMER_COST = GameSettings.get_power_up_cost("hammer")
+	SWAP_COST = GameSettings.get_power_up_cost("swap")
+	DRAW_MORE_COST = GameSettings.get_power_up_cost("draw_more")
+
 	lang_config = LanguageConfig.get_config(GameSettings.current_language)
 	dictionary = DictionaryService.new(lang_config.wordlist_path, lang_config.extra_alpha)
 	_build_weighted_bag()
@@ -353,7 +361,8 @@ func _smart_letter(col: int) -> String:
 	var need_vowel: bool = false
 	if total_count > 0:
 		var ratio: float = float(vowel_count) / float(total_count)
-		need_vowel = ratio < lang_config.target_vowel_ratio
+		var adjusted_target: float = lang_config.target_vowel_ratio * GameSettings.get_vowel_ratio_multiplier()
+		need_vowel = ratio < adjusted_target
 
 	# 2) Find the neighbor letter where this drop will land
 	var land_row: int = -1
@@ -416,6 +425,11 @@ func _find_any_word_on_grid() -> bool:
 
 
 func _plan_rescue_word() -> void:
+	# Rescue word system is disabled in hard mode
+	if not GameSettings.is_rescue_enabled():
+		_rescue_word = ""
+		return
+
 	var candidates: Array = lang_config.seed_words.duplicate()
 	candidates.shuffle()
 	for word in candidates:
