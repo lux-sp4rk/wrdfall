@@ -55,6 +55,7 @@ const ICON_CANCEL: String = "\u2715"  # ✕
 
 var drop_timer: Timer
 var game_over: bool = false
+var game_started: bool = false  # True after first word scored or first tile dropped
 
 # Rescue word drip-feed: when no valid word exists, bias drops to build one
 var _rescue_word: String = ""
@@ -551,6 +552,9 @@ func _accept_word(word: String) -> void:
 	if not dictionary.is_valid_word(word):
 		word_label.text = lang_config.ui_strings["not_valid"]
 		return
+
+	# Mark game as started on first scored word
+	game_started = true
 
 	var points: int = _score_word(word)
 	score += points
@@ -1156,6 +1160,9 @@ func _drop_letter() -> void:
 		var col: int = open_cols[randi() % open_cols.size()]
 		grid[0][col] = _smart_letter(col)
 
+	# Mark game as started on first tile drop
+	game_started = true
+
 	await _apply_gravity_with_animation()
 
 	# Play drop sound
@@ -1265,7 +1272,7 @@ func _update_score_display() -> void:
 
 
 func _update_shake_button() -> void:
-	shake_button.disabled = score < SHAKE_COST
+	shake_button.disabled = not game_started or score < SHAKE_COST
 
 
 func _update_hammer_button() -> void:
@@ -1274,7 +1281,7 @@ func _update_hammer_button() -> void:
 		hammer_button.disabled = false
 	else:
 		_set_button_content(hammer_button, ICON_HAMMER, lang_config.ui_strings["hammer"])
-		hammer_button.disabled = score < HAMMER_COST
+		hammer_button.disabled = not game_started or score < HAMMER_COST
 
 
 func _update_swap_button() -> void:
@@ -1283,11 +1290,11 @@ func _update_swap_button() -> void:
 		swap_button.disabled = false
 	else:
 		_set_button_content(swap_button, ICON_SWAP, lang_config.ui_strings["swap"])
-		swap_button.disabled = score < SWAP_COST
+		swap_button.disabled = not game_started or score < SWAP_COST
 
 
 func _update_draw_more_button() -> void:
-	draw_more_button.disabled = score < DRAW_MORE_COST
+	draw_more_button.disabled = not game_started or score < DRAW_MORE_COST
 
 
 func _setup_icon_button(btn: Button, icon_text: String, label_text: String) -> void:
