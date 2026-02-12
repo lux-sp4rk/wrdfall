@@ -25,10 +25,10 @@ const ROWS: int = 5
 const COLS: int = 6
 const MIN_WORD_LENGTH: int = 3
 const INITIAL_FILL_ROWS: int = 3
-const SHAKE_COST: int = 5
-const HAMMER_COST: int = 3
-const SWAP_COST: int = 3
-const DRAW_MORE_COST: int = 8
+const SHAKE_COST: int = 0
+const HAMMER_COST: int = 0
+const SWAP_COST: int = 0
+const DRAW_MORE_COST: int = 0
 
 var grid: Array = []       # 2D [row][col] of String
 var buttons: Array = []    # 2D [row][col] of Button
@@ -224,15 +224,31 @@ func _resize_grid() -> void:
 	var avail: Vector2 = grid_center.size
 	var cell_w: float = (avail.x - (COLS - 1) * h_sep) / COLS
 	var cell_h: float = (avail.y - (ROWS - 1) * v_sep) / ROWS
-	var cell_size: float = floorf(minf(cell_w, cell_h))
-	if cell_size < 16.0:
-		cell_size = 16.0
-	var font_size: int = int(cell_size * 0.55)
-	var pt_font_size: int = int(cell_size * 0.22)
+
+	# Allow rectangular cells to better utilize screen space
+	# Width is typically the constraint on mobile portrait
+	var cell_width: float = floorf(cell_w)
+	var cell_height: float = floorf(cell_h)
+
+	# Ensure minimum size and reasonable proportions
+	if cell_width < 16.0:
+		cell_width = 16.0
+	if cell_height < 16.0:
+		cell_height = 16.0
+
+	# Limit aspect ratio to prevent overly tall cells (max 1.6:1 height:width)
+	if cell_height > cell_width * 1.6:
+		cell_height = cell_width * 1.6
+
+	# Font size based on the smaller dimension for readability
+	var base_size: float = minf(cell_width, cell_height)
+	var font_size: int = int(base_size * 0.55)
+	var pt_font_size: int = int(base_size * 0.22)
+
 	for row in range(ROWS):
 		for col in range(COLS):
 			var btn: Button = buttons[row][col]
-			btn.custom_minimum_size = Vector2(cell_size, cell_size)
+			btn.custom_minimum_size = Vector2(cell_width, cell_height)
 			btn.add_theme_font_size_override("font_size", font_size)
 			if not point_labels.is_empty():
 				point_labels[row][col].add_theme_font_size_override("font_size", pt_font_size)
