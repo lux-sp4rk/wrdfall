@@ -85,12 +85,6 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(160, 110)
 layout_mode = 2
 
-[node name="HammerButton" type="Button" parent="MarginContainer/VBox/ActionButtons" unique_id=1432274338]
-unique_name_in_owner = true
-visible = false
-custom_minimum_size = Vector2(160, 110)
-layout_mode = 2
-
 [node name="DrawMoreButton" type="Button" parent="MarginContainer/VBox/ActionButtons" unique_id=1872945612]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(160, 110)

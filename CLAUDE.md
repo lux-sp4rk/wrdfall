@@ -81,13 +81,13 @@ dist/                # Deployed web build (Netlify)
 The game offers two difficulty levels (configurable in Settings screen):
 
 ### Normal Mode
-- **Drop interval:** 8 seconds
-- **Power-up costs:** Shake (5), Swap (3), Draw More (15)
-- **Vowel ratio:** Standard (38% for English, 42% for Spanish)
+- **Drop interval:** 10 seconds
+- **Power-up costs:** Shake (3), Swap (2), Draw More (9)
+- **Vowel ratio:** Increased by 15% (43.7% for English, 48.3% for Spanish)
 - **Rescue words:** Enabled (auto-drops seed words when no valid words exist)
 
 ### Hard Mode
-- **Drop interval:** 5 seconds (60% faster)
+- **Drop interval:** 5 seconds (50% faster than normal)
 - **Power-up costs:** Shake (8), Swap (5), Draw More (20)
 - **Vowel ratio:** Reduced by 25% (28.5% for English, 31.5% for Spanish)
 - **Rescue words:** Disabled (no safety net)
@@ -97,9 +97,9 @@ All power-ups cost points earned from clearing words. Costs vary by difficulty (
 
 | Power-Up | Normal Cost | Hard Cost | Mechanic |
 |----------|------------|-----------|----------|
-| **Shake** | 5 pts | 8 pts | Randomly redistribute all letters on board, then apply gravity |
-| **Swap** | 3 pts | 5 pts | Click any two tiles on the board, swap them, then apply gravity |
-| **Draw More** | 15 pts | 20 pts | Draw up to 5 new letters in random open columns (top row must have space) |
+| **Shake** | 3 pts | 8 pts | Randomly redistribute all letters on board, then apply gravity |
+| **Swap** | 2 pts | 5 pts | Click any two tiles on the board, swap them, then apply gravity |
+| **Draw More** | 9 pts | 20 pts | Draw up to 5 new letters in random open columns (top row must have space) |
 
 **Targeting Mode:** Swap enters targeting mode when clicked (shows cancel icon). Press ESC or click the power-up button again to cancel.
 

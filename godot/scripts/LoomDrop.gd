@@ -5,7 +5,6 @@ extends Control
 @onready var word_label: Label = %"WordLabel"
 @onready var top_nav_bar = %"TopNavBar"
 @onready var shake_button: Button = %"ShakeButton"
-@onready var hammer_button: Button = %"HammerButton"
 @onready var swap_button: Button = %"SwapButton"
 @onready var draw_more_button: Button = %"DrawMoreButton"
 @onready var background: ColorRect = $ColorRect
@@ -28,7 +27,6 @@ const INITIAL_FILL_ROWS: int = 3
 
 # Power-up costs are now loaded from GameSettings based on difficulty
 var SHAKE_COST: int = 0
-var HAMMER_COST: int = 0
 var SWAP_COST: int = 0
 var DRAW_MORE_COST: int = 0
 
@@ -37,7 +35,6 @@ var buttons: Array = []    # 2D [row][col] of Button
 var point_labels: Array = []  # 2D [row][col] of Label (subscript point values)
 var selected_path: Array = []  # Array of Vector2i (x=col, y=row)
 var is_selecting: bool = false
-var is_hammer_targeting: bool = false
 var is_swap_targeting: bool = false
 var swap_first_cell: Vector2i = Vector2i(-1, -1)
 var score: int = 0
@@ -50,7 +47,6 @@ const COLOR_SELECTED: Color = Color(0.35, 0.65, 1.0)
 const COLOR_TOO_SHORT: Color = Color(0.7, 0.7, 0.7)
 
 const ICON_SHAKE: String = "\u21bb"   # ↻
-const ICON_HAMMER: String = "\u2692"  # ⚒
 const ICON_SWAP: String = "\u21c4"    # ⇄
 const ICON_DRAW_MORE: String = "\u2295"  # ⊕
 const ICON_CANCEL: String = "\u2715"  # ✕
@@ -68,7 +64,6 @@ var _rescue_letters_remaining: Array = []
 func _ready() -> void:
 	# Load difficulty-based settings
 	SHAKE_COST = GameSettings.get_power_up_cost("shake")
-	HAMMER_COST = GameSettings.get_power_up_cost("hammer")
 	SWAP_COST = GameSettings.get_power_up_cost("swap")
 	DRAW_MORE_COST = GameSettings.get_power_up_cost("draw_more")
 
@@ -82,20 +77,17 @@ func _ready() -> void:
 
 	# Set up icon buttons (must happen before update calls)
 	_setup_icon_button(shake_button, ICON_SHAKE, lang_config.ui_strings["shake"])
-	_setup_icon_button(hammer_button, ICON_HAMMER, lang_config.ui_strings["hammer"])
 	_setup_icon_button(swap_button, ICON_SWAP, lang_config.ui_strings["swap"])
 	_setup_icon_button(draw_more_button, ICON_DRAW_MORE, lang_config.ui_strings["draw_more"])
 
 	_update_score_display()
 	_update_shake_button()
-	_update_hammer_button()
 	_update_swap_button()
 	_update_draw_more_button()
 	_start_drop_timer()
 
 	# Connect buttons
 	shake_button.pressed.connect(_on_shake_pressed)
-	hammer_button.pressed.connect(_on_hammer_pressed)
 	swap_button.pressed.connect(_on_swap_pressed)
 	draw_more_button.pressed.connect(_on_draw_more_pressed)
 	top_nav_bar.exit_pressed.connect(_on_home_pressed)
@@ -468,9 +460,6 @@ func _input(event: InputEvent) -> void:
 
 	# Cancel targeting modes with ESC
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
-		if is_hammer_targeting:
-			_cancel_hammer_targeting()
-			return
 		if is_swap_targeting:
 			_cancel_swap_targeting()
 			return
@@ -489,9 +478,7 @@ func _input(event: InputEvent) -> void:
 			var cell := _cell_at(event.global_position)
 			if cell != Vector2i(-1, -1):
 				# Handle targeting modes
-				if is_hammer_targeting:
-					_handle_hammer_targeting(cell)
-				elif is_swap_targeting:
+				if is_swap_targeting:
 					_handle_swap_targeting(cell)
 				else:
 					_start_selection(cell)
@@ -574,7 +561,6 @@ func _accept_word(word: String) -> void:
 	score += points
 	_update_score_display()
 	_update_shake_button()
-	_update_hammer_button()
 	_update_swap_button()
 	_update_draw_more_button()
 	var length_bonus: int = maxi(0, word.length() - 3) * 2
@@ -635,7 +621,6 @@ func _on_shake_pressed() -> void:
 	score -= SHAKE_COST
 	_update_score_display()
 	_update_shake_button()
-	_update_hammer_button()
 	_update_swap_button()
 	_update_draw_more_button()
 
@@ -720,78 +705,6 @@ func _shake_grid() -> void:
 		_clear_rescue()
 
 
-# --- Hammer Button ---
-
-func _on_hammer_pressed() -> void:
-	if game_over:
-		return
-
-	# If already in targeting mode, cancel it
-	if is_hammer_targeting:
-		_cancel_hammer_targeting()
-		return
-
-	if score < HAMMER_COST:
-		word_label.text = lang_config.ui_strings["need_hammer"] % HAMMER_COST
-		return
-
-	# Cancel swap if active
-	if is_swap_targeting:
-		_cancel_swap_targeting()
-
-	# Enter targeting mode
-	is_hammer_targeting = true
-	_update_hammer_button()
-	word_label.text = lang_config.ui_strings["hammer_target"]
-
-
-func _cancel_hammer_targeting() -> void:
-	is_hammer_targeting = false
-	_update_hammer_button()
-	word_label.text = lang_config.ui_strings["hammer_cancel"]
-
-
-func _handle_hammer_targeting(cell: Vector2i) -> void:
-	# Check if the cell has a letter
-	if grid[cell.y][cell.x] == "":
-		word_label.text = lang_config.ui_strings["hammer_empty"]
-		return
-
-	# Deduct the cost
-	score -= HAMMER_COST
-	_update_score_display()
-	_update_shake_button()
-	_update_hammer_button()
-	_update_swap_button()
-	_update_draw_more_button()
-
-	# Destroy the tile
-	grid[cell.y][cell.x] = ""
-	word_label.text = lang_config.ui_strings["tile_destroyed"] % HAMMER_COST
-
-	# Exit targeting mode
-	is_hammer_targeting = false
-
-	# Apply gravity to settle letters
-	await _apply_gravity_with_animation()
-
-	# Check for win conditions
-	if _is_grid_empty():
-		_trigger_game_complete()
-		return
-
-	# Check for game over (board full)
-	if _is_grid_full():
-		_trigger_game_complete()
-		return
-
-	# After destroying, check if we need a rescue word
-	if not _find_any_word_on_grid():
-		_plan_rescue_word()
-	else:
-		_clear_rescue()
-
-
 # --- Swap Button ---
 
 func _on_swap_pressed() -> void:
@@ -806,10 +719,6 @@ func _on_swap_pressed() -> void:
 	if score < SWAP_COST:
 		word_label.text = lang_config.ui_strings["need_swap"] % SWAP_COST
 		return
-
-	# Cancel hammer if active
-	if is_hammer_targeting:
-		_cancel_hammer_targeting()
 
 	# Enter swap targeting mode (step 1: pick first tile)
 	is_swap_targeting = true
@@ -848,8 +757,7 @@ func _handle_swap_targeting(cell: Vector2i) -> void:
 		score -= SWAP_COST
 		_update_score_display()
 		_update_shake_button()
-		_update_hammer_button()
-		_update_swap_button()
+			_update_swap_button()
 		_update_draw_more_button()
 		word_label.text = lang_config.ui_strings["swap_done"] % SWAP_COST
 
@@ -940,7 +848,6 @@ func _on_draw_more_pressed() -> void:
 	score -= DRAW_MORE_COST
 	_update_score_display()
 	_update_shake_button()
-	_update_hammer_button()
 	_update_swap_button()
 	_update_draw_more_button()
 
@@ -1287,15 +1194,6 @@ func _update_score_display() -> void:
 
 func _update_shake_button() -> void:
 	shake_button.disabled = not game_started or score < SHAKE_COST
-
-
-func _update_hammer_button() -> void:
-	if is_hammer_targeting:
-		_set_button_content(hammer_button, ICON_CANCEL, lang_config.ui_strings["cancel"])
-		hammer_button.disabled = false
-	else:
-		_set_button_content(hammer_button, ICON_HAMMER, lang_config.ui_strings["hammer"])
-		hammer_button.disabled = not game_started or score < HAMMER_COST
 
 
 func _update_swap_button() -> void:
