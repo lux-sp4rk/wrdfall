@@ -22,7 +22,7 @@ extends Control
 @onready var game_won_sound: AudioStreamPlayer = %"GameWonSoundPlayer"
 
 const ROWS: int = 5
-const COLS: int = 6
+const COLS: int = 5
 const MIN_WORD_LENGTH: int = 3
 const INITIAL_FILL_ROWS: int = 3
 const SHAKE_COST: int = 0
