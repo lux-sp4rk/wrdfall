@@ -1,6 +1,6 @@
 [gd_resource type="StyleBoxTexture" load_steps=2 format=3 uid="uid://ujtd2e4skdng"]
 
-[ext_resource type="Texture2D" uid="uid://cay3024mdilo" path="res://addons/Themey/themes/clashy/graphics/danger-button.svg" id="1_e4cd7"]
+[ext_resource type="Texture2D" uid="uid://cay3024mdilo" path="res://assets/themes/clashy/graphics/danger-button.svg" id="1_e4cd7"]
 
 [resource]
 texture = ExtResource("1_e4cd7")

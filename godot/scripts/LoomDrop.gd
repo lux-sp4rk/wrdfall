@@ -201,6 +201,24 @@ func _initialize_grid() -> void:
 			btn.clip_contents = true
 			grid_container.add_child(btn)
 
+			# Spacey theme colors: white text on blue background
+			# Apply AFTER adding to scene tree for proper initialization
+			btn.add_theme_color_override("font_color", Color.WHITE)
+			btn.add_theme_color_override("font_hover_color", Color.WHITE)
+			btn.add_theme_color_override("font_pressed_color", Color.WHITE)
+			btn.add_theme_color_override("font_disabled_color", Color(1, 1, 1, 0.5))
+
+			var tile_style := StyleBoxFlat.new()
+			tile_style.bg_color = Color(0.25, 0.35, 0.45, 1)  # Lighter blue for visibility
+			tile_style.border_color = Color(0.4, 0.5, 0.6, 1)  # Lighter border
+			tile_style.set_border_width_all(2)
+			tile_style.set_corner_radius_all(4)
+			btn.add_theme_stylebox_override("normal", tile_style)
+			btn.add_theme_stylebox_override("hover", tile_style)
+			btn.add_theme_stylebox_override("pressed", tile_style)
+			btn.add_theme_stylebox_override("disabled", tile_style)
+			btn.add_theme_stylebox_override("focus", tile_style)
+
 			# Point value subscript (bottom-right, like Scrabble tiles)
 			var pt_label := Label.new()
 			pt_label.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -950,7 +968,9 @@ func _apply_gravity_with_animation() -> void:
 
 		# Create background style matching button
 		var stylebox := StyleBoxFlat.new()
-		stylebox.bg_color = Color(0.2, 0.2, 0.2)  # Default button color
+		stylebox.bg_color = Color(0.25, 0.35, 0.45, 1)  # Lighter blue for visibility
+		stylebox.border_color = Color(0.4, 0.5, 0.6, 1)  # Lighter border
+		stylebox.set_border_width_all(2)
 		stylebox.set_corner_radius_all(4)
 		stylebox.content_margin_left = 4.0
 		stylebox.content_margin_right = 4.0
@@ -965,6 +985,7 @@ func _apply_gravity_with_animation() -> void:
 		letter_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		letter_label.set_anchors_preset(Control.PRESET_FULL_RECT)
 		letter_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		letter_label.add_theme_color_override("font_color", Color.WHITE)  # White text
 
 		# Get font size from source button
 		var font_size: int = source_btn.get_theme_font_size("font_size")
@@ -1160,12 +1181,19 @@ func _update_selection_visuals() -> void:
 
 
 func _clear_selection_visuals() -> void:
+	# Restore default tile appearance (blue background, white text)
+	var tile_style := StyleBoxFlat.new()
+	tile_style.bg_color = Color(0.25, 0.35, 0.45, 1)  # Lighter blue for visibility
+	tile_style.border_color = Color(0.4, 0.5, 0.6, 1)  # Lighter border
+	tile_style.set_border_width_all(2)
+	tile_style.set_corner_radius_all(4)
+
 	for row in range(ROWS):
 		for col in range(COLS):
 			var btn: Button = buttons[row][col]
-			btn.remove_theme_color_override("font_color")
-			btn.remove_theme_stylebox_override("normal")
-			btn.remove_theme_stylebox_override("hover")
+			btn.add_theme_color_override("font_color", Color.WHITE)
+			btn.add_theme_stylebox_override("normal", tile_style)
+			btn.add_theme_stylebox_override("hover", tile_style)
 
 
 func _make_stylebox(color: Color) -> StyleBoxFlat:

@@ -1,35 +1,35 @@
 [gd_resource type="Theme" load_steps=45 format=3 uid="uid://bsyjmm3kj6qyr"]
 
-[ext_resource type="Texture2D" uid="uid://cijnbspbn0k6c" path="res://addons/Themey/themes/clashy/graphics/button-disabled.svg" id="1_gvlue"]
-[ext_resource type="StyleBox" uid="uid://clb2fsgyvp5pa" path="res://addons/Themey/themes/spacey/panels/spacey_button_hovered.tres" id="2_d1rfb"]
-[ext_resource type="StyleBox" uid="uid://bu3asmtpckaun" path="res://addons/Themey/themes/spacey/panels/spacey_button.tres" id="3_fnllr"]
-[ext_resource type="StyleBox" uid="uid://yamlhfhh2ba2" path="res://addons/Themey/themes/spacey/panels/spacey_button_pressed.tres" id="4_bsucj"]
-[ext_resource type="Texture2D" uid="uid://bdgaxjqjqj1u6" path="res://addons/Themey/themes/clashy/graphics/check-box-checked.svg" id="5_uxipw"]
-[ext_resource type="Texture2D" uid="uid://ckibkwolnudf6" path="res://addons/Themey/themes/clashy/graphics/check-box-disabled-checked.svg" id="6_ftc85"]
-[ext_resource type="Texture2D" uid="uid://bqbfn1sgkdsmu" path="res://addons/Themey/themes/clashy/graphics/check-box-unchecked.svg" id="7_sq8g4"]
-[ext_resource type="Texture2D" uid="uid://d1mgec37wuogs" path="res://addons/Themey/themes/clashy/graphics/check-box-disabled-unchecked.svg" id="8_tsau1"]
-[ext_resource type="Texture2D" uid="uid://bmfe5aahi3ufm" path="res://addons/Themey/themes/clashy/graphics/check-button-checked.svg" id="9_gpbn4"]
-[ext_resource type="Texture2D" uid="uid://qly80th6h30" path="res://addons/Themey/themes/clashy/graphics/check-button-checked-disabled.svg" id="10_ust8b"]
-[ext_resource type="Texture2D" uid="uid://b0vpdub1akiut" path="res://addons/Themey/themes/clashy/graphics/check-button-unchecked-disabled.svg" id="11_n0yq2"]
-[ext_resource type="Texture2D" uid="uid://bus1kwh043ym" path="res://addons/Themey/themes/clashy/graphics/check-button-inverted-checked.svg" id="12_dsi2d"]
-[ext_resource type="Texture2D" uid="uid://d0mr3x4wxescs" path="res://addons/Themey/themes/clashy/graphics/check-button-unchecked.svg" id="13_qma4a"]
-[ext_resource type="Texture2D" uid="uid://ctwjroqh0fgvc" path="res://addons/Themey/themes/clashy/graphics/check-button-inverted-unchecked.svg" id="14_0viov"]
-[ext_resource type="StyleBox" uid="uid://2snm3okweqpc" path="res://addons/Themey/themes/clashy/panels/dangerClashButtonHover.tres" id="15_gl2j6"]
-[ext_resource type="StyleBox" uid="uid://cs4adpd6rj16" path="res://addons/Themey/themes/clashy/panels/dangerClashButton.tres" id="16_qnkdx"]
-[ext_resource type="StyleBox" uid="uid://8aoy2hfwk68y" path="res://addons/Themey/themes/clashy/panels/dangerClashButtonPress.tres" id="17_3terx"]
-[ext_resource type="StyleBox" uid="uid://dewga67neikey" path="res://addons/Themey/themes/clashy/panels/clashGreenButtonHovered.tres" id="18_01ny3"]
-[ext_resource type="StyleBox" uid="uid://dsq41wy5jywes" path="res://addons/Themey/themes/clashy/panels/clashGreenButton.tres" id="19_arxth"]
-[ext_resource type="StyleBox" uid="uid://cr8yu214v4imm" path="res://addons/Themey/themes/clashy/panels/clashGreenButtonPressed.tres" id="20_txq0h"]
-[ext_resource type="FontFile" uid="uid://dxfcnc5pupvam" path="res://addons/Themey/themes/spacey/font/Share/Share-Regular.ttf" id="21_5xg0f"]
-[ext_resource type="StyleBox" uid="uid://budiltoqh47b4" path="res://addons/Themey/themes/spacey/panels/spacey_panel.tres" id="22_l4au7"]
-[ext_resource type="StyleBox" uid="uid://t88jwvb7s6t5" path="res://addons/Themey/themes/clashy/panels/panel_dark_embedded.tres" id="24_k3eyu"]
-[ext_resource type="StyleBox" uid="uid://dckahvecau5rs" path="res://addons/Themey/themes/clashy/panels/panel_light_embedded.tres" id="25_vki5e"]
-[ext_resource type="StyleBox" uid="uid://bvxyf0wxqh33m" path="res://addons/Themey/themes/clashy/panels/panel_light.tres" id="26_kofpw"]
-[ext_resource type="StyleBox" uid="uid://bvocuknixxciu" path="res://addons/Themey/themes/spacey/panels/spacey-panel-embedded.tres" id="27_i1jvp"]
-[ext_resource type="StyleBox" uid="uid://ijcks3fe2cy1" path="res://addons/Themey/themes/clashy/panels/successClashButtonHover.tres" id="28_puetg"]
-[ext_resource type="StyleBox" uid="uid://b3bs0xywspv6c" path="res://addons/Themey/themes/clashy/panels/successClashButton.tres" id="29_0ymt6"]
-[ext_resource type="StyleBox" uid="uid://7gnfvusfrfqy" path="res://addons/Themey/themes/clashy/panels/successClashButtonPress.tres" id="30_mvluj"]
-[ext_resource type="Texture2D" uid="uid://dnnvgg848rp73" path="res://addons/Themey/themes/clashy/graphics/panel.svg" id="31_0us04"]
+[ext_resource type="Texture2D" uid="uid://cijnbspbn0k6c" path="res://assets/themes/clashy/graphics/button-disabled.svg" id="1_gvlue"]
+[ext_resource type="StyleBox" uid="uid://clb2fsgyvp5pa" path="res://assets/themes/spacey/panels/spacey_button_hovered.tres" id="2_d1rfb"]
+[ext_resource type="StyleBox" uid="uid://bu3asmtpckaun" path="res://assets/themes/spacey/panels/spacey_button.tres" id="3_fnllr"]
+[ext_resource type="StyleBox" uid="uid://yamlhfhh2ba2" path="res://assets/themes/spacey/panels/spacey_button_pressed.tres" id="4_bsucj"]
+[ext_resource type="Texture2D" uid="uid://bdgaxjqjqj1u6" path="res://assets/themes/clashy/graphics/check-box-checked.svg" id="5_uxipw"]
+[ext_resource type="Texture2D" uid="uid://ckibkwolnudf6" path="res://assets/themes/clashy/graphics/check-box-disabled-checked.svg" id="6_ftc85"]
+[ext_resource type="Texture2D" uid="uid://bqbfn1sgkdsmu" path="res://assets/themes/clashy/graphics/check-box-unchecked.svg" id="7_sq8g4"]
+[ext_resource type="Texture2D" uid="uid://d1mgec37wuogs" path="res://assets/themes/clashy/graphics/check-box-disabled-unchecked.svg" id="8_tsau1"]
+[ext_resource type="Texture2D" uid="uid://bmfe5aahi3ufm" path="res://assets/themes/clashy/graphics/check-button-checked.svg" id="9_gpbn4"]
+[ext_resource type="Texture2D" uid="uid://qly80th6h30" path="res://assets/themes/clashy/graphics/check-button-checked-disabled.svg" id="10_ust8b"]
+[ext_resource type="Texture2D" uid="uid://b0vpdub1akiut" path="res://assets/themes/clashy/graphics/check-button-unchecked-disabled.svg" id="11_n0yq2"]
+[ext_resource type="Texture2D" uid="uid://bus1kwh043ym" path="res://assets/themes/clashy/graphics/check-button-inverted-checked.svg" id="12_dsi2d"]
+[ext_resource type="Texture2D" uid="uid://d0mr3x4wxescs" path="res://assets/themes/clashy/graphics/check-button-unchecked.svg" id="13_qma4a"]
+[ext_resource type="Texture2D" uid="uid://ctwjroqh0fgvc" path="res://assets/themes/clashy/graphics/check-button-inverted-unchecked.svg" id="14_0viov"]
+[ext_resource type="StyleBox" uid="uid://2snm3okweqpc" path="res://assets/themes/clashy/panels/dangerClashButtonHover.tres" id="15_gl2j6"]
+[ext_resource type="StyleBox" uid="uid://cs4adpd6rj16" path="res://assets/themes/clashy/panels/dangerClashButton.tres" id="16_qnkdx"]
+[ext_resource type="StyleBox" uid="uid://8aoy2hfwk68y" path="res://assets/themes/clashy/panels/dangerClashButtonPress.tres" id="17_3terx"]
+[ext_resource type="StyleBox" uid="uid://dewga67neikey" path="res://assets/themes/clashy/panels/clashGreenButtonHovered.tres" id="18_01ny3"]
+[ext_resource type="StyleBox" uid="uid://dsq41wy5jywes" path="res://assets/themes/clashy/panels/clashGreenButton.tres" id="19_arxth"]
+[ext_resource type="StyleBox" uid="uid://cr8yu214v4imm" path="res://assets/themes/clashy/panels/clashGreenButtonPressed.tres" id="20_txq0h"]
+[ext_resource type="FontFile" uid="uid://dxfcnc5pupvam" path="res://assets/fonts/InterVariable.ttf" id="21_5xg0f"]
+[ext_resource type="StyleBox" uid="uid://budiltoqh47b4" path="res://assets/themes/spacey/panels/spacey_panel.tres" id="22_l4au7"]
+[ext_resource type="StyleBox" uid="uid://t88jwvb7s6t5" path="res://assets/themes/clashy/panels/panel_dark_embedded.tres" id="24_k3eyu"]
+[ext_resource type="StyleBox" uid="uid://dckahvecau5rs" path="res://assets/themes/clashy/panels/panel_light_embedded.tres" id="25_vki5e"]
+[ext_resource type="StyleBox" uid="uid://bvxyf0wxqh33m" path="res://assets/themes/clashy/panels/panel_light.tres" id="26_kofpw"]
+[ext_resource type="StyleBox" uid="uid://bvocuknixxciu" path="res://assets/themes/spacey/panels/spacey-panel-embedded.tres" id="27_i1jvp"]
+[ext_resource type="StyleBox" uid="uid://ijcks3fe2cy1" path="res://assets/themes/clashy/panels/successClashButtonHover.tres" id="28_puetg"]
+[ext_resource type="StyleBox" uid="uid://b3bs0xywspv6c" path="res://assets/themes/clashy/panels/successClashButton.tres" id="29_0ymt6"]
+[ext_resource type="StyleBox" uid="uid://7gnfvusfrfqy" path="res://assets/themes/clashy/panels/successClashButtonPress.tres" id="30_mvluj"]
+[ext_resource type="Texture2D" uid="uid://dnnvgg848rp73" path="res://assets/themes/clashy/graphics/panel.svg" id="31_0us04"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_o2rwg"]
 texture = ExtResource("1_gvlue")
@@ -83,7 +83,11 @@ texture_margin_bottom = 5.0
 default_base_scale = 1.0
 default_font = ExtResource("21_5xg0f")
 default_font_size = 16
-Button/colors/font_outline_color = Color(1, 1, 1, 1)
+Button/colors/font_color = Color(0.12, 0.12, 0.15, 1)
+Button/colors/font_disabled_color = Color(0.4, 0.4, 0.4, 1)
+Button/colors/font_hover_color = Color(0.05, 0.05, 0.08, 1)
+Button/colors/font_pressed_color = Color(0, 0, 0, 1)
+Button/colors/font_outline_color = Color(1, 1, 1, 0.3)
 Button/constants/outline_size = 1
 Button/styles/disabled = SubResource("StyleBoxTexture_o2rwg")
 Button/styles/focus = SubResource("StyleBoxFlat_n5wiq")

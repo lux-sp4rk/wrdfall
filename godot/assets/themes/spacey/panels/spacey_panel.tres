@@ -1,6 +1,6 @@
 [gd_resource type="StyleBoxTexture" load_steps=2 format=3 uid="uid://budiltoqh47b4"]
 
-[ext_resource type="Texture2D" uid="uid://e5p71g4mi0mq" path="res://addons/Themey/themes/spacey/graphics/spacey_panel.png" id="1_j11ot"]
+[ext_resource type="Texture2D" uid="uid://e5p71g4mi0mq" path="res://assets/themes/spacey/graphics/spacey_panel.png" id="1_j11ot"]
 
 [resource]
 content_margin_left = 0.0

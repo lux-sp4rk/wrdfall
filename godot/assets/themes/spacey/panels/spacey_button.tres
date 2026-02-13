@@ -1,6 +1,6 @@
 [gd_resource type="StyleBoxTexture" load_steps=2 format=3 uid="uid://bu3asmtpckaun"]
 
-[ext_resource type="Texture2D" uid="uid://wagjgmneu4gi" path="res://addons/Themey/themes/spacey/graphics/spacey_button.png" id="1_seuff"]
+[ext_resource type="Texture2D" uid="uid://wagjgmneu4gi" path="res://assets/themes/spacey/graphics/spacey_button.png" id="1_seuff"]
 
 [resource]
 texture = ExtResource("1_seuff")

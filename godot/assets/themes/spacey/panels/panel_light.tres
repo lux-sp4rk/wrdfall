@@ -1,6 +1,6 @@
 [gd_resource type="StyleBoxTexture" load_steps=2 format=3 uid="uid://lov6eqeo2w18"]
 
-[ext_resource type="Texture2D" uid="uid://bnfw8ei4di7oi" path="res://addons/Themey/themes/clashy/graphics/panel-light.svg" id="1_qbjat"]
+[ext_resource type="Texture2D" uid="uid://bnfw8ei4di7oi" path="res://assets/themes/clashy/graphics/panel-light.svg" id="1_qbjat"]
 
 [resource]
 texture = ExtResource("1_qbjat")
