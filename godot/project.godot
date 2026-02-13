@@ -23,12 +23,15 @@ config/features=PackedStringArray("4.6")
 
 GameSettings="*res://scripts/GameSettings.gd"
 StatsManager="*res://scripts/StatsManager.gd"
+GameConstants="*res://scripts/GameConstants.gd"
+ThemeConstants="*res://scripts/ThemeConstants.gd"
 Supabase="*res://addons/supabase/Supabase/supabase.gd"
 
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/supabase/plugin.cfg")
 
+[display]
 
 window/size/viewport_width=720
 window/size/viewport_height=1280
@@ -38,6 +41,8 @@ window/handheld/orientation=1
 
 [gui]
 
+theme/custom="res://assets/themes/spacey/spacey.tres"
+theme/custom_font="res://assets/fonts/InterVariable.ttf"
 theme/default_font_size=22
 
 [rendering]
