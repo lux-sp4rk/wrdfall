@@ -118,7 +118,7 @@ func _setup_dev_toolbar() -> void:
 	var complete_btn := Button.new()
 	complete_btn.text = "Complete"
 	complete_btn.custom_minimum_size = Vector2(80, 32)
-	complete_btn.pressed.connect(_trigger_game_complete)
+	complete_btn.pressed.connect(func(): _trigger_game_complete("dev_trigger"))
 	bar.add_child(complete_btn)
 
 	var fill_btn := Button.new()
@@ -467,10 +467,10 @@ func _input(event: InputEvent) -> void:
 	# Debug keys to test animations (development only)
 	if OS.is_debug_build() and event is InputEventKey and event.pressed:
 		if event.keycode == KEY_W and Input.is_key_pressed(KEY_CTRL):
-			_trigger_game_complete()
+			_trigger_game_complete("dev_win")
 			return
 		if event.keycode == KEY_L and Input.is_key_pressed(KEY_CTRL):
-			_trigger_game_complete()
+			_trigger_game_complete("dev_lose")
 			return
 
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -585,12 +585,12 @@ func _accept_word(word: String) -> void:
 
 	# Check for win conditions
 	if _is_grid_empty():
-		_trigger_game_complete()
+		_trigger_game_complete("grid_cleared")
 		return
 
 	# Check for game over (board full)
 	if _is_grid_full():
-		_trigger_game_complete()
+		_trigger_game_complete("board_full")
 		return
 
 	# After clearing, check if a rescue is needed for upcoming drops
@@ -619,6 +619,7 @@ func _on_shake_pressed() -> void:
 		return
 
 	score -= SHAKE_COST
+	StatsManager.record_powerup("shake")
 	_update_score_display()
 	_update_shake_button()
 	_update_swap_button()
@@ -690,12 +691,12 @@ func _shake_grid() -> void:
 
 	# Check for win conditions after shaking
 	if _is_grid_empty():
-		_trigger_game_complete()
+		_trigger_game_complete("grid_cleared_shake")
 		return
 
 	# Check for game over (board full)
 	if _is_grid_full():
-		_trigger_game_complete()
+		_trigger_game_complete("board_full_shake")
 		return
 
 	# After shaking, check if we need a rescue word
@@ -709,11 +710,6 @@ func _shake_grid() -> void:
 
 func _on_swap_pressed() -> void:
 	if game_over:
-		return
-
-	# If already in targeting mode, cancel it
-	if is_swap_targeting:
-		_cancel_swap_targeting()
 		return
 
 	if score < SWAP_COST:
@@ -755,6 +751,7 @@ func _handle_swap_targeting(cell: Vector2i) -> void:
 
 		# Deduct cost and exit targeting mode before animation
 		score -= SWAP_COST
+		StatsManager.record_powerup("swap")
 		_update_score_display()
 		_update_shake_button()
 		_update_swap_button()
@@ -809,12 +806,12 @@ func _execute_swap(cell_a: Vector2i, cell_b: Vector2i) -> void:
 
 	# Check win conditions
 	if _is_grid_empty():
-		_trigger_game_complete()
+		_trigger_game_complete("grid_cleared_swap")
 		return
 
 	# Check for game over (board full)
 	if _is_grid_full():
-		_trigger_game_complete()
+		_trigger_game_complete("board_full_swap")
 		return
 
 	# Check if rescue needed
@@ -846,6 +843,7 @@ func _on_draw_more_pressed() -> void:
 
 	# Deduct cost
 	score -= DRAW_MORE_COST
+	StatsManager.record_powerup("draw")
 	_update_score_display()
 	_update_shake_button()
 	_update_swap_button()
@@ -875,12 +873,12 @@ func _draw_more_letters(open_cols: Array) -> void:
 
 	# Check for win conditions
 	if _is_grid_empty():
-		_trigger_game_complete()
+		_trigger_game_complete("grid_cleared_draw")
 		return
 
 	# Check for game over (board full)
 	if _is_grid_full():
-		_trigger_game_complete()
+		_trigger_game_complete("board_full_draw")
 		return
 
 	# After drawing, check if we need a rescue word
@@ -1054,7 +1052,7 @@ func _drop_letter() -> void:
 			open_cols.append(col)
 
 	if open_cols.is_empty():
-		_trigger_game_complete()
+		_trigger_game_complete("no_open_cols")
 		return
 
 	var has_word: bool = _find_any_word_on_grid()
@@ -1092,7 +1090,7 @@ func _drop_letter() -> void:
 
 	# Check for game over (board full)
 	if _is_grid_full():
-		_trigger_game_complete()
+		_trigger_game_complete("board_full_drop")
 		return
 
 
@@ -1112,7 +1110,7 @@ func _is_grid_full() -> bool:
 	return true
 
 
-func _trigger_game_complete() -> void:
+func _trigger_game_complete(reason: String = "unknown") -> void:
 	game_over = true
 	drop_timer.stop()
 
@@ -1120,7 +1118,7 @@ func _trigger_game_complete() -> void:
 	var previous_high_score: int = StatsManager.high_score
 
 	# End session (this may update the high score)
-	StatsManager.end_session(score)
+	StatsManager.end_session(score, {"loss_reason": reason})
 
 	# Determine if this is a new high score
 	var is_new_high_score: bool = score > previous_high_score

@@ -34,6 +34,8 @@ window/handheld/orientation=1
 
 [gui]
 
+theme/custom="res://assets/themes/spacey/spacey.tres"
+theme/custom_font="res://assets/fonts/InterVariable.ttf"
 theme/default_font_size=22
 
 [rendering]
