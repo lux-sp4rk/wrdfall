@@ -22,12 +22,57 @@ extends Control
 @onready var avg_wpm_label: Label = %AvgWPMValue
 @onready var games_played_label: Label = %GamesPlayedValue
 
+@onready var leaderboard_list: VBoxContainer = %LeaderboardList
+@onready var leaderboard_loading: Label = %LeaderboardLoading
+
 func _ready() -> void:
 	back_button.pressed.connect(_on_back_pressed)
 	reset_button.pressed.connect(_on_reset_pressed)
 	share_button.pressed.connect(_on_share_pressed)
 	confirm_dialog.confirmed.connect(_on_reset_confirmed)
 	_update_display()
+	_load_leaderboard()
+
+func _load_leaderboard() -> void:
+	if not has_node("%LeaderboardList"): return
+	
+	leaderboard_loading.show()
+	leaderboard_loading.text = "Loading Leaderboard..."
+	
+	for child in leaderboard_list.get_children():
+		child.queue_free()
+		
+	var query = SupabaseQuery.new().from("leaderboards").select("score, profiles(display_name)").order("score", false).limit(20)
+	var task = Supabase.database.query(query)
+	task.completed.connect(func(result):
+		leaderboard_loading.hide()
+		if result is Array:
+			if result.is_empty():
+				leaderboard_loading.show()
+				leaderboard_loading.text = "No entries yet"
+			else:
+				for entry in result:
+					_add_leaderboard_entry(entry)
+		else:
+			leaderboard_loading.show()
+			leaderboard_loading.text = "Failed to load leaderboard"
+	)
+
+func _add_leaderboard_entry(entry: Dictionary) -> void:
+	var hbox = HBoxContainer.new()
+	var name_label = Label.new()
+	var score_label = Label.new()
+	
+	var profile = entry.get("profiles", {})
+	name_label.text = profile.get("display_name", "Anonymous")
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	
+	score_label.text = str(entry.get("score", 0))
+	score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	
+	hbox.add_child(name_label)
+	hbox.add_child(score_label)
+	leaderboard_list.add_child(hbox)
 
 func _update_display() -> void:
 	"""Refresh all stat displays with current data"""

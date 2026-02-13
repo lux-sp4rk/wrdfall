@@ -4,12 +4,47 @@ extends Control
 @onready var difficulty_option: OptionButton = %DifficultyOption
 @onready var difficulty_label: Label = %DifficultyLabel
 @onready var back_button: Button = %BackButton
+@onready var login_button: Button = %LoginButton
+@onready var sync_status: Label = %SyncStatus
 
 func _ready() -> void:
 	_setup_ui_text()
 	_setup_languages()
 	_setup_difficulties()
+	_update_sync_ui()
 	back_button.pressed.connect(_on_back_pressed)
+	login_button.pressed.connect(_on_login_pressed)
+	StatsManager.auth_completed.connect(_on_auth_completed)
+	StatsManager.sync_completed.connect(_on_sync_completed)
+
+func _update_sync_ui() -> void:
+	if StatsManager.is_authenticated():
+		login_button.text = "Sign Out"
+		sync_status.text = "Signed in as " + Supabase.auth.user.email
+	else:
+		login_button.text = "Sign in to Sync Progress"
+		sync_status.text = "Not signed in"
+
+func _on_login_pressed() -> void:
+	if StatsManager.is_authenticated():
+		Supabase.auth.sign_out()
+		_update_sync_ui()
+	else:
+		# For now, use anonymous login or a placeholder for email/password
+		# Apple/Google would require more setup
+		sync_status.text = "Signing in..."
+		StatsManager.login_anonymous()
+
+func _on_auth_completed(success: bool) -> void:
+	_update_sync_ui()
+	if success:
+		sync_status.text = "Successfully signed in!"
+
+func _on_sync_completed(success: bool) -> void:
+	if success:
+		sync_status.text = "Stats synced with cloud"
+	else:
+		sync_status.text = "Sync failed"
 
 func _setup_ui_text() -> void:
 	var cfg = LanguageConfig.get_config(GameSettings.current_language)

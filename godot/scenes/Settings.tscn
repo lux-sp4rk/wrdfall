@@ -73,6 +73,28 @@ custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 
+[node name="CloudSyncBox" type="VBoxContainer" parent="MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Label" type="Label" parent="MarginContainer/VBox/CloudSyncBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "Cloud Sync"
+
+[node name="LoginButton" type="Button" parent="MarginContainer/VBox/CloudSyncBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Sign in to Sync Progress"
+
+[node name="SyncStatus" type="Label" parent="MarginContainer/VBox/CloudSyncBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+
 [node name="Spacer" type="Control" parent="MarginContainer/VBox"]
 layout_mode = 2
 size_flags_vertical = 3

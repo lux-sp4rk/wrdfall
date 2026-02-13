@@ -23,8 +23,12 @@ config/features=PackedStringArray("4.6")
 
 GameSettings="*res://scripts/GameSettings.gd"
 StatsManager="*res://scripts/StatsManager.gd"
+Supabase="*res://addons/supabase/Supabase/supabase.gd"
 
-[display]
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/supabase/plugin.cfg")
+
 
 window/size/viewport_width=720
 window/size/viewport_height=1280

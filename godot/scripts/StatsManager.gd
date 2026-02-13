@@ -5,6 +5,10 @@ extends Node
 const STATS_FILE: String = "user://stats.cfg"
 const TELEMETRY_URL: String = "https://hook.us1.make.com/6n3h27p3t5v5y5v5v5v5v5v5v5v5v5v5" # Placeholder - Uli can update
 
+# Supabase Config
+const SUPABASE_URL = "https://szgdvwfqlbixprrygnxg.supabase.co"
+const SUPABASE_KEY = "YOUR_ANON_KEY" # To be filled by Uli or from environment
+
 # Current session tracking
 var session_start_time: float = 0.0
 var session_words_found: int = 0
@@ -23,16 +27,32 @@ var max_wpm: float = 0.0
 var session_history: Array[Dictionary] = []  # [{timestamp, score, words_found, duration}]
 
 var _http_request: HTTPRequest
+var _is_syncing: bool = false
+var _last_sync_time: int = 0
+
+signal sync_completed(success: bool)
+signal auth_completed(success: bool)
 
 func _ready() -> void:
 	load_stats()
 	_setup_telemetry()
+	_setup_supabase()
 	start_session()
 
 func _setup_telemetry() -> void:
 	_http_request = HTTPRequest.new()
 	add_child(_http_request)
 	_http_request.request_completed.connect(_on_telemetry_completed)
+
+func _setup_supabase() -> void:
+	# Supabase is an autoload from the plugin
+	if has_node("/root/Supabase"):
+		Supabase.config.supabaseUrl = SUPABASE_URL
+		Supabase.config.supabaseKey = SUPABASE_KEY
+		
+		# Connect to auth signals if needed
+		Supabase.auth.signed_in.connect(_on_supabase_signed_in)
+		Supabase.auth.auth_failed.connect(_on_supabase_auth_failed)
 
 func start_session() -> void:
 	"""Begin tracking a new game session"""
@@ -83,6 +103,11 @@ func end_session(final_score: int, metadata: Dictionary = {}) -> void:
 
 	save_stats()
 	send_telemetry(session_record)
+	
+	# Push to Supabase if authenticated
+	if is_authenticated():
+		push_stats_to_supabase()
+		submit_to_leaderboard(final_score)
 
 func record_word(word: String, tiles_cleared: int) -> void:
 	"""Track a word being found during gameplay"""
@@ -127,6 +152,8 @@ func save_stats() -> void:
 
 	# [history] - serialize as JSON since ConfigFile doesn't handle arrays directly
 	config.set_value("history", "sessions", JSON.stringify(session_history))
+	
+	config.set_value("sync", "last_sync_time", _last_sync_time)
 
 	var err := config.save(STATS_FILE)
 	if err != OK:
@@ -159,6 +186,8 @@ func load_stats() -> void:
 		for item in parsed:
 			if item is Dictionary:
 				session_history.append(item)
+	
+	_last_sync_time = config.get_value("sync", "last_sync_time", 0)
 
 func get_average_wpm() -> float:
 	"""Calculate average WPM across all sessions"""
@@ -187,3 +216,104 @@ func _calculate_wpm(words: int, seconds: float) -> float:
 	if seconds <= 0:
 		return 0.0
 	return (words / seconds) * 60.0
+
+# --- Supabase Integration ---
+
+func is_authenticated() -> bool:
+	return Supabase.auth.user != null
+
+func login_anonymous() -> void:
+	Supabase.auth.sign_in_anonymous()
+
+func login_with_email(email: String, password: String) -> void:
+	Supabase.auth.sign_in(email, password)
+
+func _on_supabase_signed_in(user: SupabaseUser) -> void:
+	print("Signed in as: ", user.email)
+	auth_completed.emit(true)
+	pull_stats_from_supabase()
+
+func _on_supabase_auth_failed(error: SupabaseAuthError) -> void:
+	print("Auth failed: ", error.message)
+	auth_completed.emit(false)
+
+func push_stats_to_supabase() -> void:
+	if not is_authenticated() or _is_syncing:
+		return
+	
+	_is_syncing = true
+	var user_id = Supabase.auth.user.id
+	var data = {
+		"id": user_id,
+		"high_score": high_score,
+		"total_words": total_words_found,
+		"last_sync": Time.get_datetime_string_from_system(true)
+	}
+	
+	var task = Supabase.database.query(SupabaseQuery.new().from("profiles").upsert([data]))
+	task.completed.connect(func(result):
+		_is_syncing = false
+		if result:
+			_last_sync_time = Time.get_unix_time_from_system()
+			save_stats()
+			sync_completed.emit(true)
+		else:
+			sync_completed.emit(false)
+	)
+
+func pull_stats_from_supabase() -> void:
+	if not is_authenticated() or _is_syncing:
+		return
+	
+	_is_syncing = true
+	var user_id = Supabase.auth.user.id
+	var query = SupabaseQuery.new().from("profiles").select().eq("id", user_id).single()
+	var task = Supabase.database.query(query)
+	
+	task.completed.connect(func(result):
+		_is_syncing = false
+		if result and result.size() > 0:
+			var remote_data = result[0]
+			_resolve_conflicts(remote_data)
+			sync_completed.emit(true)
+		else:
+			# If no profile exists, push local stats
+			push_stats_to_supabase()
+	)
+
+func _resolve_conflicts(remote_data: Dictionary) -> void:
+	var remote_high_score = remote_data.get("high_score", 0)
+	var remote_total_words = remote_data.get("total_words", 0)
+	
+	# Conflict resolution: Max score / Max words
+	var changed = false
+	if remote_high_score > high_score:
+		high_score = remote_high_score
+		changed = true
+	
+	if remote_total_words > total_words_found:
+		total_words_found = remote_total_words
+		changed = true
+		
+	if changed:
+		save_stats()
+
+func submit_to_leaderboard(score: int) -> void:
+	if not is_authenticated():
+		return
+		
+	var user_id = Supabase.auth.user.id
+	var data = {
+		"user_id": user_id,
+		"score": score
+	}
+	
+	Supabase.database.query(SupabaseQuery.new().from("leaderboards").insert([data]))
+
+func get_leaderboard(limit: int = 10) -> void:
+	var query = SupabaseQuery.new().from("leaderboards").select("score, profiles(display_name)").order("score", false).limit(limit)
+	var task = Supabase.database.query(query)
+	task.completed.connect(func(result):
+		if result:
+			print("Leaderboard: ", result)
+	)
