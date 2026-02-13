@@ -20,12 +20,13 @@ extends Control
 @onready var game_complete_sound: AudioStreamPlayer = %"GameCompleteSoundPlayer"
 @onready var game_won_sound: AudioStreamPlayer = %"GameWonSoundPlayer"
 
-const ROWS: int = 5
-const COLS: int = 5
-const MIN_WORD_LENGTH: int = 3
-const INITIAL_FILL_ROWS: int = 3
+# Grid and game rules now defined in GameConstants
+const ROWS: int = GameConstants.ROWS
+const COLS: int = GameConstants.COLS
+const MIN_WORD_LENGTH: int = GameConstants.MIN_WORD_LENGTH
+const INITIAL_FILL_ROWS: int = GameConstants.INITIAL_FILL_ROWS
 
-# Power-up costs are now loaded from GameSettings based on difficulty
+# Power-up costs loaded from GameConstants based on difficulty
 var SHAKE_COST: int = 0
 var SWAP_COST: int = 0
 var DRAW_MORE_COST: int = 0
@@ -43,13 +44,14 @@ var dictionary: DictionaryService
 var lang_config: LanguageConfig
 var _bag_distribution: Array = []
 
-const COLOR_SELECTED: Color = Color(0.35, 0.65, 1.0)
-const COLOR_TOO_SHORT: Color = Color(0.7, 0.7, 0.7)
+# Selection colors and icons now defined in ThemeConstants
+const COLOR_SELECTED: Color = ThemeConstants.COLOR_SELECTED
+const COLOR_TOO_SHORT: Color = ThemeConstants.COLOR_TOO_SHORT
 
-const ICON_SHAKE: String = "\u21bb"   # ↻
-const ICON_SWAP: String = "\u21c4"    # ⇄
-const ICON_DRAW_MORE: String = "\u2295"  # ⊕
-const ICON_CANCEL: String = "\u2715"  # ✕
+const ICON_SHAKE: String = ThemeConstants.ICON_SHAKE
+const ICON_SWAP: String = ThemeConstants.ICON_SWAP
+const ICON_DRAW_MORE: String = ThemeConstants.ICON_DRAW_MORE
+const ICON_CANCEL: String = ThemeConstants.ICON_CANCEL
 
 var drop_timer: Timer
 var game_over: bool = false
@@ -196,23 +198,19 @@ func _initialize_grid() -> void:
 			var btn := Button.new()
 			btn.text = grid[row][col]
 			btn.custom_minimum_size = Vector2(16, 16)
-			btn.add_theme_font_size_override("font_size", 44)
+			btn.add_theme_font_size_override("font_size", ThemeConstants.TILE_FONT_SIZE)
 			btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			btn.clip_contents = true
 			grid_container.add_child(btn)
 
 			# Spacey theme colors: white text on blue background
 			# Apply AFTER adding to scene tree for proper initialization
-			btn.add_theme_color_override("font_color", Color.WHITE)
-			btn.add_theme_color_override("font_hover_color", Color.WHITE)
-			btn.add_theme_color_override("font_pressed_color", Color.WHITE)
-			btn.add_theme_color_override("font_disabled_color", Color(1, 1, 1, 0.5))
+			btn.add_theme_color_override("font_color", ThemeConstants.TILE_FONT_COLOR)
+			btn.add_theme_color_override("font_hover_color", ThemeConstants.TILE_FONT_COLOR)
+			btn.add_theme_color_override("font_pressed_color", ThemeConstants.TILE_FONT_COLOR)
+			btn.add_theme_color_override("font_disabled_color", ThemeConstants.TILE_FONT_DISABLED_COLOR)
 
-			var tile_style := StyleBoxFlat.new()
-			tile_style.bg_color = Color(0.25, 0.35, 0.45, 1)  # Lighter blue for visibility
-			tile_style.border_color = Color(0.4, 0.5, 0.6, 1)  # Lighter border
-			tile_style.set_border_width_all(2)
-			tile_style.set_corner_radius_all(4)
+			var tile_style := ThemeConstants.create_tile_stylebox()
 			btn.add_theme_stylebox_override("normal", tile_style)
 			btn.add_theme_stylebox_override("hover", tile_style)
 			btn.add_theme_stylebox_override("pressed", tile_style)
@@ -225,7 +223,7 @@ func _initialize_grid() -> void:
 			pt_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 			pt_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 			pt_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			pt_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.55))
+			pt_label.add_theme_color_override("font_color", ThemeConstants.POINT_LABEL_COLOR)
 			btn.add_child(pt_label)
 			_update_point_label(pt_label, grid[row][col])
 
@@ -967,11 +965,7 @@ func _apply_gravity_with_animation() -> void:
 		tile_visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 		# Create background style matching button
-		var stylebox := StyleBoxFlat.new()
-		stylebox.bg_color = Color(0.25, 0.35, 0.45, 1)  # Lighter blue for visibility
-		stylebox.border_color = Color(0.4, 0.5, 0.6, 1)  # Lighter border
-		stylebox.set_border_width_all(2)
-		stylebox.set_corner_radius_all(4)
+		var stylebox := ThemeConstants.create_tile_stylebox()
 		stylebox.content_margin_left = 4.0
 		stylebox.content_margin_right = 4.0
 		stylebox.content_margin_top = 4.0
@@ -985,7 +979,7 @@ func _apply_gravity_with_animation() -> void:
 		letter_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		letter_label.set_anchors_preset(Control.PRESET_FULL_RECT)
 		letter_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		letter_label.add_theme_color_override("font_color", Color.WHITE)  # White text
+		letter_label.add_theme_color_override("font_color", ThemeConstants.TILE_FONT_COLOR)
 
 		# Get font size from source button
 		var font_size: int = source_btn.get_theme_font_size("font_size")
@@ -1182,16 +1176,12 @@ func _update_selection_visuals() -> void:
 
 func _clear_selection_visuals() -> void:
 	# Restore default tile appearance (blue background, white text)
-	var tile_style := StyleBoxFlat.new()
-	tile_style.bg_color = Color(0.25, 0.35, 0.45, 1)  # Lighter blue for visibility
-	tile_style.border_color = Color(0.4, 0.5, 0.6, 1)  # Lighter border
-	tile_style.set_border_width_all(2)
-	tile_style.set_corner_radius_all(4)
+	var tile_style := ThemeConstants.create_tile_stylebox()
 
 	for row in range(ROWS):
 		for col in range(COLS):
 			var btn: Button = buttons[row][col]
-			btn.add_theme_color_override("font_color", Color.WHITE)
+			btn.add_theme_color_override("font_color", ThemeConstants.TILE_FONT_COLOR)
 			btn.add_theme_stylebox_override("normal", tile_style)
 			btn.add_theme_stylebox_override("hover", tile_style)
 

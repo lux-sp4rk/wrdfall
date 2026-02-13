@@ -3,30 +3,33 @@ extends Node
 var current_language: String = "en"
 var difficulty: String = "normal"
 
+# All game constants now defined in GameConstants autoload
+# These dictionaries reference those constants for backward compatibility
+
 # Drop interval per difficulty (in seconds)
 const DROP_INTERVALS = {
-	"normal": 10.0,
-	"hard": 5.0
+	"normal": GameConstants.DROP_INTERVAL_NORMAL,
+	"hard": GameConstants.DROP_INTERVAL_HARD
 }
 
 # Power-up costs per difficulty
 const POWER_UP_COSTS = {
 	"normal": {
-		"shake": 3,
-		"swap": 2,
-		"draw_more": 9
+		"shake": GameConstants.SHAKE_COST_NORMAL,
+		"swap": GameConstants.SWAP_COST_NORMAL,
+		"draw_more": GameConstants.DRAW_MORE_COST_NORMAL
 	},
 	"hard": {
-		"shake": 8,
-		"swap": 5,
-		"draw_more": 20
+		"shake": GameConstants.SHAKE_COST_HARD,
+		"swap": GameConstants.SWAP_COST_HARD,
+		"draw_more": GameConstants.DRAW_MORE_COST_HARD
 	}
 }
 
 # Vowel ratio adjustment per difficulty (multiplier on base ratio)
 const VOWEL_RATIO_MULTIPLIERS = {
-	"normal": 1.15,     # 15% more vowels (0.437 for EN, 0.483 for ES)
-	"hard": 0.75        # 25% fewer vowels (0.285 for EN, 0.315 for ES)
+	"normal": GameConstants.VOWEL_BOOST_NORMAL,
+	"hard": GameConstants.VOWEL_REDUCTION_HARD
 }
 
 # Rescue word system enabled per difficulty

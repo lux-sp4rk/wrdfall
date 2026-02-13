@@ -23,6 +23,8 @@ config/features=PackedStringArray("4.6")
 
 GameSettings="*res://scripts/GameSettings.gd"
 StatsManager="*res://scripts/StatsManager.gd"
+GameConstants="*res://scripts/GameConstants.gd"
+ThemeConstants="*res://scripts/ThemeConstants.gd"
 
 [display]
 
