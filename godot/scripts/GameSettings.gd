@@ -2,6 +2,7 @@ extends Node
 
 var current_language: String = "en"
 var difficulty: String = "normal"
+var theme: String = "light"
 
 # All game constants now defined in GameConstants autoload
 # These dictionaries reference those constants for backward compatibility
