@@ -62,6 +62,12 @@ func _setup_supabase() -> void:
 	Supabase.auth.signed_in.connect(_on_supabase_signed_in)
 	Supabase.auth.signed_out.connect(_on_supabase_signed_out)
 	Supabase.auth.error.connect(_on_supabase_auth_failed)
+	
+	# Proactive: Attempt anonymous login automatically if not already signed in
+	# This ensures cloud-save works for "invisible" users like your mom
+	if not is_authenticated():
+		print("Attempting automatic anonymous login...")
+		login_anonymous()
 
 func start_session() -> void:
 	"""Begin tracking a new game session"""
