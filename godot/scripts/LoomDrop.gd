@@ -2,6 +2,7 @@ extends Control
 
 @onready var grid_container: GridContainer = %"GridContainer"
 @onready var grid_center: CenterContainer = $MarginContainer/VBox/GridCenter
+@onready var board_panel: Panel = $MarginContainer/VBox/GridCenter/BoardPanel
 @onready var word_label: Label = %"WordLabel"
 @onready var top_nav_bar = %"TopNavBar"
 @onready var shake_button: Button = %"ShakeButton"
@@ -103,6 +104,10 @@ func _ready() -> void:
 	# Dynamic grid sizing
 	grid_center.resized.connect(_resize_grid)
 	call_deferred("_resize_grid")
+
+	# Apply theme
+	_apply_theme()
+	ThemeManager.theme_changed.connect(_apply_theme)
 
 	# Dev toolbar (debug builds only)
 	if OS.is_debug_build():
@@ -1257,6 +1262,18 @@ func _setup_icon_button(btn: Button, icon_text: String, label_text: String) -> v
 func _set_button_content(btn: Button, icon_text: String, label_text: String) -> void:
 	btn.get_node("Content/Icon").text = icon_text
 	btn.get_node("Content/Text").text = label_text
+
+
+func _apply_theme() -> void:
+	# Update background
+	if background:
+		background.color = ThemeManager.get_color("background")
+
+	# Update game board panel
+	if board_panel:
+		var panel_style = board_panel.get_theme_stylebox("panel")
+		if panel_style:
+			panel_style.bg_color = ThemeManager.get_color("card_background")
 
 
 # --- Win/Lose Animations ---

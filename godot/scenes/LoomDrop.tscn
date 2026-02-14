@@ -8,6 +8,16 @@
 [ext_resource type="AudioStream" uid="uid://bvnu8evp1p0r7" path="res://audio/game_complete.wav" id="5_game_complete"]
 [ext_resource type="AudioStream" uid="uid://b8as2b8dwa6ej" path="res://audio/game_won.wav" id="6_game_won"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_board_panel"]
+bg_color = Color(0.15, 0.19, 0.24, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 4
+shadow_offset = Vector2(0, 2)
+
 [node name="LoomDrop" type="Control" unique_id=20148124]
 layout_mode = 3
 anchors_preset = 15
@@ -57,7 +67,11 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBox/GridCenter" unique_id=1796082259]
+[node name="BoardPanel" type="Panel" parent="MarginContainer/VBox/GridCenter"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_board_panel")
+
+[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBox/GridCenter/BoardPanel" unique_id=1796082259]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3

@@ -31,6 +31,10 @@ func _ready() -> void:
 	if auth_panel:
 		_update_auth_ui()
 
+	# Apply theme
+	_apply_theme()
+	ThemeManager.theme_changed.connect(_apply_theme)
+
 func _update_auth_ui() -> void:
 	# Only update if auth UI exists in the scene
 	if not auth_panel:
@@ -77,3 +81,67 @@ func _on_auth_completed(success: bool) -> void:
 		print("Auth successful!")
 	else:
 		print("Auth failed")
+
+func _apply_theme() -> void:
+	# Update background
+	var bg = $Background
+	if bg:
+		bg.color = ThemeManager.get_color("background")
+
+	# Update main card
+	var main_card = $CenterContainer/MainCard
+	if main_card:
+		var panel_style = main_card.get_theme_stylebox("panel")
+		if panel_style:
+			panel_style.bg_color = ThemeManager.get_color("card_background")
+			panel_style.shadow_color = ThemeManager.get_color("shadow")
+
+	# Update title
+	var title = $CenterContainer/MainCard/VBox/TitleContainer/Title
+	if title:
+		title.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+
+	# Update tagline
+	var tagline = $CenterContainer/MainCard/VBox/TitleContainer/Tagline
+	if tagline:
+		tagline.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
+
+	# Update Play button StyleBoxes
+	var play_btn = %PlayButton
+	if play_btn:
+		var normal_style = play_btn.get_theme_stylebox("normal")
+		if normal_style:
+			normal_style.bg_color = ThemeManager.get_color("primary_button")
+			normal_style.shadow_color = Color(ThemeManager.get_color("primary_button").r,
+				ThemeManager.get_color("primary_button").g,
+				ThemeManager.get_color("primary_button").b, 0.2)
+
+		var hover_style = play_btn.get_theme_stylebox("hover")
+		if hover_style:
+			hover_style.bg_color = ThemeManager.get_color("primary_button_hover")
+
+		var pressed_style = play_btn.get_theme_stylebox("pressed")
+		if pressed_style:
+			pressed_style.bg_color = ThemeManager.get_color("primary_button_pressed")
+
+	# Update Stats and Settings buttons
+	for btn_name in ["%StatsButton", "%SettingsButton"]:
+		var btn = get_node_or_null(btn_name)
+		if btn:
+			var normal_style = btn.get_theme_stylebox("normal")
+			if normal_style:
+				normal_style.bg_color = ThemeManager.get_color("secondary_button")
+
+			var hover_style = btn.get_theme_stylebox("hover")
+			if hover_style:
+				hover_style.bg_color = ThemeManager.get_color("secondary_button_hover")
+
+			var pressed_style = btn.get_theme_stylebox("pressed")
+			if pressed_style:
+				pressed_style.bg_color = ThemeManager.get_color("secondary_button_pressed")
+
+	# Update copyright
+	var copyright = $Copyright
+	if copyright:
+		var muted = ThemeManager.get_color("text_muted")
+		copyright.add_theme_color_override("font_color", Color(muted.r, muted.g, muted.b, 0.5))
