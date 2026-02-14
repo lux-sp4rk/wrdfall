@@ -63,11 +63,10 @@ func _setup_supabase() -> void:
 	Supabase.auth.signed_out.connect(_on_supabase_signed_out)
 	Supabase.auth.error.connect(_on_supabase_auth_failed)
 	
-	# Proactive: Attempt anonymous login automatically if not already signed in
-	# This ensures cloud-save works for "invisible" users like your mom
-	if not is_authenticated():
-		print("Attempting automatic anonymous login...")
-		login_anonymous()
+	# Automatic anonymous login removed to avoid Captcha issues and friction.
+	# We rely on local IndexedDB (user://stats.cfg) for "Guest" play.
+	# Real auth is triggered when the user wants to view/submit to leaderboards.
+
 
 func start_session() -> void:
 	"""Begin tracking a new game session"""
