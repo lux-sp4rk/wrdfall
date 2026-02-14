@@ -30,6 +30,8 @@ func _ready() -> void:
 	reset_button.pressed.connect(_on_reset_pressed)
 	share_button.pressed.connect(_on_share_pressed)
 	confirm_dialog.confirmed.connect(_on_reset_confirmed)
+	_apply_theme()
+	ThemeManager.theme_changed.connect(_apply_theme)
 	_update_display()
 	_load_leaderboard()
 
@@ -62,14 +64,16 @@ func _add_leaderboard_entry(entry: Dictionary) -> void:
 	var hbox = HBoxContainer.new()
 	var name_label = Label.new()
 	var score_label = Label.new()
-	
+
 	var profile = entry.get("profiles", {})
 	name_label.text = profile.get("display_name", "Anonymous")
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	
+	name_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+
 	score_label.text = str(entry.get("score", 0))
 	score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	
+	score_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+
 	hbox.add_child(name_label)
 	hbox.add_child(score_label)
 	leaderboard_list.add_child(hbox)
@@ -115,7 +119,7 @@ func _on_chart_draw() -> void:
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
 			20,
-			Color(1, 1, 1, 0.5)
+			ThemeManager.get_color("text_secondary")
 		)
 		return
 
@@ -145,8 +149,10 @@ func _on_chart_draw() -> void:
 		var y: float = chart_height - bar_height
 
 		# Bar color (gradient based on position - newer = brighter)
+		# Use theme-aware accent color
+		var base_color: Color = ThemeManager.get_color("accent")
 		var alpha: float = 0.4 + (float(i) / count) * 0.6
-		var bar_color: Color = Color(0.35, 0.65, 1.0, alpha)
+		var bar_color: Color = Color(base_color.r, base_color.g, base_color.b, alpha)
 
 		# Draw bar
 		history_chart.draw_rect(
@@ -164,7 +170,7 @@ func _on_chart_draw() -> void:
 				HORIZONTAL_ALIGNMENT_LEFT,
 				-1,
 				14,
-				Color.WHITE
+				ThemeManager.get_color("text_primary")
 			)
 
 func _format_time(seconds: float) -> String:
@@ -227,3 +233,69 @@ func _on_share_pressed() -> void:
 	await get_tree().create_timer(1.5).timeout
 	share_button.text = original_text
 	share_button.disabled = false
+
+func _apply_theme() -> void:
+	"""Apply current theme colors to all UI elements"""
+	# Update background
+	var bg = $ColorRect
+	if bg:
+		bg.color = ThemeManager.get_color("background")
+
+	# Update title
+	var title = $MarginContainer/VBox/Title
+	if title:
+		title.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+
+	# Update section titles
+	var section_titles = [
+		$MarginContainer/VBox/ScrollContainer/ContentVBox/RecordsSection/SectionTitle,
+		$MarginContainer/VBox/ScrollContainer/ContentVBox/TotalsSection/SectionTitle,
+		$MarginContainer/VBox/ScrollContainer/ContentVBox/HistorySection/SectionTitle,
+		$MarginContainer/VBox/ScrollContainer/ContentVBox/AveragesSection/SectionTitle
+	]
+	for section_title in section_titles:
+		if section_title:
+			section_title.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+
+	# Update all stat labels (both label and value in each row)
+	var stat_rows = [
+		$MarginContainer/VBox/ScrollContainer/ContentVBox/RecordsSection/HighScoreRow,
+		$MarginContainer/VBox/ScrollContainer/ContentVBox/RecordsSection/LongestWordRow,
+		$MarginContainer/VBox/ScrollContainer/ContentVBox/RecordsSection/MaxWPMRow,
+		$MarginContainer/VBox/ScrollContainer/ContentVBox/TotalsSection/TotalWordsRow,
+		$MarginContainer/VBox/ScrollContainer/ContentVBox/TotalsSection/TotalTilesRow,
+		$MarginContainer/VBox/ScrollContainer/ContentVBox/TotalsSection/TotalTimeRow,
+		$MarginContainer/VBox/ScrollContainer/ContentVBox/AveragesSection/GamesPlayedRow,
+		$MarginContainer/VBox/ScrollContainer/ContentVBox/AveragesSection/AvgScoreRow,
+		$MarginContainer/VBox/ScrollContainer/ContentVBox/AveragesSection/AvgWPMRow
+	]
+	for row in stat_rows:
+		if row:
+			for child in row.get_children():
+				if child is Label:
+					child.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+
+	# Update separators
+	var separators = [
+		$MarginContainer/VBox/ScrollContainer/ContentVBox/Separator1,
+		$MarginContainer/VBox/ScrollContainer/ContentVBox/Separator2,
+		$MarginContainer/VBox/ScrollContainer/ContentVBox/Separator3
+	]
+	for separator in separators:
+		if separator:
+			separator.add_theme_constant_override("separation", 1)
+			# Note: HSeparator color is handled via theme
+
+	# Update dynamically created leaderboard labels
+	if leaderboard_list:
+		for hbox in leaderboard_list.get_children():
+			for label in hbox.get_children():
+				if label is Label:
+					label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+
+	if leaderboard_loading:
+		leaderboard_loading.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
+
+	# Redraw chart with new theme colors
+	if history_chart:
+		history_chart.queue_redraw()
