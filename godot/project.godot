@@ -25,6 +25,7 @@ GameSettings="*res://scripts/GameSettings.gd"
 StatsManager="*res://scripts/StatsManager.gd"
 GameConstants="*res://scripts/GameConstants.gd"
 ThemeConstants="*res://scripts/ThemeConstants.gd"
+ThemeManager="*res://scripts/ThemeManager.gd"
 Supabase="*uid://bnqjaif2kq8td"
 
 [display]
