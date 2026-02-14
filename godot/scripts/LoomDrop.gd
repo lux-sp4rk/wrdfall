@@ -2,7 +2,7 @@ extends Control
 
 @onready var grid_container: GridContainer = %"GridContainer"
 @onready var grid_center: CenterContainer = $MarginContainer/VBox/GridCenter
-@onready var board_panel: Panel = $MarginContainer/VBox/GridCenter/BoardPanel
+@onready var board_panel: PanelContainer = $MarginContainer/VBox/GridCenter/BoardPanel
 @onready var word_label: Label = %"WordLabel"
 @onready var top_nav_bar = %"TopNavBar"
 @onready var shake_button: Button = %"ShakeButton"

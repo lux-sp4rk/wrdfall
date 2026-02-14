@@ -3,6 +3,7 @@ extends Control
 @onready var play_button: Button = %PlayButton
 @onready var stats_button: Button = %StatsButton
 @onready var settings_button: Button = %SettingsButton
+@onready var high_score_label: Label = %HighScoreLabel
 
 # Auth UI elements (add these to Home.tscn)
 @onready var auth_panel: Control = %AuthPanel  # Container for auth buttons
@@ -30,6 +31,9 @@ func _ready() -> void:
 	# Update UI based on current auth state (only if auth UI exists)
 	if auth_panel:
 		_update_auth_ui()
+
+	# Show high score
+	_update_high_score()
 
 	# Apply theme
 	_apply_theme()
@@ -82,6 +86,14 @@ func _on_auth_completed(success: bool) -> void:
 	else:
 		print("Auth failed")
 
+func _update_high_score() -> void:
+	if high_score_label:
+		if StatsManager.high_score > 0:
+			high_score_label.text = "Best: %d" % StatsManager.high_score
+			high_score_label.visible = true
+		else:
+			high_score_label.visible = false
+
 func _apply_theme() -> void:
 	# Update background
 	var bg = $Background
@@ -105,6 +117,10 @@ func _apply_theme() -> void:
 	var tagline = $CenterContainer/MainCard/VBox/TitleContainer/Tagline
 	if tagline:
 		tagline.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
+
+	# Update high score label
+	if high_score_label:
+		high_score_label.add_theme_color_override("font_color", ThemeManager.get_color("accent"))
 
 	# Update Play button StyleBoxes
 	var play_btn = %PlayButton

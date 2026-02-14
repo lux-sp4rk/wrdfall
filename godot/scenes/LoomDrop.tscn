@@ -67,15 +67,14 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="BoardPanel" type="Panel" parent="MarginContainer/VBox/GridCenter"]
+[node name="BoardPanel" type="PanelContainer" parent="MarginContainer/VBox/GridCenter" unique_id=372919665]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_board_panel")
 
 [node name="GridContainer" type="GridContainer" parent="MarginContainer/VBox/GridCenter/BoardPanel" unique_id=1796082259]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(540, 540)
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
 theme_override_constants/h_separation = 4
 theme_override_constants/v_separation = 4
 columns = 5

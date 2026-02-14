@@ -1,6 +1,36 @@
-[gd_scene format=3 uid="uid://b4qm8xjhw3fxo"]
+[gd_scene load_steps=7 format=3 uid="uid://b4qm8xjhw3fxo"]
 
 [ext_resource type="Script" path="res://scripts/TopNavBar.gd" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="NavButtonNormal"]
+bg_color = Color(0.48, 0.61, 0.55, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.48, 0.61, 0.55, 0.2)
+shadow_size = 4
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="NavButtonHover"]
+bg_color = Color(0.53, 0.66, 0.60, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.48, 0.61, 0.55, 0.25)
+shadow_size = 5
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="NavButtonPressed"]
+bg_color = Color(0.43, 0.56, 0.50, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.48, 0.61, 0.55, 0.15)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
 
 [node name="TopNavBar" type="HBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
@@ -11,14 +41,26 @@ script = ExtResource("1")
 unique_name_in_owner = true
 custom_minimum_size = Vector2(110, 70)
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.9)
 theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("NavButtonNormal")
+theme_override_styles/hover = SubResource("NavButtonHover")
+theme_override_styles/pressed = SubResource("NavButtonPressed")
 text = "Exit"
 
 [node name="PauseButton" type="Button" parent="."]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(110, 70)
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.9)
 theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("NavButtonNormal")
+theme_override_styles/hover = SubResource("NavButtonHover")
+theme_override_styles/pressed = SubResource("NavButtonPressed")
 text = "Pause"
 
 [node name="Spacer" type="Control" parent="."]
