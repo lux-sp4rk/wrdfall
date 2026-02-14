@@ -4,40 +4,57 @@
 Word Loom is a calm, senior-first word puzzle game built with **Godot 4.6 (GDScript)**.
 - **Target**: iPad, phone, browser (HTML5).
 - **Style**: No ads, no timers, high contrast, large tap targets.
-- **Game mode**: **Loom Drop** — Tetris-style falling letters on a 5×6 grid with word-swiping.
+- **Game mode**: **Loom Drop** — Tetris-style falling letters on a 5×5 grid with word-swiping.
 
 ## Project Structure
 ```
 godot/
-  project.godot      # Godot 4.6 config (main scene: Home.tscn)
+  project.godot        # Godot 4.6 config (main scene: Home.tscn)
   scenes/
-    Home.tscn        # Main menu / Home screen
-    Settings.tscn    # Settings screen (Language select)
-    LoomDrop.tscn    # Main game scene
+    Home.tscn          # Main menu / Home screen
+    Settings.tscn      # Settings screen (Language, Difficulty, Theme)
+    LoomDrop.tscn      # Main game scene
+    Stats.tscn         # Stats / high scores screen
+    TopNavBar.tscn     # Reusable top nav bar component
   scripts/
-    Home.gd          # Home screen logic
-    Settings.gd      # Settings screen logic
-    GameSettings.gd  # Global autoload for settings
-    LoomDrop.gd      # Main game logic
-    Dictionary.gd    # Word lookup service (multi-language)
-    LanguageConfig.gd # Per-language data (weights, bigrams, UI strings)
+    Home.gd            # Home screen logic
+    Settings.gd        # Settings screen logic
+    GameSettings.gd    # Autoload: persistent user settings
+    GameConstants.gd   # Autoload: all game mechanic constants
+    StatsManager.gd    # Autoload: high score tracking
+    ThemeManager.gd    # Autoload: light/dark theme state
+    ThemeConstants.gd  # Autoload: shared color constants
+    LoomDrop.gd        # Main game logic (~1400 lines)
+    TopNavBar.gd       # Top nav bar (exit, pause, score display)
+    Dictionary.gd      # Word lookup service (multi-language)
+    LanguageConfig.gd  # Per-language data (weights, bigrams, UI strings)
+    Stats.gd           # Stats screen logic
   data/
-    words_en.txt     # SOWPODS English dictionary (~270k words)
-    words_es.txt     # FISE 2017 Spanish dictionary (~639k words)
-  dist/              # HTML5 export output (ignored in git)
+    words_en.txt       # SOWPODS English dictionary (~270k words)
+    words_es.txt       # FISE 2017 Spanish dictionary (~639k words)
+  addons/supabase/     # Supabase plugin for backend integration
+  dist/                # HTML5 export output (ignored in git)
 docs/
-  research/          # Game design research
-  monetization/      # Monetization strategy
-  issue-5-verify.md  # Verification guide
-dist/                # Deployed web build (Netlify)
+  game-rules.md        # Canonical game rules reference
+  deployment.md        # Deployment guide
+  plans/               # Feature design docs and implementation plans
+  research/            # Game design research
+  monetization/        # Monetization strategy
+dist/                  # Deployed web build (Netlify)
 ```
 
 ### Key Scripts
 | Script | Purpose |
 |---|---|
-| `LoomDrop.gd` | Main game — 5×6 grid, 8-directional word selection, gravity with falling animations, shake mechanic, win detection. Gravity uses visual overlay system: creates temporary Panel nodes that animate while preserving GridContainer layout. |
+| `LoomDrop.gd` | Main game — 5×5 grid, 8-directional word selection, gravity with falling animations, power-ups, combo streaks, drop speed ratchet. Gravity uses visual overlay system: temporary Panel nodes animate while preserving GridContainer layout. |
+| `GameConstants.gd` | Central config for all game mechanics: scoring multipliers, combo streak, drop ratchet, power-up costs, vowel ratios |
 | `Dictionary.gd` | Loads word list with configurable path and extra alphabet support (e.g. Ñ) |
-| `LanguageConfig.gd` | Per-language config: letter weights, bigrams, seed words, UI strings |
+| `LanguageConfig.gd` | Per-language config: letter weights, bigrams, seed words, letter points, UI strings |
+| `ThemeManager.gd` | Light/dark theme state, color dictionaries, `theme_changed` signal |
+| `TopNavBar.gd` | Reusable nav bar: Exit, Pause buttons + score/high-score display |
+
+### Autoloads (project.godot)
+`GameSettings` · `StatsManager` · `GameConstants` · `ThemeConstants` · `ThemeManager` · `Supabase`
 
 ## Theme System
 Word Loom supports light and dark themes with persistent user preference.
@@ -80,64 +97,22 @@ User can switch theme via Settings > Theme selector (OptionButton).
 - **PRs**: Include a summary of changes and mention which issue is being addressed.
 - **Updates**: Keep this `CLAUDE.md` updated with new build commands or style shifts.
 
-## Game Features
-- **5×5 grid** with 8-directional word selection (horizontal, vertical, diagonal)
-- **Power-ups** — difficulty-based costs (see Difficulty Modes below)
-- **Game continues** even when no valid words exist (use power-ups to create opportunities)
-- **Letter distribution** — Scrabble-weighted bag + bigram-aware drops + guaranteed seed words
-- **Drop interval** — difficulty-based (8s normal, 5s hard)
-- **Gravity with animation** — letters cascade down after word clears, with Tetris/Connect 4 style falling animations (visual overlays animate while grid structure remains intact)
-- **Multi-language** — English and Spanish with in-game language switcher
-- **Difficulty modes** — normal and hard with balanced challenge scaling
+## Game Rules (Summary)
+Full rules: [`docs/game-rules.md`](docs/game-rules.md). Key points:
 
-## Game Over Conditions
-- **Win (Empty Board):** All letters cleared from the 5×5 grid (25 cells empty)
-- **Lose (Full Board):** All 25 cells occupied with letters, no space for next drop
-- **Important:** Game continues even when no valid 3+ letter words exist — players must use power-ups (shake/hammer/swap) to create word opportunities or risk filling the board
-
-## Difficulty Modes
-The game offers two difficulty levels (configurable in Settings screen):
-
-### Normal Mode
-- **Drop interval:** 10 seconds
-- **Power-up costs:** Shake (3), Swap (2), Draw More (9)
-- **Vowel ratio:** Increased by 15% (43.7% for English, 48.3% for Spanish)
-- **Rescue words:** Enabled (auto-drops seed words when no valid words exist)
-
-### Hard Mode
-- **Drop interval:** 5 seconds (50% faster than normal)
-- **Power-up costs:** Shake (8), Swap (5), Draw More (20)
-- **Vowel ratio:** Reduced by 25% (28.5% for English, 31.5% for Spanish)
-- **Rescue words:** Disabled (no safety net)
-
-## Power-Ups (Score-Based)
-All power-ups cost points earned from clearing words. Costs vary by difficulty (see above). After using a power-up, gravity is applied.
-
-| Power-Up | Normal Cost | Hard Cost | Mechanic |
-|----------|------------|-----------|----------|
-| **Shake** | 3 pts | 8 pts | Randomly redistribute all letters on board, then apply gravity |
-| **Swap** | 2 pts | 5 pts | Click any two tiles on the board, swap them, then apply gravity |
-| **Draw More** | 9 pts | 20 pts | Draw up to 5 new letters in random open columns (top row must have space) |
-
-**Targeting Mode:** Swap enters targeting mode when clicked (shows cancel icon). Press ESC or click the power-up button again to cancel.
-
-## Scoring System
-Points use Scrabble-style per-letter values plus a length bonus:
-
-**Score = sum of letter points + length bonus**
-- **Letter points**: Each letter has a point value (e.g. A=1, J=8, Q=10, Z=10). See `LanguageConfig.gd` for full tables per language.
-- **Length bonus**: `max(0, word_length - 3) × 2` (3-letter words get no bonus, 4-letter +2, 5-letter +4, etc.)
-
-| Word | Letter Sum | Length Bonus | Total |
-|------|-----------|-------------|-------|
-| CAT (3) | 3+1+1=5 | 0 | 5 |
-| THE (3) | 1+4+1=6 | 0 | 6 |
-| STAR (4) | 1+1+1+1=4 | 2 | 6 |
-| QUEST (5) | 10+1+1+1+1=14 | 4 | 18 |
-| JAZZ (4) | 8+1+10+10=29 | 2 | 31 |
+- **5×5 grid**, 8-directional word selection, 3+ letter minimum
+- **Scoring**: `letter_sum × length_multiplier × combo_multiplier` (see `GameConstants.gd`)
+- **Combo streak**: Consecutive 4+ letter words build multiplier (+0.5× per streak, cap 3.0×); 3-letter words reset
+- **Drop ratchet**: Every 5 drops speeds up by 0.5s (floor 2s); 5+ letter words reset speed
+- **Power-ups**: Shake, Swap, Draw More — costs vary by difficulty (Normal/Hard)
+- **Difficulty**: Normal (8s drops, rescue words) vs Hard (4s drops, no rescue, higher costs)
+- **Win**: Clear all letters. **Lose**: Board fills up. Game continues when no words exist — use power-ups.
+- **Languages**: English (SOWPODS) and Spanish (FISE 2017)
 
 ## Key Docs
+- `docs/game-rules.md`: Canonical game rules (scoring, power-ups, difficulty, letter distribution)
+- `docs/deployment.md`: Deployment guide
+- `docs/supabase-auth-setup.md`: Supabase authentication setup
+- `docs/plans/`: Feature design docs and implementation plans
 - `docs/research/`: Game design research notes
 - `docs/monetization/`: Monetization strategy
-- `docs/issue-5-verify.md`: Verification workflow guide
-- `docs/navigation-update.md`: Navigation/scene transition notes
