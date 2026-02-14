@@ -17,6 +17,8 @@ func _ready() -> void:
 	exit_button.pressed.connect(_on_exit_pressed)
 	pause_button.pressed.connect(_on_pause_pressed)
 	_update_high_score_display()
+	_apply_theme()
+	ThemeManager.theme_changed.connect(_apply_theme)
 
 func _on_exit_pressed() -> void:
 	exit_pressed.emit()
@@ -42,3 +44,26 @@ func _update_high_score_display(current_score: int = 0) -> void:
 		high_score_label.text = "Best: %d" % high_score
 	else:
 		high_score_label.text = ""
+
+func _apply_theme() -> void:
+	# Update Exit and Pause buttons
+	for btn in [exit_button, pause_button]:
+		if btn:
+			var normal_style = btn.get_theme_stylebox("normal")
+			if normal_style:
+				normal_style.bg_color = ThemeManager.get_color("secondary_button")
+
+			var hover_style = btn.get_theme_stylebox("hover")
+			if hover_style:
+				hover_style.bg_color = ThemeManager.get_color("secondary_button_hover")
+
+			var pressed_style = btn.get_theme_stylebox("pressed")
+			if pressed_style:
+				pressed_style.bg_color = ThemeManager.get_color("secondary_button_pressed")
+
+	# Update score labels
+	if score_label:
+		score_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+
+	if high_score_label:
+		high_score_label.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
