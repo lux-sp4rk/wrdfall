@@ -53,7 +53,7 @@ const COMBO_MULTIPLIER_MAX: float = 3.0         # Cap at 3x combo multiplier
 
 # === Drop Speed Ratchet ===
 const RATCHET_DROPS_PER_STEP: int = 5           # Speed up every N drops
-const RATCHET_SPEEDUP: float = 0.2              # Reduce interval by 0.2s per step
+const RATCHET_SPEEDUP: float = 0.5              # Reduce interval by 0.5s per step
 const RATCHET_MIN_INTERVAL: float = 2.0         # Floor — never faster than 2s
 const RATCHET_RESET_WORD_LENGTH: int = 5        # 5+ letter word resets speed
 
