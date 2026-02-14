@@ -26,6 +26,7 @@ var themes: Dictionary = {
 		"tile_text": Color(0.17, 0.17, 0.17, 1),
 		"grid_line": Color(0.8, 0.8, 0.8, 1),
 		"selection_highlight": Color(0.88, 0.47, 0.34, 0.3),
+		"accent": Color(0.88, 0.47, 0.34, 1),
 	},
 	"dark": {
 		"background": Color(0.17, 0.24, 0.31, 1),
@@ -45,6 +46,7 @@ var themes: Dictionary = {
 		"tile_text": Color(0.95, 0.95, 0.95, 1),
 		"grid_line": Color(0.3, 0.4, 0.5, 1),
 		"selection_highlight": Color(0.88, 0.47, 0.34, 0.4),
+		"accent": Color(0.88, 0.47, 0.34, 1),
 	}
 }
 

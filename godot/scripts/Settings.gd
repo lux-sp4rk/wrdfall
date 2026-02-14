@@ -5,8 +5,6 @@ extends Control
 @onready var difficulty_label: Label = %DifficultyLabel
 @onready var theme_option: OptionButton = %ThemeOption
 @onready var back_button: Button = %BackButton
-@onready var login_button: Button = %LoginButton
-@onready var sync_status: Label = %SyncStatus
 
 func _ready() -> void:
 	_setup_ui_text()
@@ -31,14 +29,10 @@ func _on_login_pressed() -> void:
 
 func _on_auth_completed(success: bool) -> void:
 	_update_sync_ui()
-	if success:
-		sync_status.text = "Successfully signed in!"
 
 func _on_sync_completed(success: bool) -> void:
-	if success:
-		sync_status.text = "Stats synced with cloud"
-	else:
-		sync_status.text = "Sync failed"
+	# Sync status UI removed - no action needed
+	pass
 
 func _setup_ui_text() -> void:
 	var cfg = LanguageConfig.get_config(GameSettings.current_language)
