@@ -1,51 +1,110 @@
 # Word Loom
 
-A calm, senior-first word puzzle game — no ads, no timers, high contrast, large tap targets. Built with Godot 4.6 (GDScript) for iPad, phone, and browser.
+A calm, senior-first word puzzle game built with **Godot 4.6** (GDScript). No ads, no timers, high contrast, large tap targets. Targets iPad, phone, and browser (HTML5).
 
-## Game Mode
+## Quick Start
 
-**Loom Drop** — Tetris-meets-word-search: letters fall onto a 5×6 grid. Swipe to select words in any direction (including diagonals). Valid words clear, gravity pulls letters down, and new letters drop in using a Scrabble-weighted distribution. Shake the grid when stuck to reshuffle letters. The game ends when no valid words remain.
+**Prerequisites:** [Godot 4.6+](https://godotengine.org/download/) (standard edition)
 
-## Running the game
+```bash
+# Open project in Godot
+open godot/project.godot   # macOS — or open via Godot's Import dialog
 
-1. Install [Godot 4.6+](https://godotengine.org/download/) (standard edition).
-2. Open Godot and choose **Import** > navigate to `godot/project.godot`.
-3. Press **F5** (or the Play button) to launch Loom Drop.
+# Press F5 to run (launches Home screen)
+```
 
-## HTML5 export (for browser/iPad testing)
+## Development
 
-1. In Godot, go to **Project > Export...** and add a **Web** export preset.
-2. Click **Export Project** and save to `godot/dist/`.
-3. Serve locally: `python3 -m http.server -d godot/dist/ 8000` then open `http://localhost:8000`.
-
-A pre-built web version is deployed via Netlify from the `dist/` directory.
-
-## Project structure
+### Project Structure
 
 ```
 godot/
-  project.godot    # Godot 4.6 config (main scene: LoomDrop.tscn)
-  scenes/
-    LoomDrop.tscn  # Main game scene
-  scripts/
-    LoomDrop.gd    # Main game logic — grid, selection, gravity, shake, win detection
-    Dictionary.gd  # Word validation service
-  data/
-    words.txt      # SOWPODS dictionary (Scrabble-compliant, ~270k words)
-  dist/            # HTML5 export output (gitignored)
-docs/              # Research notes, monetization strategy, verification guides
-dist/              # Deployed web build (Netlify)
-netlify.toml       # Netlify deployment config
+  project.godot        # Engine config (main scene: Home.tscn)
+  scenes/              # .tscn scene files (Home, Settings, LoomDrop, Stats, TopNavBar)
+  scripts/             # GDScript files (~15 scripts)
+  data/                # Word lists (English SOWPODS, Spanish FISE 2017)
+  assets/              # Fonts, themes (.tres), icons
+  addons/supabase/     # Supabase plugin
+  dist/                # HTML5 export output (gitignored)
+docs/
+  game-rules.md        # Full game rules reference
+  deployment.md        # Deployment guide
+  plans/               # Feature design docs and implementation plans
+dist/                  # Deployed web build (Netlify)
 ```
 
-## Key features
+### Key Scripts
 
-- **5×6 grid** with 8-directional word selection (horizontal, vertical, diagonal)
-- **Shake mechanic** — unlimited reshuffles to create new opportunities
-- **Win condition** — game ends when no valid 3+ letter words exist
-- **SOWPODS dictionary** — Scrabble-compliant word validation (~270k words)
-- **Smart letter generation** — Scrabble-weighted bag + bigram-aware drops + seed words
-- **Gravity** — letters cascade down after word clears
-- **Calm pacing** — 6-second drop interval, high contrast UI, large tap targets
+| Script | Role |
+|---|---|
+| `LoomDrop.gd` | Main game logic — grid, word selection, gravity, power-ups, scoring, combo streaks, drop ratchet |
+| `GameConstants.gd` | All game mechanic constants (autoload) |
+| `GameSettings.gd` | Persistent user settings — language, difficulty, theme (autoload) |
+| `ThemeManager.gd` | Light/dark theme state and color dictionaries (autoload) |
+| `LanguageConfig.gd` | Per-language config — letter weights, bigrams, seed words, UI strings |
+| `Dictionary.gd` | Word validation with multi-language and extra alphabet support (Ñ) |
+| `TopNavBar.gd` | Reusable nav component — exit, pause, score display |
 
-See `CLAUDE.md` for development guidelines and code style.
+### Autoloads
+
+`GameSettings` · `StatsManager` · `GameConstants` · `ThemeConstants` · `ThemeManager` · `Supabase`
+
+### Code Style
+
+- Static typing: `var x: int = 5`
+- `snake_case` for variables/functions, `PascalCase` for classes
+- Signals: `signal_name.connect(callable)` (Godot 4 syntax)
+- Node access: `@onready var name = $Path` or `%UniqueName`
+
+## Web Export & Deployment
+
+### Local testing
+
+```bash
+# Export from Godot: Project → Export → Web → godot/dist/
+npm run serve:godot       # Serve from godot/dist/ on :8000
+# or
+npm run copy:dist         # Copy to dist/
+npm run serve             # Serve from dist/ on :8000
+```
+
+### Production (Netlify)
+
+Deployed automatically from `dist/` via Netlify. The build script (`build.sh`) copies `godot/dist/` → `dist/`.
+
+```bash
+# Manual deploy workflow:
+# 1. Export from Godot to godot/dist/
+# 2. Run build.sh (or npm run copy:dist)
+# 3. Push — Netlify deploys from dist/
+```
+
+## Game Overview
+
+**Loom Drop** — letters fall onto a 5×5 grid. Swipe adjacent tiles (8 directions) to spell words. Matched letters clear, gravity pulls remaining tiles down. Score uses multiplicative formula: `letter_sum × length_multiplier × combo_multiplier`.
+
+- **Two difficulty modes** (Normal / Hard) with different drop speeds, power-up costs, and vowel ratios
+- **Three power-ups** — Shake, Swap, Draw More (cost score points)
+- **Combo streaks** — consecutive 4+ letter words build a score multiplier (cap 3.0×)
+- **Drop speed ratchet** — pace increases over time; 5+ letter words reset it
+- **Two languages** — English and Spanish, switchable in Settings
+- **Light/dark themes** — switchable in Settings, persisted across sessions
+
+Full rules: [`docs/game-rules.md`](docs/game-rules.md)
+
+## Backend
+
+Uses [Supabase](https://supabase.com/) for backend services. Plugin in `godot/addons/supabase/`, schema in `supabase_schema.sql`. Public anon keys are safe to commit (security via RLS).
+
+## Docs
+
+| Doc | Contents |
+|---|---|
+| [`CLAUDE.md`](CLAUDE.md) | AI assistant instructions and project context |
+| [`docs/game-rules.md`](docs/game-rules.md) | Complete game rules, scoring tables, mechanics |
+| [`docs/deployment.md`](docs/deployment.md) | Deployment guide |
+| [`docs/plans/`](docs/plans/) | Feature design docs and implementation plans |
+
+## License
+
+MIT
