@@ -20,7 +20,7 @@ func _ready() -> void:
 func _update_sync_ui() -> void:
 	if StatsManager.is_authenticated():
 		login_button.text = "Sign Out"
-		sync_status.text = "Signed in as " + Supabase.auth.user.email
+		sync_status.text = "Signed in as " + StatsManager.get_user_email()
 	else:
 		login_button.text = "Sign in to Sync Progress"
 		sync_status.text = "Not signed in"

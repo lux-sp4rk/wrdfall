@@ -42,7 +42,7 @@ func _load_leaderboard() -> void:
 	for child in leaderboard_list.get_children():
 		child.queue_free()
 		
-	var query = SupabaseQuery.new().from("leaderboards").select("score, profiles(display_name)").order("score", false).limit(20)
+	var query = SupabaseQuery.new().from("leaderboards").select(PackedStringArray(["score", "profiles(display_name)"])).order("score", false).limit(20)
 	var task = Supabase.database.query(query)
 	task.completed.connect(func(result):
 		leaderboard_loading.hide()

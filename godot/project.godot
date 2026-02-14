@@ -25,11 +25,7 @@ GameSettings="*res://scripts/GameSettings.gd"
 StatsManager="*res://scripts/StatsManager.gd"
 GameConstants="*res://scripts/GameConstants.gd"
 ThemeConstants="*res://scripts/ThemeConstants.gd"
-Supabase="*res://addons/supabase/Supabase/supabase.gd"
-
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/supabase/plugin.cfg")
+Supabase="*uid://bnqjaif2kq8td"
 
 [display]
 
@@ -38,6 +34,10 @@ window/size/viewport_height=1280
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=1
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/supabase/plugin.cfg")
 
 [gui]
 
@@ -48,4 +48,9 @@ theme/default_font_size=22
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
-renderer/rendering_method.mobile="gl_compatibility"
+
+[supabase]
+
+config/supabase_url="https://szgdvwfqlbixprrygnxg.supabase.co"
+config/supabase_key="sb_publishable_FTRmmCIaN1j1O9okFi30Ig_vC3-R-t5"
+config/renderer/rendering_method.mobile="gl_compatibility"
