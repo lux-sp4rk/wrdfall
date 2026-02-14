@@ -11,6 +11,7 @@ extends Control
 @onready var background: ColorRect = $ColorRect
 @onready var margin_container: MarginContainer = $MarginContainer
 @onready var game_over_modal: ColorRect = %"GameOverModal"
+@onready var modal_panel: Panel = game_over_modal.get_node("CenterContainer/Panel")
 @onready var modal_message_label: Label = %"MessageLabel"
 @onready var modal_score_label: Label = %"ScoreLabel"
 @onready var retry_button: Button = %"RetryButton"
@@ -1227,7 +1228,7 @@ func _update_selection_visuals() -> void:
 	word_label.text = word
 	word_label.add_theme_color_override(
 		"font_color",
-		Color.WHITE if long_enough else COLOR_TOO_SHORT
+		ThemeManager.get_color("text_primary") if long_enough else COLOR_TOO_SHORT
 	)
 
 	var highlight: Color = COLOR_SELECTED if long_enough else COLOR_TOO_SHORT
@@ -1333,6 +1334,45 @@ func _apply_theme() -> void:
 		var panel_style = board_panel.get_theme_stylebox("panel")
 		if panel_style:
 			panel_style.bg_color = ThemeManager.get_color("card_background")
+
+	# Update word feedback label
+	if word_label:
+		word_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+
+	# Update game over modal
+	if modal_panel:
+		var style := StyleBoxFlat.new()
+		style.bg_color = ThemeManager.get_color("card_background")
+		style.corner_radius_top_left = 16
+		style.corner_radius_top_right = 16
+		style.corner_radius_bottom_left = 16
+		style.corner_radius_bottom_right = 16
+		style.content_margin_left = 24
+		style.content_margin_right = 24
+		style.content_margin_top = 24
+		style.content_margin_bottom = 24
+		modal_panel.add_theme_stylebox_override("panel", style)
+	if modal_message_label:
+		modal_message_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+	for btn in [retry_button, quit_button]:
+		if btn:
+			btn.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+			for state_info in [
+				["normal", "secondary_button"],
+				["hover", "secondary_button_hover"],
+				["pressed", "secondary_button_pressed"],
+			]:
+				var btn_style := StyleBoxFlat.new()
+				btn_style.bg_color = ThemeManager.get_color(state_info[1])
+				btn_style.corner_radius_top_left = 12
+				btn_style.corner_radius_top_right = 12
+				btn_style.corner_radius_bottom_left = 12
+				btn_style.corner_radius_bottom_right = 12
+				btn_style.content_margin_left = 16
+				btn_style.content_margin_right = 16
+				btn_style.content_margin_top = 12
+				btn_style.content_margin_bottom = 12
+				btn.add_theme_stylebox_override(state_info[0], btn_style)
 
 
 # --- Win/Lose Animations ---
