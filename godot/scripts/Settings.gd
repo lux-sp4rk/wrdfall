@@ -3,6 +3,7 @@ extends Control
 @onready var language_option: OptionButton = %LanguageOption
 @onready var difficulty_option: OptionButton = %DifficultyOption
 @onready var difficulty_label: Label = %DifficultyLabel
+@onready var theme_option: OptionButton = %ThemeOption
 @onready var back_button: Button = %BackButton
 @onready var login_button: Button = %LoginButton
 @onready var sync_status: Label = %SyncStatus
@@ -11,8 +12,11 @@ func _ready() -> void:
 	_setup_ui_text()
 	_setup_languages()
 	_setup_difficulties()
+	_setup_themes()
+	_apply_theme()
 	_update_sync_ui()
 	back_button.pressed.connect(_on_back_pressed)
+	ThemeManager.theme_changed.connect(_apply_theme)
 	# login_button and sync_status references removed for cleaner UI
 	StatsManager.auth_completed.connect(_on_auth_completed)
 	StatsManager.sync_completed.connect(_on_sync_completed)
@@ -82,3 +86,44 @@ func _on_difficulty_selected(index: int) -> void:
 
 func _on_back_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/Home.tscn")
+
+func _setup_themes() -> void:
+	theme_option.clear()
+	theme_option.add_item("Light", 0)
+	theme_option.set_item_metadata(0, "light")
+	theme_option.add_item("Dark", 1)
+	theme_option.set_item_metadata(1, "dark")
+
+	var selected_index: int = 0 if GameSettings.theme == "light" else 1
+	theme_option.selected = selected_index
+
+	if not theme_option.item_selected.is_connected(_on_theme_selected):
+		theme_option.item_selected.connect(_on_theme_selected)
+
+func _on_theme_selected(index: int) -> void:
+	var theme_name = theme_option.get_item_metadata(index)
+	ThemeManager.set_theme(theme_name)
+
+func _apply_theme() -> void:
+	# Update background
+	var bg = $ColorRect
+	if bg:
+		bg.color = ThemeManager.get_color("background")
+
+	# Update difficulty label color
+	difficulty_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+
+	# Update all labels in LanguageBox
+	var lang_label = $MarginContainer/VBox/LanguageBox/Label
+	if lang_label:
+		lang_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+
+	# Update ThemeBox label
+	var theme_label = $MarginContainer/VBox/ThemeBox/Label
+	if theme_label:
+		theme_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+
+	# Update title
+	var title = $MarginContainer/VBox/Title
+	if title:
+		title.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
