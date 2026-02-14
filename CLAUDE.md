@@ -39,6 +39,24 @@ dist/                # Deployed web build (Netlify)
 | `Dictionary.gd` | Loads word list with configurable path and extra alphabet support (e.g. Ñ) |
 | `LanguageConfig.gd` | Per-language config: letter weights, bigrams, seed words, UI strings |
 
+## Theme System
+Word Loom supports light and dark themes with persistent user preference.
+
+**Theme Manager:**
+- `ThemeManager.gd` - Global autoload managing theme state
+- Emits `theme_changed` signal for dynamic updates
+- Persists to `user://settings.cfg` (desktop) or localStorage (web)
+
+**Scenes:**
+Each scene implements `_apply_theme()` method and connects to `ThemeManager.theme_changed` signal.
+
+**Themes:**
+- **Light mode** (default): Warm cream background, terracotta primary, sage secondary
+- **Dark mode**: Dark teal background, muted accents, high contrast text
+
+**Settings:**
+User can switch theme via Settings > Theme selector (OptionButton).
+
 ## Core Workflows
 - **Build/Run**: Open `godot/project.godot` in Godot 4.6+ and press F5 (launches LoomDrop directly).
 - **HTML5 Export**: Project > Export > Web preset > Export Project to `godot/dist/`. Serve locally with `python3 -m http.server -d godot/dist/ 8000`.
