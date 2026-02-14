@@ -13,27 +13,17 @@ func _ready() -> void:
 	_setup_difficulties()
 	_update_sync_ui()
 	back_button.pressed.connect(_on_back_pressed)
-	login_button.pressed.connect(_on_login_pressed)
+	# login_button and sync_status references removed for cleaner UI
 	StatsManager.auth_completed.connect(_on_auth_completed)
 	StatsManager.sync_completed.connect(_on_sync_completed)
 
 func _update_sync_ui() -> void:
-	if StatsManager.is_authenticated():
-		login_button.text = "Sign Out"
-		sync_status.text = "Signed in as " + StatsManager.get_user_email()
-	else:
-		login_button.text = "Sign in to Sync Progress"
-		sync_status.text = "Not signed in"
+	# UI elements removed from scene should not be updated via code
+	pass
 
 func _on_login_pressed() -> void:
-	if StatsManager.is_authenticated():
-		Supabase.auth.sign_out()
-		_update_sync_ui()
-	else:
-		# For now, use anonymous login or a placeholder for email/password
-		# Apple/Google would require more setup
-		sync_status.text = "Signing in..."
-		StatsManager.login_anonymous()
+	# Logic handled automatically on boot or via Home screen auth buttons
+	pass
 
 func _on_auth_completed(success: bool) -> void:
 	_update_sync_ui()
