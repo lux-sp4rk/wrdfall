@@ -16,20 +16,20 @@ const MIN_WORD_LENGTH: int = 3  # Minimum letters to form a valid word
 
 # === Drop Timing (seconds) ===
 
-const DROP_INTERVAL_NORMAL: float = 10.0
-const DROP_INTERVAL_HARD: float = 5.0
+const DROP_INTERVAL_NORMAL: float = 8.0
+const DROP_INTERVAL_HARD: float = 4.0
 
 # === Power-Up Costs ===
 
 # Normal difficulty
 const SHAKE_COST_NORMAL: int = 3
 const SWAP_COST_NORMAL: int = 2
-const DRAW_MORE_COST_NORMAL: int = 9
+const DRAW_MORE_COST_NORMAL: int = 5 # we want to encourage draws
 
 # Hard difficulty
 const SHAKE_COST_HARD: int = 8
 const SWAP_COST_HARD: int = 5
-const DRAW_MORE_COST_HARD: int = 20
+const DRAW_MORE_COST_HARD: int = 10 # we want to encourage draws
 
 # === Vowel Ratios ===
 
