@@ -49,11 +49,12 @@ grow_vertical = 2
 
 [node name="VBox" type="VBoxContainer" parent="CenterContainer"]
 layout_mode = 2
-theme_override_constants/separation = 40
+theme_override_constants/separation = 32
 alignment = 1
 
 [node name="Title" type="Label" parent="CenterContainer/VBox"]
 layout_mode = 2
+theme_override_constants/margin_bottom = 24
 theme_override_font_sizes/font_size = 96
 text = "Word Loom"
 horizontal_alignment = 1
@@ -65,50 +66,54 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 48
 text = "Play"
 
-[node name="StatsButton" type="Button" parent="CenterContainer/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(400, 100)
+[node name="SecondaryButtons" type="HBoxContainer" parent="CenterContainer/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 48
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="StatsButton" type="Button" parent="CenterContainer/VBox/SecondaryButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 80)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
 text = "Stats"
 
-[node name="SettingsButton" type="Button" parent="CenterContainer/VBox"]
+[node name="SettingsButton" type="Button" parent="CenterContainer/VBox/SecondaryButtons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(400, 100)
+custom_minimum_size = Vector2(190, 80)
 layout_mode = 2
-theme_override_font_sizes/font_size = 48
+theme_override_font_sizes/font_size = 32
 text = "Settings"
+
+[node name="HSeparator" type="HSeparator" parent="CenterContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 40
 
 [node name="AuthPanel" type="VBoxContainer" parent="CenterContainer/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 16
 
 [node name="GoogleButton" type="Button" parent="CenterContainer/VBox/AuthPanel"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(400, 80)
+custom_minimum_size = Vector2(400, 70)
 layout_mode = 2
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 28
 text = "Sign in with Google"
-
-[node name="AppleButton" type="Button" parent="CenterContainer/VBox/AuthPanel"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(400, 80)
-layout_mode = 2
-theme_override_font_sizes/font_size = 32
-text = "Sign in with Apple"
 
 [node name="UserStatus" type="Label" parent="CenterContainer/VBox"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 24
 horizontal_alignment = 1
 
 [node name="SignOutButton" type="Button" parent="CenterContainer/VBox"]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+flat = true
+theme_override_font_sizes/font_size = 20
 text = "Sign Out"

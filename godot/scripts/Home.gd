@@ -18,13 +18,9 @@ func _ready() -> void:
 	stats_button.pressed.connect(_on_stats_pressed)
 	settings_button.pressed.connect(_on_settings_pressed)
 
-	# Auth buttons (optional - only if nodes exist in scene)
+	# Auth buttons
 	if google_button:
 		google_button.pressed.connect(_on_google_pressed)
-	if apple_button:
-		apple_button.pressed.connect(_on_apple_pressed)
-	if guest_button:
-		guest_button.pressed.connect(_on_guest_pressed)
 	if sign_out_button:
 		sign_out_button.pressed.connect(_on_sign_out_pressed)
 
@@ -65,21 +61,14 @@ func _on_settings_pressed() -> void:
 # Auth handlers
 func _on_google_pressed() -> void:
 	print("Google sign-in requested")
-	user_status.text = "Signing in with Google..."
+	if user_status:
+		user_status.text = "Signing in..."
+		user_status.visible = true
 	StatsManager.login_with_google()
 
-func _on_apple_pressed() -> void:
-	print("Apple sign-in requested")
-	user_status.text = "Signing in with Apple..."
-	StatsManager.login_with_apple()
-
-func _on_guest_pressed() -> void:
-	print("Guest sign-in requested")
-	user_status.text = "Signing in as guest..."
-	StatsManager.login_anonymous()
-
 func _on_sign_out_pressed() -> void:
-	Supabase.auth.sign_out()
+	if has_node("/root/Supabase"):
+		Supabase.auth.sign_out()
 	_update_auth_ui()
 
 func _on_auth_completed(success: bool) -> void:
