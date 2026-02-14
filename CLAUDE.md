@@ -33,7 +33,6 @@ godot/
     words_en.txt       # SOWPODS English dictionary (~270k words)
     words_es.txt       # FISE 2017 Spanish dictionary (~639k words)
   addons/supabase/     # Supabase plugin for backend integration
-  dist/                # HTML5 export output (ignored in git)
 docs/
   game-rules.md        # Canonical game rules reference
   deployment.md        # Deployment guide
@@ -76,7 +75,7 @@ User can switch theme via Settings > Theme selector (OptionButton).
 
 ## Core Workflows
 - **Build/Run**: Open `godot/project.godot` in Godot 4.6+ and press F5 (launches LoomDrop directly).
-- **HTML5 Export**: Project > Export > Web preset > Export Project to `godot/dist/`. Serve locally with `python3 -m http.server -d godot/dist/ 8000`.
+- **HTML5 Export**: Project > Export > Web preset > Export Project (exports to top-level `dist/`). Serve locally with `python3 -m http.server -d dist/ 8000`.
 - **Data**: English (SOWPODS) in `godot/data/words_en.txt`, Spanish (FISE 2017) in `godot/data/words_es.txt`.
 - **Deploy**: Web build deployed from `dist/` via Netlify (see `netlify.toml`).
 

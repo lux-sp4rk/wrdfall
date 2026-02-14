@@ -1,23 +1,19 @@
 #!/bin/bash
 # Netlify build script for Word Loom
-# Simply copies the exported Godot web build to the dist folder
+# Verifies the exported Godot web build exists in dist/
 
 set -e
 
 echo "🎮 Building Word Loom for web..."
 
 # Check that the Godot export exists
-if [ ! -d "godot/dist" ]; then
-  echo "❌ Error: godot/dist not found."
+if [ ! -f "dist/index.html" ]; then
+  echo "❌ Error: dist/index.html not found."
   echo "   Export the game from Godot first:"
-  echo "   Project → Export → Web → Export Project → godot/dist/"
+  echo "   Project → Export → Web → Export Project"
+  echo "   (export_presets.cfg already targets dist/)"
   exit 1
 fi
-
-# Copy exported game to publish directory
-echo "📦 Copying game files to dist/..."
-mkdir -p dist
-cp -r godot/dist/* dist/
 
 echo "✅ Build complete!"
 echo ""

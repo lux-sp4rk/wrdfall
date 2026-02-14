@@ -38,12 +38,11 @@ See the RLS examples section below.
 1. Open `godot/project.godot` in Godot 4.6+
 2. Go to **Project** → **Export**
 3. Select **Web** preset
-4. Click **Export Project**
-5. Export to `godot/dist/`
+4. Click **Export Project** (exports to top-level `dist/`)
 6. Commit to git:
 
 ```bash
-git add godot/dist/
+git add dist/
 git commit -m "Update web export"
 ```
 
@@ -54,7 +53,7 @@ git push origin main
 ```
 
 Netlify will:
-1. Run `build.sh` (copies `godot/dist/` → `dist/`)
+1. Run `build.sh` (verifies `dist/` exists)
 2. Publish from `dist/`
 
 Done! 🚀
@@ -72,8 +71,8 @@ Done! 🚀
 ### Option 2: Test Web Export (Realistic)
 
 ```bash
-# Export from Godot to godot/dist/ first
-cd godot/dist
+# Export from Godot first (outputs to dist/)
+cd dist
 python3 -m http.server 8000
 ```
 

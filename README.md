@@ -25,7 +25,6 @@ godot/
   data/                # Word lists (English SOWPODS, Spanish FISE 2017)
   assets/              # Fonts, themes (.tres), icons
   addons/supabase/     # Supabase plugin
-  dist/                # HTML5 export output (gitignored)
 docs/
   game-rules.md        # Full game rules reference
   deployment.md        # Deployment guide
@@ -61,22 +60,18 @@ dist/                  # Deployed web build (Netlify)
 ### Local testing
 
 ```bash
-# Export from Godot: Project → Export → Web → godot/dist/
-npm run serve:godot       # Serve from godot/dist/ on :8000
-# or
-npm run copy:dist         # Copy to dist/
+# Export from Godot: Project → Export → Web (exports to dist/)
 npm run serve             # Serve from dist/ on :8000
 ```
 
 ### Production (Netlify)
 
-Deployed automatically from `dist/` via Netlify. The build script (`build.sh`) copies `godot/dist/` → `dist/`.
+Deployed automatically from `dist/` via Netlify.
 
 ```bash
 # Manual deploy workflow:
-# 1. Export from Godot to godot/dist/
-# 2. Run build.sh (or npm run copy:dist)
-# 3. Push — Netlify deploys from dist/
+# 1. Export from Godot (outputs to dist/)
+# 2. Push — Netlify deploys from dist/
 ```
 
 ## Game Overview

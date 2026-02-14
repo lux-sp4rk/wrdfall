@@ -115,7 +115,7 @@ Requires Apple Developer account ($99/year).
 ### 4. Export and Deploy
 
 **When ready:**
-1. Export game to `godot/dist/` (Project → Export → Web)
+1. Export game from Godot (Project → Export → Web, outputs to `dist/`)
 2. Commit and push to git
 3. Netlify deploys automatically
 4. Test OAuth flow in production (localhost OAuth won't work)
