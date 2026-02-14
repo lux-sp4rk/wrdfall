@@ -37,6 +37,26 @@ const DRAW_MORE_COST_HARD: int = 10 # we want to encourage draws
 const VOWEL_BOOST_NORMAL: float = 1.15  # +15% vowels in normal mode
 const VOWEL_REDUCTION_HARD: float = 0.75  # -25% vowels in hard mode
 
+# === Scoring Multipliers (by word length) ===
+const WORD_MULTIPLIERS: Dictionary = {
+	3: 1,    # 3-letter: base score
+	4: 2,    # 4-letter: 2x
+	5: 4,    # 5-letter: 4x
+	6: 8,    # 6-letter: 8x
+}
+const WORD_MULTIPLIER_DEFAULT: int = 8  # 6+ all get 8x
+
+# === Combo Streak ===
+const COMBO_THRESHOLD: int = 4          # Minimum word length to build/maintain streak
+const COMBO_MULTIPLIER_PER_STREAK: float = 0.5  # Each streak step adds 0.5x
+const COMBO_MULTIPLIER_MAX: float = 3.0         # Cap at 3x combo multiplier
+
+# === Drop Speed Ratchet ===
+const RATCHET_DROPS_PER_STEP: int = 5           # Speed up every N drops
+const RATCHET_SPEEDUP: float = 0.5              # Reduce interval by 0.5s per step
+const RATCHET_MIN_INTERVAL: float = 2.0         # Floor — never faster than 2s
+const RATCHET_RESET_WORD_LENGTH: int = 5        # 5+ letter word resets speed
+
 # === Helper Functions ===
 
 ## Get power-up costs based on current difficulty

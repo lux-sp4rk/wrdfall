@@ -60,10 +60,26 @@ static func english() -> LanguageConfig:
 		"Z": "EAIOU",
 	}
 	cfg.seed_words = [
-		"STAR", "LOOM", "DROP", "RAIN", "FIRE", "GLOW", "WIND", "TREE",
-		"LAKE", "WAVE", "RISE", "GOLD", "IRON", "BONE", "GUST", "MIST",
-		"TORN", "HAZE", "DUNE", "FERN", "SAGE", "LIME", "PINE", "ARCH",
-		"ROPE", "NEST", "CAVE", "PALE", "WREN", "GATE", "VINE", "HELM",
+		# Nature
+		"STAR", "RAIN", "FIRE", "GLOW", "WIND", "TREE", "LAKE", "WAVE",
+		"MIST", "HAZE", "DUNE", "FERN", "SAGE", "LIME", "PINE", "VINE",
+		"DAWN", "DUSK", "MOON", "TIDE", "REEF", "COVE", "GLEN", "VALE",
+		"HILL", "DALE", "MOSS", "PEAT", "CLAY", "SAND", "FOAM", "SURF",
+		"GALE", "CALM", "SNOW", "THAW", "LEAF", "STEM", "ROOT", "SEED",
+		"HAWK", "WREN", "DOVE", "LARK", "SWAN", "DEER", "HARE", "FAWN",
+		# Warmth and light
+		"GOLD", "GUST", "ROSE", "SILK", "WARM", "COZY", "SOFT", "GLOW",
+		"BEAM", "RAYS", "NOON", "DUSK", "LAMP", "WICK", "BLAZE", "EMBER",
+		# Structure and craft
+		"LOOM", "DROP", "IRON", "BONE", "ARCH", "ROPE", "NEST", "CAVE",
+		"GATE", "HELM", "KNOT", "LACE", "WELD", "KILN", "LOFT", "BARN",
+		"DOME", "WALL", "PATH", "ROAD", "FORD", "PIER", "DOCK", "MAST",
+		# Words and story
+		"TALE", "POEM", "SONG", "LORE", "MYTH", "RUNE", "HYMN", "JEST",
+		"WISH", "HOPE", "GIFT", "BOND", "OATH", "PACT", "BOON", "FEAT",
+		# Sensory
+		"PALE", "DEEP", "RICH", "BOLD", "KEEN", "PURE", "TRUE", "WISE",
+		"HUSH", "RING", "CHIME", "DRUM", "TONE", "NOTE", "ALTO",
 	]
 	cfg.ui_strings = {
 		"score": "Score: %d",
@@ -101,6 +117,7 @@ static func english() -> LanguageConfig:
 		"difficulty_normal": "Normal",
 		"difficulty_hard": "Hard",
 		"paused": "Game Paused",
+		"streak": "streak %d!",
 	}
 	return cfg
 
@@ -137,10 +154,22 @@ static func spanish() -> LanguageConfig:
 		"Y": "AOEUI", "Z": "AOEUI",
 	}
 	cfg.seed_words = [
+		# Naturaleza
 		"CASA", "LUNA", "SOLA", "RISA", "MESA", "GATO", "LOMA", "PALA",
-		"NUBE", "DURO", "FARO", "GRIS", "HORA", "ISLA", "JOTA", "LIBRE",
-		"MANO", "NIDO", "OCHO", "PINO", "ROSA", "SENO", "TELA", "VINO",
-		"CENA", "DADO", "FILO", "GOTA", "LOBO", "MONO", "REMO", "BESO",
+		"NUBE", "FARO", "ISLA", "PINO", "ROSA", "VINO", "GOTA", "LOBO",
+		"NIDO", "MONO", "REMO", "BESO", "LAGO", "ONDA", "ROCA", "CIELO",
+		"ARCO", "FLOR", "HOJA", "TORO", "PUMA", "RANA", "PATO", "BUHO",
+		"ALBA", "OLAS", "FRIO", "LODO", "CUBO", "MURO", "VELA", "COLA",
+		# Hogar y oficio
+		"TELA", "CENA", "DADO", "FILO", "MANO", "HORA", "JOTA", "SEDA",
+		"HILO", "LAZO", "COPA", "VASO", "SOPA", "MIEL", "NUEZ", "COCO",
+		"UVAS", "PERA", "LIMA", "MAIZ", "CAFE", "DEDO", "MAPA", "RUTA",
+		# Sentimientos y conceptos
+		"AMOR", "VIDA", "ALMA", "BIEN", "CURA", "DAMA", "EDAD", "FAMA",
+		"GOZO", "LEAL", "META", "NOTA", "OBRA", "PASO", "RITO", "SANO",
+		"TIPO", "USOS", "VALS", "ZONA", "DOTE", "HALO", "MUSA", "OJOS",
+		# Sonido y arte
+		"CORO", "ARPA", "CAJA", "DANZA", "FUGA", "LIRA", "RIMA", "TONO",
 	]
 	cfg.ui_strings = {
 		"score": "Puntos: %d",
@@ -178,5 +207,6 @@ static func spanish() -> LanguageConfig:
 		"difficulty_normal": "Normal",
 		"difficulty_hard": "Dif\u00edcil",
 		"paused": "Juego pausado",
+		"streak": "racha %d!",
 	}
 	return cfg

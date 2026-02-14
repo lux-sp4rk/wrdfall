@@ -58,6 +58,14 @@ var drop_timer: Timer
 var game_over: bool = false
 var game_started: bool = false  # True after first word scored or first tile dropped
 
+# Combo streak state
+var combo_streak: int = 0
+
+# Drop ratchet state
+var drops_since_start: int = 0
+var base_drop_interval: float = 0.0
+var current_drop_interval: float = 0.0
+
 # Rescue word drip-feed: when no valid word exists, bias drops to build one
 var _rescue_word: String = ""
 var _rescue_col: int = -1
@@ -69,6 +77,9 @@ func _ready() -> void:
 	SHAKE_COST = GameSettings.get_power_up_cost("shake")
 	SWAP_COST = GameSettings.get_power_up_cost("swap")
 	DRAW_MORE_COST = GameSettings.get_power_up_cost("draw_more")
+
+	base_drop_interval = GameSettings.get_drop_interval()
+	current_drop_interval = base_drop_interval
 
 	lang_config = LanguageConfig.get_config(GameSettings.current_language)
 	dictionary = DictionaryService.new(lang_config.wordlist_path, lang_config.extra_alpha)
@@ -293,67 +304,74 @@ func _seed_words() -> void:
 	# Guarantee at least 3 words are placed, try for up to 5
 	var target_count: int = 3 + randi() % 3
 	var placed_count: int = 0
-	var max_attempts: int = 50  # Safety limit to prevent infinite loops
+	var max_attempts: int = 50
 
 	for attempt in range(max_attempts):
 		if placed_count >= target_count or words.is_empty():
 			break
 
 		var word: String = words.pop_front()
-
-		# Try all 4 directions for this word
-		var directions: Array = [0, 1, 2, 3]
-		directions.shuffle()
 		var placed: bool = false
 
-		for direction in directions:
-			if placed:
-				break
+		for _retry in range(20):
+			var path: Array = _find_seed_path(word.length(), empty_rows)
+			if path.is_empty():
+				continue
 
-			for _retry in range(10):
-				var row: int
-				var col: int
-				var dr: int  # row delta per letter
-				var dc: int  # col delta per letter
+			# Check path doesn't overlap existing seed letters
+			var conflicts: bool = false
+			for pos in path:
+				if grid[pos.y][pos.x] != "":
+					conflicts = true
+					break
+			if conflicts:
+				continue
 
-				match direction:
-					0:  # horizontal
-						dr = 0; dc = 1
-						if word.length() > COLS:
-							break
-						row = empty_rows + randi() % INITIAL_FILL_ROWS
-						col = randi() % (COLS - word.length() + 1)
-					1:  # vertical
-						dr = 1; dc = 0
-						if word.length() > INITIAL_FILL_ROWS:
-							break
-						col = randi() % COLS
-						row = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
-					2:  # diagonal down-right
-						dr = 1; dc = 1
-						var max_len: int = mini(COLS, INITIAL_FILL_ROWS)
-						if word.length() > max_len:
-							break
-						row = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
-						col = randi() % (COLS - word.length() + 1)
-					3:  # diagonal down-left
-						dr = 1; dc = -1
-						var max_len2: int = mini(COLS, INITIAL_FILL_ROWS)
-						if word.length() > max_len2:
-							break
-						row = empty_rows + randi() % (INITIAL_FILL_ROWS - word.length() + 1)
-						col = word.length() - 1 + randi() % (COLS - word.length() + 1)
+			# Place the word along the path
+			for i in range(word.length()):
+				grid[path[i].y][path[i].x] = word[i]
+			placed = true
+			placed_count += 1
+			break
 
-				# Place the word
-				for i in range(word.length()):
-					grid[row + dr * i][col + dc * i] = word[i]
-				placed = true
-				placed_count += 1
-				break
-
-		# If we didn't place this word and we haven't met minimum, add it back
 		if not placed and placed_count < 3:
 			words.append(word)
+
+
+## Build a random adjacent-cell path of the given length within the filled rows.
+## Returns an Array of Vector2i positions, or empty array on failure.
+func _find_seed_path(length: int, empty_rows: int) -> Array:
+	var start_row: int = empty_rows + randi() % INITIAL_FILL_ROWS
+	var start_col: int = randi() % COLS
+
+	var path: Array = [Vector2i(start_col, start_row)]
+	var visited: Dictionary = {Vector2i(start_col, start_row): true}
+
+	# All 8 adjacent directions
+	var neighbor_offsets: Array = [
+		Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1),
+		Vector2i(-1,  0),                  Vector2i(1,  0),
+		Vector2i(-1,  1), Vector2i(0,  1), Vector2i(1,  1),
+	]
+
+	for _i in range(1, length):
+		var shuffled: Array = neighbor_offsets.duplicate()
+		shuffled.shuffle()
+
+		var found: bool = false
+		for offset in shuffled:
+			var next: Vector2i = path[path.size() - 1] + offset
+			if next.x >= 0 and next.x < COLS and next.y >= empty_rows and next.y < ROWS:
+				if not visited.has(next):
+					path.append(next)
+					visited[next] = true
+					found = true
+					break
+
+		if not found:
+			return []
+
+	return path
 
 
 func _random_letter() -> String:
@@ -584,12 +602,26 @@ func _accept_word(word: String) -> void:
 	_update_shake_button()
 	_update_swap_button()
 	_update_draw_more_button()
-	var length_bonus: int = maxi(0, word.length() - 3) * 2
-	if length_bonus > 0:
-		var letter_sum: int = points - length_bonus
-		word_label.text = "+%d (+%d length)" % [letter_sum, length_bonus]
+
+	# Update combo streak
+	if word.length() >= GameConstants.COMBO_THRESHOLD:
+		combo_streak += 1
 	else:
-		word_label.text = "+%d" % points
+		combo_streak = 0
+
+	# Check for drop speed reset
+	if word.length() >= GameConstants.RATCHET_RESET_WORD_LENGTH:
+		_reset_drop_speed()
+
+	# Build feedback text
+	var length_mult: int = GameConstants.WORD_MULTIPLIERS.get(
+		word.length(), GameConstants.WORD_MULTIPLIER_DEFAULT)
+	var feedback: String = "+%d" % points
+	if length_mult > 1:
+		feedback += " (%dx)" % length_mult
+	if combo_streak > 1:
+		feedback += " " + lang_config.ui_strings["streak"] % combo_streak
+	word_label.text = feedback
 
 	# Track word and tiles cleared
 	StatsManager.record_word(word, selected_path.size())
@@ -625,8 +657,16 @@ func _score_word(word: String) -> int:
 	var letter_sum: int = 0
 	for ch in word:
 		letter_sum += lang_config.letter_points.get(ch, 1)
-	var length_bonus: int = maxi(0, word.length() - 3) * 2
-	return letter_sum + length_bonus
+
+	# Exponential length multiplier
+	var length_mult: int = GameConstants.WORD_MULTIPLIERS.get(
+		word.length(), GameConstants.WORD_MULTIPLIER_DEFAULT)
+
+	# Combo streak multiplier
+	var combo_mult: float = 1.0 + combo_streak * GameConstants.COMBO_MULTIPLIER_PER_STREAK
+	combo_mult = minf(combo_mult, GameConstants.COMBO_MULTIPLIER_MAX)
+
+	return int(letter_sum * length_mult * combo_mult)
 
 
 # --- Shake Button ---
@@ -1055,10 +1095,24 @@ func _apply_gravity_with_animation() -> void:
 
 func _start_drop_timer() -> void:
 	drop_timer = Timer.new()
-	drop_timer.wait_time = GameSettings.get_drop_interval()
+	drop_timer.wait_time = current_drop_interval
 	drop_timer.timeout.connect(_drop_letter)
 	add_child(drop_timer)
 	drop_timer.start()
+
+
+func _ratchet_drop_speed() -> void:
+	current_drop_interval = maxf(
+		current_drop_interval - GameConstants.RATCHET_SPEEDUP,
+		GameConstants.RATCHET_MIN_INTERVAL)
+	drop_timer.wait_time = current_drop_interval
+
+
+func _reset_drop_speed() -> void:
+	current_drop_interval = base_drop_interval
+	drops_since_start = 0
+	if drop_timer:
+		drop_timer.wait_time = current_drop_interval
 
 
 func _drop_letter() -> void:
@@ -1103,6 +1157,11 @@ func _drop_letter() -> void:
 	game_started = true
 
 	await _apply_gravity_with_animation()
+
+	# Drop speed ratchet
+	drops_since_start += 1
+	if drops_since_start % GameConstants.RATCHET_DROPS_PER_STEP == 0:
+		_ratchet_drop_speed()
 
 	# Play drop sound
 	if drop_sound and drop_sound.stream:
