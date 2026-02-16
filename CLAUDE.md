@@ -1,9 +1,9 @@
 # CLAUDE.md — Word Loom Instructions
 
 ## Project Context
-Word Loom is a calm, senior-first word puzzle game built with **Godot 4.6 (GDScript)**.
+Word Loom is a strategic word puzzle game built with **Godot 4.6 (GDScript)** — strategic word puzzles meet Tetris.
 - **Target**: iPad, phone, browser (HTML5).
-- **Style**: No ads, no timers, high contrast, large tap targets.
+- **Style**: High contrast, large tap targets, senior-first design.
 - **Game mode**: **Loom Drop** — Tetris-style falling letters on a 5×5 grid with word-swiping.
 
 ## Project Structure
