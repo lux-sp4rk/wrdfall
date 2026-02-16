@@ -4,7 +4,8 @@
   "description": "Word Loom - A calm, senior-first word puzzle game",
   "scripts": {
     "serve": "python3 -m http.server -d dist 8000",
-    "open": "open http://localhost:8000"
+    "open": "open http://localhost:8000",
+    "minify": "node scripts/minify.js"
   },
   "repository": {
     "type": "git",
@@ -12,5 +13,8 @@
   },
   "author": "",
   "license": "MIT",
-  "devDependencies": {}
+  "devDependencies": {
+    "html-minifier-terser": "^7.2.0",
+    "terser": "^5.37.0"
+  }
 }

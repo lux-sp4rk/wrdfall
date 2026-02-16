@@ -17,5 +17,13 @@ fi
 
 echo "✅ Build complete!"
 echo ""
+echo "📦 Running minification..."
+if [ -f "scripts/minify.js" ]; then
+  npm install --no-audit --no-fund --quiet
+  node scripts/minify.js
+else
+  echo "⚠️  Minification script not found. Skipping."
+fi
+echo ""
 echo "📝 Note: Supabase credentials are hardcoded in the game."
 echo "   They're public anon keys - safe to commit (security via RLS)."
