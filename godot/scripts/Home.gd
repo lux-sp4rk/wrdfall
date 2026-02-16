@@ -5,13 +5,13 @@ extends Control
 @onready var settings_button: Button = %SettingsButton
 @onready var high_score_label: Label = %HighScoreLabel
 
-# Auth UI elements (add these to Home.tscn)
-@onready var auth_panel: Control = %AuthPanel  # Container for auth buttons
-@onready var google_button: Button = %GoogleButton
-@onready var apple_button: Button = %AppleButton
-@onready var guest_button: Button = %GuestButton
-@onready var user_status: Label = %UserStatus  # Shows "Signed in as..."
-@onready var sign_out_button: Button = %SignOutButton
+# Auth UI elements (optional - only if added to Home.tscn)
+@onready var auth_panel: Control = get_node_or_null("%AuthPanel")  # Container for auth buttons
+@onready var google_button: Button = get_node_or_null("%GoogleButton")
+@onready var apple_button: Button = get_node_or_null("%AppleButton")
+@onready var guest_button: Button = get_node_or_null("%GuestButton")
+@onready var user_status: Label = get_node_or_null("%UserStatus")  # Shows "Signed in as..."
+@onready var sign_out_button: Button = get_node_or_null("%SignOutButton")
 
 func _ready() -> void:
 	# Main navigation
@@ -155,6 +155,23 @@ func _apply_theme() -> void:
 			var pressed_style = btn.get_theme_stylebox("pressed")
 			if pressed_style:
 				pressed_style.bg_color = ThemeManager.get_color("secondary_button_pressed")
+
+	# Update Google sign-in button (tertiary style)
+	if google_button:
+		var normal_style = google_button.get_theme_stylebox("normal")
+		if normal_style:
+			normal_style.bg_color = ThemeManager.get_color("tertiary_button")
+
+		var hover_style = google_button.get_theme_stylebox("hover")
+		if hover_style:
+			hover_style.bg_color = ThemeManager.get_color("tertiary_button_hover")
+
+		var pressed_style = google_button.get_theme_stylebox("pressed")
+		if pressed_style:
+			pressed_style.bg_color = ThemeManager.get_color("tertiary_button_pressed")
+
+		# Update button text color to be theme-aware
+		google_button.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
 
 	# Update copyright
 	var copyright = $Copyright

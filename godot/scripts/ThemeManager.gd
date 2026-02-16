@@ -17,6 +17,9 @@ var themes: Dictionary = {
 		"secondary_button": Color(0.48, 0.61, 0.55, 1),
 		"secondary_button_hover": Color(0.53, 0.66, 0.60, 1),
 		"secondary_button_pressed": Color(0.43, 0.56, 0.50, 1),
+		"tertiary_button": Color(1, 1, 1, 1),  # White button (for Google sign-in)
+		"tertiary_button_hover": Color(0.97, 0.97, 0.97, 1),
+		"tertiary_button_pressed": Color(0.94, 0.94, 0.94, 1),
 		"text_primary": Color(0.12, 0.12, 0.12, 1),
 		"text_secondary": Color(0.30, 0.40, 0.35, 1),
 		"text_muted": Color(0.6, 0.6, 0.6, 1),
@@ -31,12 +34,15 @@ var themes: Dictionary = {
 	"dark": {
 		"background": Color(0.17, 0.24, 0.31, 1),
 		"card_background": Color(0.21, 0.29, 0.37, 1),
-		"primary_button": Color(0.88, 0.47, 0.34, 1),
-		"primary_button_hover": Color(0.92, 0.52, 0.39, 1),
-		"primary_button_pressed": Color(0.82, 0.42, 0.29, 1),
-		"secondary_button": Color(0.35, 0.50, 0.45, 1),
-		"secondary_button_hover": Color(0.40, 0.55, 0.50, 1),
-		"secondary_button_pressed": Color(0.30, 0.45, 0.40, 1),
+		"primary_button": Color(0.95, 0.57, 0.44, 1),  # Lighter terracotta for dark mode
+		"primary_button_hover": Color(0.98, 0.62, 0.49, 1),
+		"primary_button_pressed": Color(0.88, 0.47, 0.34, 1),
+		"secondary_button": Color(0.30, 0.42, 0.54, 1),  # Muted blue-gray
+		"secondary_button_hover": Color(0.35, 0.47, 0.59, 1),
+		"secondary_button_pressed": Color(0.25, 0.37, 0.49, 1),
+		"tertiary_button": Color(0.25, 0.33, 0.41, 1),  # Dark subtle button (for Google sign-in)
+		"tertiary_button_hover": Color(0.30, 0.38, 0.46, 1),
+		"tertiary_button_pressed": Color(0.20, 0.28, 0.36, 1),
 		"text_primary": Color(0.95, 0.95, 0.95, 1),
 		"text_secondary": Color(0.60, 0.75, 0.70, 1),
 		"text_muted": Color(0.6, 0.6, 0.6, 1),
@@ -46,7 +52,7 @@ var themes: Dictionary = {
 		"tile_text": Color(0.95, 0.95, 0.95, 1),
 		"grid_line": Color(0.3, 0.4, 0.5, 1),
 		"selection_highlight": Color(0.88, 0.47, 0.34, 0.4),
-		"accent": Color(0.88, 0.47, 0.34, 1),
+		"accent": Color(0.95, 0.57, 0.44, 1),  # Lighter accent for dark mode
 	}
 }
 
