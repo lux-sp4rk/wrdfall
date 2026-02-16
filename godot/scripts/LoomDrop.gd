@@ -532,16 +532,17 @@ func _clear_rescue() -> void:
 # --- Input handling ---
 
 func _input(event: InputEvent) -> void:
-	if game_over or is_paused:
+	# Always block input when game is over
+	if game_over:
 		return
 
-	# Cancel targeting modes with ESC
-	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+	# Cancel targeting modes with ESC (only when not paused)
+	if not is_paused and event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		if is_swap_targeting:
 			_cancel_swap_targeting()
 			return
 
-	# Debug keys to test animations (development only)
+	# Debug keys to test animations (development only, works even when paused)
 	if OS.is_debug_build() and event is InputEventKey and event.pressed:
 		if event.keycode == KEY_W and Input.is_key_pressed(KEY_CTRL):
 			_trigger_game_complete("dev_win")
@@ -549,6 +550,10 @@ func _input(event: InputEvent) -> void:
 		if event.keycode == KEY_L and Input.is_key_pressed(KEY_CTRL):
 			_trigger_game_complete("dev_lose")
 			return
+
+	# Block word selection when paused, but allow UI buttons to work
+	if is_paused:
+		return
 
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
