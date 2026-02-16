@@ -1,6 +1,6 @@
 # Word Loom
 
-A calm, senior-first word puzzle game built with **Godot 4.6** (GDScript). No ads, no timers, high contrast, large tap targets. Targets iPad, phone, and browser (HTML5).
+**Strategic word puzzles meet Tetris.** Built with Godot 4.6 (GDScript). High contrast, large tap targets. Targets iPad, phone, and browser (HTML5).
 
 ## Quick Start
 
