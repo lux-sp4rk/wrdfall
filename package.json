@@ -1,12 +1,20 @@
 {
   "name": "word-loom",
   "version": "1.0.0",
+  "private": true,
   "description": "Word Loom - A calm, senior-first word puzzle game",
   "scripts": {
     "serve": "python3 -m http.server -d dist 8000",
     "open": "open http://localhost:8000",
-    "minify": "node scripts/minify.js"
+    "minify": "node scripts/minify.js",
+    "build:landing": "cd landing && npm run build",
+    "build:all": "npm run build:landing",
+    "deploy:prod": "npm run build:all && git add . && git commit -m 'Deploy web build' && git push origin main",
+    "dev:landing": "cd landing && npm run dev"
   },
+  "workspaces": [
+    "landing"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/lux-sp4rk/word-loom"

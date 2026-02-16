@@ -31,3 +31,11 @@ firebase-debug.*.log
 
 # Playwright MCP
 .playwright-mcp/
+
+# Landing page
+landing/node_modules
+landing/dist
+landing/.env
+
+# Dependencies
+node_modules
