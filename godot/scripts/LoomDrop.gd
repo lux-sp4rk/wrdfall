@@ -10,6 +10,7 @@ signal word_scored(points: int, word_length: int)
 @onready var shake_button: Button = %"ShakeButton"
 @onready var swap_button: Button = %"SwapButton"
 @onready var draw_more_button: Button = %"DrawMoreButton"
+@onready var pause_button: Button = %"PauseButton"
 @onready var background: ColorRect = $ColorRect
 @onready var margin_container: MarginContainer = $MarginContainer
 @onready var game_over_modal: ColorRect = %"GameOverModal"
@@ -61,6 +62,7 @@ const ICON_CANCEL: String = ThemeConstants.ICON_CANCEL
 var drop_timer: Timer
 var game_over: bool = false
 var game_started: bool = false  # True after first word scored or first tile dropped
+var is_paused: bool = false
 
 # Combo streak state
 var combo_streak: int = 0
@@ -108,8 +110,8 @@ func _ready() -> void:
 	shake_button.pressed.connect(_on_shake_pressed)
 	swap_button.pressed.connect(_on_swap_pressed)
 	draw_more_button.pressed.connect(_on_draw_more_pressed)
+	pause_button.pressed.connect(_on_pause_pressed)
 	top_nav_bar.exit_pressed.connect(_on_home_pressed)
-	top_nav_bar.pause_pressed.connect(_on_pause_pressed)
 	top_nav_bar.set_drop_timer(drop_timer)
 	word_scored.connect(top_nav_bar.show_word_score)
 	retry_button.pressed.connect(_on_retry_pressed)
@@ -170,7 +172,10 @@ func _on_home_pressed() -> void:
 
 
 func _on_pause_pressed() -> void:
-	if top_nav_bar.is_paused:
+	is_paused = !is_paused
+	pause_button.text = "▶ Resume\n(Free)" if is_paused else "⏸ Pause\n(Free)"
+
+	if is_paused:
 		drop_timer.paused = true
 		word_label.text = lang_config.ui_strings.get("paused", "Game Paused")
 		top_nav_bar.set_timer_paused(true)
@@ -192,7 +197,7 @@ func _on_sidebar_opened() -> void:
 
 func _on_sidebar_closed() -> void:
 	# Resume if game wasn't already paused
-	if not top_nav_bar.is_paused:
+	if not is_paused:
 		drop_timer.paused = false
 
 
@@ -525,7 +530,7 @@ func _clear_rescue() -> void:
 # --- Input handling ---
 
 func _input(event: InputEvent) -> void:
-	if game_over or top_nav_bar.is_paused:
+	if game_over or is_paused:
 		return
 
 	# Cancel targeting modes with ESC
@@ -704,7 +709,7 @@ func _score_word(word: String) -> int:
 # --- Shake Button ---
 
 func _on_shake_pressed() -> void:
-	if game_over or top_nav_bar.is_paused:
+	if game_over or is_paused:
 		return
 
 	if score < SHAKE_COST:
@@ -802,7 +807,7 @@ func _shake_grid() -> void:
 # --- Swap Button ---
 
 func _on_swap_pressed() -> void:
-	if game_over or top_nav_bar.is_paused:
+	if game_over or is_paused:
 		return
 
 	if score < SWAP_COST:
@@ -917,7 +922,7 @@ func _execute_swap(cell_a: Vector2i, cell_b: Vector2i) -> void:
 # --- Draw More Button ---
 
 func _on_draw_more_pressed() -> void:
-	if game_over or top_nav_bar.is_paused:
+	if game_over or is_paused:
 		return
 
 	if score < DRAW_MORE_COST:
@@ -1305,20 +1310,20 @@ func _update_score_display() -> void:
 
 
 func _update_shake_button() -> void:
-	shake_button.disabled = not game_started or score < SHAKE_COST or top_nav_bar.is_paused
+	shake_button.disabled = not game_started or score < SHAKE_COST or is_paused
 
 
 func _update_swap_button() -> void:
 	if is_swap_targeting:
 		_set_button_content(swap_button, ICON_CANCEL, lang_config.ui_strings["cancel"])
-		swap_button.disabled = top_nav_bar.is_paused
+		swap_button.disabled = is_paused
 	else:
 		_set_button_content(swap_button, ICON_SWAP, lang_config.ui_strings["swap"])
-		swap_button.disabled = not game_started or score < SWAP_COST or top_nav_bar.is_paused
+		swap_button.disabled = not game_started or score < SWAP_COST or is_paused
 
 
 func _update_draw_more_button() -> void:
-	draw_more_button.disabled = not game_started or score < DRAW_MORE_COST or top_nav_bar.is_paused
+	draw_more_button.disabled = not game_started or score < DRAW_MORE_COST or is_paused
 
 
 func _setup_icon_button(btn: Button, icon_text: String, label_text: String) -> void:

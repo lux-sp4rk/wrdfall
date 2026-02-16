@@ -4,18 +4,15 @@ extends HBoxContainer
 ## Emits signals that the parent scene can connect to
 
 signal exit_pressed
-signal pause_pressed
 signal burger_pressed
 
 @onready var burger_button = %BurgerMenuButton
 @onready var exit_button = %ExitButton
-@onready var pause_button = %PauseButton
 @onready var score_label = %ScoreLabel
 @onready var high_score_label = %HighScoreLabel
 @onready var timer_label = %TimerLabel
 @onready var word_score_label = %WordScoreLabel
 
-var is_paused: bool = false
 var drop_timer_ref: Timer = null
 var is_showing_word_score: bool = false
 var word_score_timer: Timer
@@ -24,7 +21,6 @@ var active_word_score_tween: Tween = null
 func _ready() -> void:
 	burger_button.pressed.connect(_on_burger_pressed)
 	exit_button.pressed.connect(_on_exit_pressed)
-	pause_button.pressed.connect(_on_pause_pressed)
 	_update_high_score_display()
 	_apply_theme()
 	ThemeManager.theme_changed.connect(_apply_theme)
@@ -43,20 +39,11 @@ func _on_burger_pressed() -> void:
 func _on_exit_pressed() -> void:
 	exit_pressed.emit()
 
-func _on_pause_pressed() -> void:
-	is_paused = !is_paused
-	pause_button.text = "Resume" if is_paused else "Pause"
-	pause_pressed.emit()
-
 func update_score(score: int) -> void:
 	score_label.text = "Score: %d" % score
 	# Update high score display if current score beats it
 	if score > StatsManager.high_score:
 		_update_high_score_display(score)
-
-func set_paused(paused: bool) -> void:
-	is_paused = paused
-	pause_button.text = "Resume" if is_paused else "Pause"
 
 func set_drop_timer(timer: Timer) -> void:
 	drop_timer_ref = timer
@@ -81,8 +68,8 @@ func _update_high_score_display(current_score: int = 0) -> void:
 		high_score_label.text = ""
 
 func _apply_theme() -> void:
-	# Update Burger, Exit and Pause buttons
-	for btn in [burger_button, exit_button, pause_button]:
+	# Update Burger and Exit buttons
+	for btn in [burger_button, exit_button]:
 		if btn:
 			var normal_style = btn.get_theme_stylebox("normal")
 			if normal_style:

@@ -91,18 +91,29 @@ alignment = 1
 
 [node name="ShakeButton" type="Button" parent="MarginContainer/VBox/ActionButtons" unique_id=228822977]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(160, 110)
+custom_minimum_size = Vector2(135, 100)
 layout_mode = 2
 
 [node name="SwapButton" type="Button" parent="MarginContainer/VBox/ActionButtons" unique_id=868050866]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(160, 110)
+custom_minimum_size = Vector2(135, 100)
 layout_mode = 2
 
 [node name="DrawMoreButton" type="Button" parent="MarginContainer/VBox/ActionButtons" unique_id=1872945612]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(160, 110)
+custom_minimum_size = Vector2(135, 100)
 layout_mode = 2
+
+[node name="PauseButton" type="Button" parent="MarginContainer/VBox/ActionButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(135, 100)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.9)
+theme_override_font_sizes/font_size = 22
+text = "⏸ Pause
+(Free)"
 
 [node name="GameOverModal" type="ColorRect" parent="." unique_id=413505439]
 unique_name_in_owner = true
