@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://tpwlf1je2pe8" path="res://scripts/LoomDrop.gd" id="1"]
 [ext_resource type="AudioStream" uid="uid://jq64cnhbl25m" path="res://audio/drop.wav" id="2_83v8n"]
 [ext_resource type="PackedScene" uid="uid://b4qm8xjhw3fxo" path="res://scenes/TopNavBar.tscn" id="2_topnavbar"]
+[ext_resource type="PackedScene" uid="uid://c8jk2xnhw5fxp" path="res://scenes/GameSidebar.tscn" id="2_gamesidebar"]
 [ext_resource type="AudioStream" uid="uid://ykb5qrmnfmc3" path="res://audio/word_score.wav" id="3_word_score"]
 [ext_resource type="AudioStream" uid="uid://d4iveu47aghou" path="res://audio/shake.wav" id="4_shake"]
 [ext_resource type="AudioStream" uid="uid://bvnu8evp1p0r7" path="res://audio/game_complete.wav" id="5_game_complete"]
@@ -206,3 +207,7 @@ volume_db = -3.0
 unique_name_in_owner = true
 stream = ExtResource("6_game_won")
 volume_db = -2.0
+
+[node name="GameSidebar" parent="." unique_id=1234567890 instance=ExtResource("2_gamesidebar")]
+unique_name_in_owner = true
+z_index = 10

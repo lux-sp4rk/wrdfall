@@ -23,6 +23,7 @@ signal word_scored(points: int, word_length: int)
 @onready var shake_sound: AudioStreamPlayer = %"ShakeSoundPlayer"
 @onready var game_complete_sound: AudioStreamPlayer = %"GameCompleteSoundPlayer"
 @onready var game_won_sound: AudioStreamPlayer = %"GameWonSoundPlayer"
+@onready var game_sidebar = %GameSidebar
 
 # Grid and game rules now defined in GameConstants
 const ROWS: int = GameConstants.ROWS
@@ -114,6 +115,13 @@ func _ready() -> void:
 	retry_button.pressed.connect(_on_retry_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
 
+	# Connect burger menu to sidebar
+	top_nav_bar.burger_pressed.connect(game_sidebar.toggle)
+
+	# Pause game when sidebar opens/closes
+	game_sidebar.sidebar_opened.connect(_on_sidebar_opened)
+	game_sidebar.sidebar_closed.connect(_on_sidebar_closed)
+
 	# Hide modal initially
 	game_over_modal.hide()
 
@@ -175,6 +183,17 @@ func _on_pause_pressed() -> void:
 	_update_shake_button()
 	_update_swap_button()
 	_update_draw_more_button()
+
+
+func _on_sidebar_opened() -> void:
+	# Pause the game
+	drop_timer.paused = true
+
+
+func _on_sidebar_closed() -> void:
+	# Resume if game wasn't already paused
+	if not top_nav_bar.is_paused:
+		drop_timer.paused = false
 
 
 func _on_retry_pressed() -> void:
