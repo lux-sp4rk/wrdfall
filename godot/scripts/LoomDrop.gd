@@ -109,6 +109,7 @@ func _ready() -> void:
 	draw_more_button.pressed.connect(_on_draw_more_pressed)
 	top_nav_bar.exit_pressed.connect(_on_home_pressed)
 	top_nav_bar.pause_pressed.connect(_on_pause_pressed)
+	top_nav_bar.set_drop_timer(drop_timer)
 	retry_button.pressed.connect(_on_retry_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
 
@@ -166,6 +167,11 @@ func _on_pause_pressed() -> void:
 	else:
 		drop_timer.paused = false
 		word_label.text = ""
+
+	# Update button states to disable/enable based on pause state
+	_update_shake_button()
+	_update_swap_button()
+	_update_draw_more_button()
 
 
 func _on_retry_pressed() -> void:
@@ -497,7 +503,7 @@ func _clear_rescue() -> void:
 # --- Input handling ---
 
 func _input(event: InputEvent) -> void:
-	if game_over:
+	if game_over or top_nav_bar.is_paused:
 		return
 
 	# Cancel targeting modes with ESC
@@ -676,7 +682,7 @@ func _score_word(word: String) -> int:
 # --- Shake Button ---
 
 func _on_shake_pressed() -> void:
-	if game_over:
+	if game_over or top_nav_bar.is_paused:
 		return
 
 	if score < SHAKE_COST:
@@ -774,7 +780,7 @@ func _shake_grid() -> void:
 # --- Swap Button ---
 
 func _on_swap_pressed() -> void:
-	if game_over:
+	if game_over or top_nav_bar.is_paused:
 		return
 
 	if score < SWAP_COST:
@@ -889,7 +895,7 @@ func _execute_swap(cell_a: Vector2i, cell_b: Vector2i) -> void:
 # --- Draw More Button ---
 
 func _on_draw_more_pressed() -> void:
-	if game_over:
+	if game_over or top_nav_bar.is_paused:
 		return
 
 	if score < DRAW_MORE_COST:
@@ -1277,20 +1283,20 @@ func _update_score_display() -> void:
 
 
 func _update_shake_button() -> void:
-	shake_button.disabled = not game_started or score < SHAKE_COST
+	shake_button.disabled = not game_started or score < SHAKE_COST or top_nav_bar.is_paused
 
 
 func _update_swap_button() -> void:
 	if is_swap_targeting:
 		_set_button_content(swap_button, ICON_CANCEL, lang_config.ui_strings["cancel"])
-		swap_button.disabled = false
+		swap_button.disabled = top_nav_bar.is_paused
 	else:
 		_set_button_content(swap_button, ICON_SWAP, lang_config.ui_strings["swap"])
-		swap_button.disabled = not game_started or score < SWAP_COST
+		swap_button.disabled = not game_started or score < SWAP_COST or top_nav_bar.is_paused
 
 
 func _update_draw_more_button() -> void:
-	draw_more_button.disabled = not game_started or score < DRAW_MORE_COST
+	draw_more_button.disabled = not game_started or score < DRAW_MORE_COST or top_nav_bar.is_paused
 
 
 func _setup_icon_button(btn: Button, icon_text: String, label_text: String) -> void:

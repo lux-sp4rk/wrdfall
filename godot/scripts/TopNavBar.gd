@@ -10,8 +10,12 @@ signal pause_pressed
 @onready var pause_button = %PauseButton
 @onready var score_label = %ScoreLabel
 @onready var high_score_label = %HighScoreLabel
+@onready var timer_label = %TimerLabel
+@onready var word_score_label = %WordScoreLabel
 
 var is_paused: bool = false
+var drop_timer_ref: Timer = null
+var is_showing_word_score: bool = false
 
 func _ready() -> void:
 	exit_button.pressed.connect(_on_exit_pressed)
@@ -37,6 +41,14 @@ func update_score(score: int) -> void:
 func set_paused(paused: bool) -> void:
 	is_paused = paused
 	pause_button.text = "Resume" if is_paused else "Pause"
+
+func set_drop_timer(timer: Timer) -> void:
+	drop_timer_ref = timer
+
+func _process(_delta: float) -> void:
+	if not is_showing_word_score and drop_timer_ref and not drop_timer_ref.is_stopped():
+		var time_left := ceili(drop_timer_ref.time_left)
+		timer_label.text = "%ds" % time_left
 
 func _update_high_score_display(current_score: int = 0) -> void:
 	var high_score := maxi(StatsManager.high_score, current_score)
@@ -67,3 +79,10 @@ func _apply_theme() -> void:
 
 	if high_score_label:
 		high_score_label.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
+
+	# Update timer and word score labels
+	if timer_label:
+		timer_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+
+	if word_score_label:
+		word_score_label.add_theme_color_override("font_color", ThemeManager.get_color("accent"))
