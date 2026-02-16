@@ -36,8 +36,9 @@ func _ready() -> void:
 	# Connect overlay click to close
 	background_overlay.gui_input.connect(_on_overlay_input)
 
-	# Initially hide overlay
+	# Initially hide overlay (both visually and for input)
 	background_overlay.modulate.a = 0.0
+	background_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func toggle() -> void:
@@ -54,6 +55,9 @@ func open() -> void:
 	is_open = true
 	visible = true
 	sidebar_opened.emit()
+
+	# Enable overlay input blocking
+	background_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 
 	# Kill previous tween if still running
 	if active_tween:
@@ -72,6 +76,9 @@ func close() -> void:
 
 	is_open = false
 	sidebar_closed.emit()
+
+	# Disable overlay input blocking immediately
+	background_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	# Kill previous tween if still running
 	if active_tween:
