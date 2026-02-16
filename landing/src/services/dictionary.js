@@ -18,6 +18,11 @@ export class DictionaryManager {
    * Returns cached if available, otherwise fetches
    */
   async load(language = 'en') {
+    // Validate language code (2-letter ISO 639-1)
+    if (!/^[a-z]{2}$/.test(language)) {
+      throw new Error(`Invalid language code: ${language}`);
+    }
+
     // Check in-memory cache
     if (this.cache.has(language)) {
       return this.cache.get(language);
@@ -46,32 +51,44 @@ export class DictionaryManager {
    */
   async _fetch(language) {
     const url = `/game/dictionaries/${language}.txt`;
-    const response = await fetch(url);
+    try {
+      const response = await fetch(url);
 
-    if (!response.ok) {
-      throw new Error(`Failed to load dictionary: ${response.status}`);
-    }
-
-    const text = await response.text();
-
-    // Parse into Set for fast lookups
-    const words = new Set();
-    const lines = text.split('\n');
-
-    for (const line of lines) {
-      const word = line.trim().toUpperCase();
-      if (word && !word.startsWith('#')) {
-        words.add(word);
+      if (!response.ok) {
+        throw new Error(`Failed to load dictionary for '${language}': HTTP ${response.status} from ${url}`);
       }
-    }
 
-    return words;
+      const text = await response.text();
+
+      // Parse into Set for fast lookups
+      const words = new Set();
+      const lines = text.split('\n');
+
+      for (const line of lines) {
+        const word = line.trim().toUpperCase();
+        if (word && !word.startsWith('#')) {
+          words.add(word);
+        }
+      }
+
+      return words;
+    } catch (error) {
+      // Re-throw with context if this is a fetch/network error
+      if (error.message.includes('Failed to load dictionary')) {
+        throw error; // Already has context
+      }
+      throw new Error(`Network error loading ${language} dictionary: ${error.message}`);
+    }
   }
 
   /**
    * Send dictionary to Godot via window object
    */
   sendToGodot(language, words) {
+    if (!(words instanceof Set)) {
+      console.error('sendToGodot: words must be a Set');
+      return;
+    }
     window.WORD_LOOM_DICTIONARY = {
       language,
       words: Array.from(words),
