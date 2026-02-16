@@ -1,5 +1,7 @@
 extends Control
 
+signal word_scored(points: int, word_length: int)
+
 @onready var grid_container: GridContainer = %"GridContainer"
 @onready var grid_center: CenterContainer = $MarginContainer/VBox/GridCenter
 @onready var board_panel: PanelContainer = $MarginContainer/VBox/GridCenter/BoardPanel
@@ -599,6 +601,7 @@ func _accept_word(word: String) -> void:
 
 	var points: int = _score_word(word)
 	score += points
+	word_scored.emit(points, word.length())
 	_update_score_display()
 	_update_shake_button()
 	_update_swap_button()
