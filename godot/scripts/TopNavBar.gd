@@ -168,3 +168,9 @@ func _on_word_score_timeout() -> void:
 	word_score_label.remove_theme_font_size_override("font_size")
 	word_score_label.scale = Vector2.ONE
 	word_score_label.rotation_degrees = 0
+
+func set_game_paused(paused: bool) -> void:
+	if paused and is_showing_word_score:
+		word_score_timer.paused = true
+	elif not paused and is_showing_word_score:
+		word_score_timer.paused = false
