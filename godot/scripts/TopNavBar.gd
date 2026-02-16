@@ -5,7 +5,9 @@ extends HBoxContainer
 
 signal exit_pressed
 signal pause_pressed
+signal burger_pressed
 
+@onready var burger_button = %BurgerMenuButton
 @onready var exit_button = %ExitButton
 @onready var pause_button = %PauseButton
 @onready var score_label = %ScoreLabel
@@ -20,6 +22,7 @@ var word_score_timer: Timer
 var active_word_score_tween: Tween = null
 
 func _ready() -> void:
+	burger_button.pressed.connect(_on_burger_pressed)
 	exit_button.pressed.connect(_on_exit_pressed)
 	pause_button.pressed.connect(_on_pause_pressed)
 	_update_high_score_display()
@@ -33,6 +36,9 @@ func _ready() -> void:
 	word_score_timer.one_shot = true
 	word_score_timer.timeout.connect(_on_word_score_timeout)
 	add_child(word_score_timer)
+
+func _on_burger_pressed() -> void:
+	burger_pressed.emit()
 
 func _on_exit_pressed() -> void:
 	exit_pressed.emit()
@@ -75,8 +81,8 @@ func _update_high_score_display(current_score: int = 0) -> void:
 		high_score_label.text = ""
 
 func _apply_theme() -> void:
-	# Update Exit and Pause buttons
-	for btn in [exit_button, pause_button]:
+	# Update Burger, Exit and Pause buttons
+	for btn in [burger_button, exit_button, pause_button]:
 		if btn:
 			var normal_style = btn.get_theme_stylebox("normal")
 			if normal_style:
