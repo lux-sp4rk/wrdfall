@@ -1,6 +1,6 @@
 # Word Loom: Game Rules
 
-Word Loom is a calm, senior-first word puzzle game. The primary game mode is **Loom Drop** — a Tetris-style falling-letter puzzle where you swipe to form words on a 5x5 grid.
+Word Loom is a strategic word puzzle game where word-building meets Tetris. The primary game mode is **Loom Drop** — a Tetris-style falling-letter puzzle where you swipe to form words on a 5x5 grid.
 
 ## How to Play
 
