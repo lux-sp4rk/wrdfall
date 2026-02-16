@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://cijnbspbn0k6c" path="res://assets/themes/clashy/graphics/button-disabled.svg" id="1_2vevx"]
 [ext_resource type="StyleBox" uid="uid://q222orvy57pf" path="res://assets/themes/clashy/panels/clashButtonHover.tres" id="2_0hton"]
-[ext_resource type="FontFile" uid="uid://qq52okilox71" path="res://assets/themes/clashy/Acme-Regular.ttf" id="2_1eokn"]
+[ext_resource type="FontVariation" path="res://assets/fonts/AcmeWithSymbols.tres" id="2_1eokn"]
 [ext_resource type="Texture2D" uid="uid://dnnvgg848rp73" path="res://assets/themes/clashy/graphics/panel.svg" id="3_i7pvi"]
 [ext_resource type="StyleBox" uid="uid://byx3e5blcxm1o" path="res://assets/themes/clashy/panels/clashButton.tres" id="3_ih65r"]
 [ext_resource type="StyleBox" uid="uid://cxo32m6uciudf" path="res://assets/themes/clashy/panels/clashButtonPress.tres" id="4_i7no0"]

@@ -20,7 +20,7 @@
 [ext_resource type="StyleBox" uid="uid://dewga67neikey" path="res://assets/themes/clashy/panels/clashGreenButtonHovered.tres" id="18_01ny3"]
 [ext_resource type="StyleBox" uid="uid://dsq41wy5jywes" path="res://assets/themes/clashy/panels/clashGreenButton.tres" id="19_arxth"]
 [ext_resource type="StyleBox" uid="uid://cr8yu214v4imm" path="res://assets/themes/clashy/panels/clashGreenButtonPressed.tres" id="20_txq0h"]
-[ext_resource type="FontFile" uid="uid://dvdv6wjd5vfsh" path="res://assets/fonts/InterVariable.ttf" id="21_5xg0f"]
+[ext_resource type="FontVariation" path="res://assets/fonts/InterWithSymbols.tres" id="21_5xg0f"]
 [ext_resource type="StyleBox" uid="uid://budiltoqh47b4" path="res://assets/themes/spacey/panels/spacey_panel.tres" id="22_l4au7"]
 [ext_resource type="StyleBox" uid="uid://t88jwvb7s6t5" path="res://assets/themes/clashy/panels/panel_dark_embedded.tres" id="24_k3eyu"]
 [ext_resource type="StyleBox" uid="uid://dckahvecau5rs" path="res://assets/themes/clashy/panels/panel_light_embedded.tres" id="25_vki5e"]
