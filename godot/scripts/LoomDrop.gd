@@ -110,6 +110,7 @@ func _ready() -> void:
 	top_nav_bar.exit_pressed.connect(_on_home_pressed)
 	top_nav_bar.pause_pressed.connect(_on_pause_pressed)
 	top_nav_bar.set_drop_timer(drop_timer)
+	word_scored.connect(top_nav_bar.show_word_score)
 	retry_button.pressed.connect(_on_retry_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
 

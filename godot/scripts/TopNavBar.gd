@@ -16,6 +16,7 @@ signal pause_pressed
 var is_paused: bool = false
 var drop_timer_ref: Timer = null
 var is_showing_word_score: bool = false
+var word_score_timer: Timer
 
 func _ready() -> void:
 	exit_button.pressed.connect(_on_exit_pressed)
@@ -24,6 +25,13 @@ func _ready() -> void:
 	_apply_theme()
 	ThemeManager.theme_changed.connect(_apply_theme)
 	set_process(false)  # Disable processing until timer is set
+
+	# Create word score display timer (2 seconds)
+	word_score_timer = Timer.new()
+	word_score_timer.wait_time = 2.0
+	word_score_timer.one_shot = true
+	word_score_timer.timeout.connect(_on_word_score_timeout)
+	add_child(word_score_timer)
 
 func _on_exit_pressed() -> void:
 	exit_pressed.emit()
@@ -94,3 +102,30 @@ func _apply_theme() -> void:
 
 	if word_score_label:
 		word_score_label.add_theme_color_override("font_color", ThemeManager.get_color("accent"))
+
+func _calculate_phrase(word_length: int) -> String:
+	match word_length:
+		3: return "NICE!"
+		4: return "GREAT!"
+		5: return "AMAZING!"
+		6: return "FANTASTIC!"
+		_: return "SPECTACULAR!"  # 7+ letters
+
+func show_word_score(points: int, word_length: int) -> void:
+	# If already showing word score, restart timer with new score
+	if is_showing_word_score:
+		word_score_timer.stop()
+
+	is_showing_word_score = true
+	timer_label.visible = false
+
+	var phrase := _calculate_phrase(word_length)
+	word_score_label.text = "+%d %s" % [points, phrase]
+	word_score_label.visible = true
+
+	word_score_timer.start()
+
+func _on_word_score_timeout() -> void:
+	is_showing_word_score = false
+	word_score_label.visible = false
+	timer_label.visible = true
