@@ -72,8 +72,12 @@ export class StorageManager {
       .eq('user_id', userId)
       .single();
 
-    if (error || !data) {
+    if (error) {
+      console.warn('Supabase fetch failed:', error);
       return null;
+    }
+    if (!data) {
+      return null; // No record exists yet
     }
 
     return data.high_score;
@@ -95,6 +99,12 @@ export class StorageManager {
    * Save high score (called from Godot via JS bridge)
    */
   async saveHighScore(score) {
+    // Validate input
+    if (typeof score !== 'number' || !Number.isFinite(score) || score < 0) {
+      console.warn('Invalid score:', score);
+      return;
+    }
+
     const currentHigh = this.getLocalHighScore() || 0;
 
     if (score <= currentHigh) {
