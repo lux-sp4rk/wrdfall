@@ -120,11 +120,15 @@ func _on_help_pressed() -> void:
 
 
 func _apply_theme() -> void:
-	# Panel background
-	var panel_style = get_theme_stylebox("panel")
-	if panel_style:
-		panel_style.bg_color = ThemeManager.get_color("card_background")
-		panel_style.border_color = ThemeManager.get_color("accent")
+	# Panel background - create StyleBoxFlat for dynamic theming
+	var panel_style = StyleBoxFlat.new()
+	panel_style.bg_color = ThemeManager.get_color("card_background")
+	panel_style.border_width_left = 2
+	panel_style.border_width_right = 2
+	panel_style.border_color = ThemeManager.get_color("accent")
+	panel_style.corner_radius_top_right = 8
+	panel_style.corner_radius_bottom_right = 8
+	add_theme_stylebox_override("panel", panel_style)
 
 	# Overlay (semi-transparent background behind sidebar)
 	if background_overlay:
@@ -136,19 +140,31 @@ func _apply_theme() -> void:
 	for button in buttons:
 		if button:
 			# Normal state
-			var normal_style = button.get_theme_stylebox("normal")
-			if normal_style:
-				normal_style.bg_color = ThemeManager.get_color("secondary_button")
+			var normal_style = StyleBoxFlat.new()
+			normal_style.bg_color = ThemeManager.get_color("secondary_button")
+			normal_style.corner_radius_top_left = 8
+			normal_style.corner_radius_top_right = 8
+			normal_style.corner_radius_bottom_left = 8
+			normal_style.corner_radius_bottom_right = 8
+			button.add_theme_stylebox_override("normal", normal_style)
 
 			# Hover state
-			var hover_style = button.get_theme_stylebox("hover")
-			if hover_style:
-				hover_style.bg_color = ThemeManager.get_color("secondary_button_hover")
+			var hover_style = StyleBoxFlat.new()
+			hover_style.bg_color = ThemeManager.get_color("secondary_button_hover")
+			hover_style.corner_radius_top_left = 8
+			hover_style.corner_radius_top_right = 8
+			hover_style.corner_radius_bottom_left = 8
+			hover_style.corner_radius_bottom_right = 8
+			button.add_theme_stylebox_override("hover", hover_style)
 
 			# Pressed state
-			var pressed_style = button.get_theme_stylebox("pressed")
-			if pressed_style:
-				pressed_style.bg_color = ThemeManager.get_color("secondary_button_pressed")
+			var pressed_style = StyleBoxFlat.new()
+			pressed_style.bg_color = ThemeManager.get_color("secondary_button_pressed")
+			pressed_style.corner_radius_top_left = 8
+			pressed_style.corner_radius_top_right = 8
+			pressed_style.corner_radius_bottom_left = 8
+			pressed_style.corner_radius_bottom_right = 8
+			button.add_theme_stylebox_override("pressed", pressed_style)
 
 			# Text colors
 			button.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
