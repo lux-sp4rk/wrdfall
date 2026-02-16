@@ -17,6 +17,7 @@ var is_paused: bool = false
 var drop_timer_ref: Timer = null
 var is_showing_word_score: bool = false
 var word_score_timer: Timer
+var active_word_score_tween: Tween = null
 
 func _ready() -> void:
 	exit_button.pressed.connect(_on_exit_pressed)
@@ -112,7 +113,11 @@ func _calculate_phrase(word_length: int) -> String:
 		_: return "SPECTACULAR!"  # 7+ letters
 
 func _animate_word_score(word_length: int) -> void:
-	var tween := create_tween()
+	# Kill previous tween if still running
+	if active_word_score_tween:
+		active_word_score_tween.kill()
+
+	active_word_score_tween = create_tween()
 
 	# Set font size based on word length
 	var font_size := 32
@@ -129,20 +134,20 @@ func _animate_word_score(word_length: int) -> void:
 	# Animate based on word length
 	match word_length:
 		3:  # NICE! - gentle bounce
-			tween.tween_property(word_score_label, "scale", Vector2(1.2, 1.2), 0.2)
-			tween.tween_property(word_score_label, "scale", Vector2(1.0, 1.0), 0.2)
+			active_word_score_tween.tween_property(word_score_label, "scale", Vector2(1.2, 1.2), 0.2)
+			active_word_score_tween.tween_property(word_score_label, "scale", Vector2(1.0, 1.0), 0.2)
 
 		4:  # GREAT! - bigger bounce with rotation
-			tween.tween_property(word_score_label, "scale", Vector2(1.4, 1.4), 0.2)
-			tween.tween_property(word_score_label, "rotation_degrees", 5, 0.1)
-			tween.tween_property(word_score_label, "rotation_degrees", -5, 0.1)
-			tween.tween_property(word_score_label, "rotation_degrees", 0, 0.1)
-			tween.tween_property(word_score_label, "scale", Vector2(1.0, 1.0), 0.2)
+			active_word_score_tween.tween_property(word_score_label, "scale", Vector2(1.4, 1.4), 0.2)
+			active_word_score_tween.tween_property(word_score_label, "rotation_degrees", 5, 0.1)
+			active_word_score_tween.tween_property(word_score_label, "rotation_degrees", -5, 0.1)
+			active_word_score_tween.tween_property(word_score_label, "rotation_degrees", 0, 0.1)
+			active_word_score_tween.tween_property(word_score_label, "scale", Vector2(1.0, 1.0), 0.2)
 
 		_:  # AMAZING!/FANTASTIC!/SPECTACULAR! - big celebration
-			tween.tween_property(word_score_label, "scale", Vector2(1.6, 1.6), 0.3)
-			tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_ELASTIC)
-			tween.tween_property(word_score_label, "scale", Vector2(1.0, 1.0), 0.5)
+			active_word_score_tween.tween_property(word_score_label, "scale", Vector2(1.6, 1.6), 0.3)
+			active_word_score_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_ELASTIC)
+			active_word_score_tween.tween_property(word_score_label, "scale", Vector2(1.0, 1.0), 0.5)
 
 func show_word_score(points: int, word_length: int) -> void:
 	# If already showing word score, restart timer with new score
@@ -165,3 +170,8 @@ func _on_word_score_timeout() -> void:
 	is_showing_word_score = false
 	word_score_label.visible = false
 	timer_label.visible = true
+
+	# Clean up theme overrides and transform state
+	word_score_label.remove_theme_font_size_override("font_size")
+	word_score_label.scale = Vector2.ONE
+	word_score_label.rotation_degrees = 0
