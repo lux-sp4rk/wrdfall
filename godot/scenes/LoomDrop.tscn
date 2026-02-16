@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://tpwlf1je2pe8" path="res://scripts/LoomDrop.gd" id="1"]
 [ext_resource type="AudioStream" uid="uid://jq64cnhbl25m" path="res://audio/drop.wav" id="2_83v8n"]
-[ext_resource type="PackedScene" uid="uid://b4qm8xjhw3fxo" path="res://scenes/TopNavBar.tscn" id="2_topnavbar"]
 [ext_resource type="PackedScene" uid="uid://c8jk2xnhw5fxp" path="res://scenes/GameSidebar.tscn" id="2_gamesidebar"]
+[ext_resource type="PackedScene" uid="uid://b4qm8xjhw3fxo" path="res://scenes/TopNavBar.tscn" id="2_topnavbar"]
 [ext_resource type="AudioStream" uid="uid://ykb5qrmnfmc3" path="res://audio/word_score.wav" id="3_word_score"]
 [ext_resource type="AudioStream" uid="uid://d4iveu47aghou" path="res://audio/shake.wav" id="4_shake"]
 [ext_resource type="AudioStream" uid="uid://bvnu8evp1p0r7" path="res://audio/game_complete.wav" id="5_game_complete"]
@@ -104,13 +104,13 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(135, 100)
 layout_mode = 2
 
-[node name="PauseButton" type="Button" parent="MarginContainer/VBox/ActionButtons"]
+[node name="PauseButton" type="Button" parent="MarginContainer/VBox/ActionButtons" unique_id=211392313]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(135, 100)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.9)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 22
 text = "⏸ Pause
 (Free)"
@@ -222,3 +222,8 @@ volume_db = -2.0
 [node name="GameSidebar" parent="." unique_id=1234567890 instance=ExtResource("2_gamesidebar")]
 unique_name_in_owner = true
 z_index = 10
+layout_mode = 0
+anchors_preset = 0
+anchor_bottom = 0.0
+offset_bottom = 1280.0
+grow_vertical = 1
