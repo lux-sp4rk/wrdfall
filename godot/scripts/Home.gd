@@ -4,6 +4,7 @@ extends Control
 @onready var stats_button: Button = %StatsButton
 @onready var settings_button: Button = %SettingsButton
 @onready var high_score_label: Label = %HighScoreLabel
+@onready var tagline: Label = $CenterContainer/MainCard/VBox/TitleContainer/Tagline
 
 # Auth UI elements (optional - only if added to Home.tscn)
 @onready var auth_panel: Control = get_node_or_null("%AuthPanel")  # Container for auth buttons
@@ -34,6 +35,10 @@ func _ready() -> void:
 
 	# Show high score
 	_update_high_score()
+
+	# Set tagline from GameConstants
+	if tagline:
+		tagline.text = GameConstants.TAGLINE
 
 	# Apply theme
 	_apply_theme()

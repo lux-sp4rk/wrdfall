@@ -57,6 +57,10 @@ const RATCHET_SPEEDUP: float = 0.5              # Reduce interval by 0.5s per st
 const RATCHET_MIN_INTERVAL: float = 2.0         # Floor — never faster than 2s
 const RATCHET_RESET_WORD_LENGTH: int = 5        # 5+ letter word resets speed
 
+# === UI Text ===
+
+const TAGLINE: String = "Word-building meets Tetris"  # Main tagline displayed on home screen
+
 # === Helper Functions ===
 
 ## Get power-up costs based on current difficulty
