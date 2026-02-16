@@ -170,7 +170,5 @@ func _on_word_score_timeout() -> void:
 	word_score_label.rotation_degrees = 0
 
 func set_game_paused(paused: bool) -> void:
-	if paused and is_showing_word_score:
-		word_score_timer.paused = true
-	elif not paused and is_showing_word_score:
-		word_score_timer.paused = false
+	if is_showing_word_score:
+		word_score_timer.paused = paused
