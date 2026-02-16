@@ -26,9 +26,15 @@ export class PrefetchManager {
     ]);
 
     // Check for failures
-    const failed = results.filter(r => r.status === 'rejected');
+    const failed = results
+      .map((r, i) => ({ result: r, file: ['wasm', 'pck', 'dict'][i] }))
+      .filter(({ result }) => result.status === 'rejected');
+
     if (failed.length > 0) {
-      throw new Error(`Pre-fetch failed: ${failed.length} file(s)`);
+      const details = failed.map(({ file, result }) =>
+        `${file}: ${result.reason.message}`
+      ).join(', ');
+      throw new Error(`Pre-fetch failed: ${failed.length} file(s) - ${details}`);
     }
 
     return {
