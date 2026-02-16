@@ -111,6 +111,39 @@ func _calculate_phrase(word_length: int) -> String:
 		6: return "FANTASTIC!"
 		_: return "SPECTACULAR!"  # 7+ letters
 
+func _animate_word_score(word_length: int) -> void:
+	var tween := create_tween()
+
+	# Set font size based on word length
+	var font_size := 32
+	match word_length:
+		3: font_size = 32
+		4: font_size = 36
+		_: font_size = 42
+	word_score_label.add_theme_font_size_override("font_size", font_size)
+
+	# Reset transform
+	word_score_label.scale = Vector2.ONE
+	word_score_label.rotation_degrees = 0
+
+	# Animate based on word length
+	match word_length:
+		3:  # NICE! - gentle bounce
+			tween.tween_property(word_score_label, "scale", Vector2(1.2, 1.2), 0.2)
+			tween.tween_property(word_score_label, "scale", Vector2(1.0, 1.0), 0.2)
+
+		4:  # GREAT! - bigger bounce with rotation
+			tween.tween_property(word_score_label, "scale", Vector2(1.4, 1.4), 0.2)
+			tween.tween_property(word_score_label, "rotation_degrees", 5, 0.1)
+			tween.tween_property(word_score_label, "rotation_degrees", -5, 0.1)
+			tween.tween_property(word_score_label, "rotation_degrees", 0, 0.1)
+			tween.tween_property(word_score_label, "scale", Vector2(1.0, 1.0), 0.2)
+
+		_:  # AMAZING!/FANTASTIC!/SPECTACULAR! - big celebration
+			tween.tween_property(word_score_label, "scale", Vector2(1.6, 1.6), 0.3)
+			tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_ELASTIC)
+			tween.tween_property(word_score_label, "scale", Vector2(1.0, 1.0), 0.5)
+
 func show_word_score(points: int, word_length: int) -> void:
 	# If already showing word score, restart timer with new score
 	if is_showing_word_score:
@@ -122,6 +155,9 @@ func show_word_score(points: int, word_length: int) -> void:
 	var phrase := _calculate_phrase(word_length)
 	word_score_label.text = "+%d %s" % [points, phrase]
 	word_score_label.visible = true
+
+	# Animate the word score display
+	_animate_word_score(word_length)
 
 	word_score_timer.start()
 
