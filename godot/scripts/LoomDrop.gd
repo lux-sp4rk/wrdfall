@@ -164,9 +164,11 @@ func _on_pause_pressed() -> void:
 	if top_nav_bar.is_paused:
 		drop_timer.paused = true
 		word_label.text = lang_config.ui_strings.get("paused", "Game Paused")
+		top_nav_bar.set_timer_paused(true)
 	else:
 		drop_timer.paused = false
 		word_label.text = ""
+		top_nav_bar.set_timer_paused(false)
 
 	# Update button states to disable/enable based on pause state
 	_update_shake_button()

@@ -23,6 +23,7 @@ func _ready() -> void:
 	_update_high_score_display()
 	_apply_theme()
 	ThemeManager.theme_changed.connect(_apply_theme)
+	set_process(false)  # Disable processing until timer is set
 
 func _on_exit_pressed() -> void:
 	exit_pressed.emit()
@@ -44,6 +45,13 @@ func set_paused(paused: bool) -> void:
 
 func set_drop_timer(timer: Timer) -> void:
 	drop_timer_ref = timer
+	set_process(true)  # Enable processing when timer is set
+
+func set_timer_paused(paused: bool) -> void:
+	if paused:
+		set_process(false)
+	else:
+		set_process(true)
 
 func _process(_delta: float) -> void:
 	if not is_showing_word_score and drop_timer_ref and not drop_timer_ref.is_stopped():
