@@ -70,7 +70,7 @@ export class StorageManager {
       .from('user_stats')
       .select('high_score')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.warn('Supabase fetch failed:', error);
