@@ -10,7 +10,6 @@ pnpm-debug.log*
 
 # Build artifacts
 .dist/
-dist/
 build/
 .out/
 .netlify/
