@@ -44,173 +44,233 @@ computing gzip size...
 
 ## Manual Verification Checklist
 
-**Note:** These tests should be performed manually in a browser environment. This report documents what SHOULD be tested.
+**Note:** These tests should be performed manually in a browser environment. This report documents what SHOULD be tested based on the ACTUAL implementation (Tasks 1-3).
+
+**Current Implementation:**
+- Theme is detected automatically from OS preference on first visit
+- Stored in localStorage with key `'word-loom-theme'`
+- CSS uses `.theme-light` and `.theme-dark` class selectors
+- NO toggle button UI (that's a future feature)
 
 ### Test 1: Light Mode Verification
 **How to test:**
-1. Open the deployed landing page in a browser
-2. If system preference is dark, manually switch to light mode using theme toggle
-3. Verify the following:
+1. Clear localStorage or use incognito mode
+2. Set OS to light mode
+3. Open landing page
+4. Verify the following:
 
 **Expected Visual Results:**
 - [ ] Background color is cream (#F5F2E8)
 - [ ] Logo color is terracotta (#E07857)
 - [ ] Primary text is dark gray (#1F1F1F)
-- [ ] Secondary text is warm gray (#5A5A5A)
+- [ ] Secondary text is dark teal-gray (#4D6659)
 - [ ] Card backgrounds are white (#FFFFFF)
-- [ ] Card borders are light beige (#E5DCC9)
-- [ ] Button backgrounds are terracotta (#E07857)
-- [ ] Button hover states are darker terracotta (#C96746)
+- [ ] Button background is terracotta (#E07857)
+- [ ] Button hover is lighter terracotta (#EB8563)
+- [ ] Button pressed is darker terracotta (#D16A48)
+- [ ] Border color is light gray (#DDDDDD)
 
 **CSS Variables to Verify:**
 ```css
-:root {
+.theme-light {
   --bg-primary: #F5F2E8;
-  --bg-secondary: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-error: #FFF5F5;
+  --color-primary: #E07857;
+  --color-primary-hover: #EB8563;
+  --color-primary-pressed: #D16A48;
+  --color-secondary: #7A9D8C;
+  --color-error: #dc3545;
   --text-primary: #1F1F1F;
-  --text-secondary: #5A5A5A;
-  --accent-primary: #E07857;
-  --accent-hover: #C96746;
-  --border: #E5DCC9;
+  --text-secondary: #4D6659;
+  --text-muted: #999999;
+  --text-on-primary: #FFFFFF;
+  --border-neutral: #DDDDDD;
+  --progress-bg: rgba(0, 0, 0, 0.1);
+  --disabled-bg: #CCCCCC;
+  --disabled-text: #888888;
+  --shadow: rgba(0, 0, 0, 0.12);
 }
 ```
 
 ### Test 2: Dark Mode Verification
 **How to test:**
-1. Click theme toggle button
-2. Verify smooth transition (200ms)
-3. Check the following:
+1. Clear localStorage or use incognito mode
+2. Set OS to dark mode
+3. Open landing page
+4. Verify the following:
 
 **Expected Visual Results:**
 - [ ] Background color is dark teal (#2B3D4F)
 - [ ] Logo color is light terracotta (#F29170)
 - [ ] Primary text is light gray (#F2F2F2)
-- [ ] Secondary text is medium gray (#B8B8B8)
+- [ ] Secondary text is sage green (#99BFB3)
 - [ ] Card backgrounds are dark blue-gray (#364A5E)
-- [ ] Card borders are medium teal (#4A6075)
-- [ ] Button backgrounds are light terracotta (#F29170)
-- [ ] Button hover states are bright terracotta (#FFA885)
+- [ ] Button background is light terracotta (#F29170)
+- [ ] Button hover is brighter terracotta (#FA9E7D)
+- [ ] Button pressed is darker terracotta (#E07857)
+- [ ] Border color is blue-gray (#4D6B8A)
 
 **CSS Variables to Verify:**
 ```css
-[data-theme='dark'] {
+.theme-dark {
   --bg-primary: #2B3D4F;
-  --bg-secondary: #364A5E;
+  --bg-card: #364A5E;
+  --bg-error: #4A2E2E;
+  --color-primary: #F29170;
+  --color-primary-hover: #FA9E7D;
+  --color-primary-pressed: #E07857;
+  --color-secondary: #4D6B8A;
+  --color-error: #FF6B6B;
   --text-primary: #F2F2F2;
-  --text-secondary: #B8B8B8;
-  --accent-primary: #F29170;
-  --accent-hover: #FFA885;
-  --border: #4A6075;
+  --text-secondary: #99BFB3;
+  --text-muted: #999999;
+  --text-on-primary: #FFFFFF;
+  --border-neutral: #4D6B8A;
+  --progress-bg: rgba(255, 255, 255, 0.15);
+  --disabled-bg: #4A5A6B;
+  --disabled-text: #8A9BA8;
+  --shadow: rgba(0, 0, 0, 0.3);
 }
 ```
 
-### Test 3: Theme Toggle Functionality
+### Test 3: localStorage Persistence
 **How to test:**
-1. Click theme toggle button
-2. Verify immediate visual change
-3. Click again to toggle back
-4. Repeat several times
-
-**Expected Results:**
-- [ ] Toggle button changes icon (sun ↔ moon)
-- [ ] Theme switches instantly
-- [ ] No flash or flicker
-- [ ] Smooth color transitions (200ms)
-- [ ] All page elements update simultaneously
-
-### Test 4: localStorage Persistence
-**How to test:**
-1. Set theme to light mode
-2. Refresh the page
-3. Verify light mode persists
-4. Set theme to dark mode
-5. Refresh the page
-6. Verify dark mode persists
-7. Open browser DevTools > Application > Local Storage
-8. Verify `theme` key exists with value 'light' or 'dark'
+1. Set OS to light mode
+2. Open landing page
+3. Refresh the page
+4. Verify light mode persists
+5. Set OS to dark mode
+6. Refresh the page
+7. Verify dark mode persists
+8. Open browser DevTools > Application > Local Storage
+9. Verify `word-loom-theme` key exists with value 'light' or 'dark'
 
 **Expected Results:**
 - [ ] Theme persists across page refreshes
-- [ ] localStorage contains `theme: 'light'` or `theme: 'dark'`
+- [ ] localStorage contains `word-loom-theme: 'light'` or `word-loom-theme: 'dark'`
 - [ ] No console errors
-- [ ] Fallback works if localStorage is cleared
+- [ ] Fallback works if localStorage is cleared (detects OS preference)
 
-### Test 5: System Preference Detection
+### Test 4: System Preference Detection
 **How to test:**
 1. Clear localStorage (or use incognito mode)
 2. Set OS to light mode
 3. Open landing page
-4. Verify page uses light theme
-5. Set OS to dark mode
-6. Refresh or reopen page
-7. Verify page uses dark theme
+4. Verify page uses light theme (`.theme-light` class on root container)
+5. Check DevTools Console for any errors
+6. Close and reopen in incognito
+7. Set OS to dark mode
+8. Open landing page
+9. Verify page uses dark theme (`.theme-dark` class on root container)
 
 **Expected Results:**
-- [ ] On first visit, detects OS preference
-- [ ] `window.matchMedia('(prefers-color-scheme: dark)')` works
+- [ ] On first visit, detects OS preference via `window.matchMedia('(prefers-color-scheme: dark)')`
 - [ ] Falls back to light mode if detection fails
-- [ ] User preference overrides system preference once set
+- [ ] localStorage is populated with detected theme
+- [ ] No console errors
 
-### Test 6: Invalid Value Handling
+### Test 5: Invalid Value Handling
 **How to test:**
 1. Open browser DevTools > Console
-2. Run: `localStorage.setItem('theme', 'invalid-value')`
+2. Run: `localStorage.setItem('word-loom-theme', 'invalid-value')`
 3. Refresh page
 4. Verify fallback behavior
 
 **Expected Results:**
 - [ ] Invalid values are ignored
-- [ ] Falls back to system preference
+- [ ] Falls back to system preference detection
 - [ ] No console errors
-- [ ] localStorage is updated with valid value
+- [ ] localStorage is updated with valid value ('light' or 'dark')
 
-### Test 7: Cross-Page Consistency
+### Test 6: CSS Class Application
 **How to test:**
-1. Set theme on landing page
-2. Navigate to another page (if multi-page)
-3. Verify theme persists
-4. Toggle theme on second page
-5. Navigate back to landing
-6. Verify new theme is active
+1. Open landing page
+2. Open browser DevTools > Elements
+3. Inspect the root `.landing-container` element
+4. Verify it has either `theme-light` or `theme-dark` class
 
 **Expected Results:**
-- [ ] Theme is consistent across all pages
-- [ ] Same localStorage key used everywhere
-- [ ] Changes on one page reflect on others
+- [ ] Root container has class `landing-container theme-light` OR `landing-container theme-dark`
+- [ ] Only ONE theme class is applied at a time
+- [ ] CSS variables are computed correctly (check Computed styles in DevTools)
+- [ ] All elements inherit theme colors via CSS variables
 
-### Test 8: Accessibility
+### Test 7: localStorage API Error Handling
 **How to test:**
-1. Use keyboard navigation to focus theme toggle
-2. Press Enter or Space to toggle
-3. Verify ARIA labels are present
-4. Check color contrast ratios
+1. Open browser in private/incognito mode (some browsers block localStorage)
+2. Open browser console
+3. Try to manually set theme: `localStorage.setItem('word-loom-theme', 'dark')`
+4. If blocked, verify page still loads with system preference
+5. Check console for warnings (not errors)
 
 **Expected Results:**
-- [ ] Theme toggle is keyboard accessible
-- [ ] Focus states are visible
-- [ ] ARIA labels describe current theme
-- [ ] Color contrast meets WCAG AA standards (4.5:1 for text)
+- [ ] If localStorage is blocked (Safari private mode), page still works
+- [ ] Falls back to `detectSystemTheme()`
+- [ ] Console shows warning: "localStorage not available, using system theme"
+- [ ] No errors thrown, page is functional
+
+### Future Test: Theme Toggle Button (NOT YET IMPLEMENTED)
+**Status:** Not implemented in Tasks 1-3. This will be a future enhancement.
+
+**When implemented, test:**
+- [ ] Toggle button UI exists and is visible
+- [ ] Click toggles between light and dark themes
+- [ ] Icon changes (sun ↔ moon)
+- [ ] Smooth transitions on toggle
+- [ ] Keyboard accessible (Enter/Space)
+- [ ] ARIA labels present
 
 ## Implementation Notes
 
-### Theme Service (`landing/src/services/themeService.js`)
-- Manages theme state and persistence
-- Detects system preference using `matchMedia`
-- Stores preference in localStorage
-- Provides `getTheme()` and `setTheme()` methods
-- Validates theme values (only 'light' or 'dark' allowed)
+### Theme Service (`landing/src/services/theme.js`)
+**File location:** `/Users/ulizzle/Work/word-loom/landing/src/services/theme.js`
+
+**Constants:**
+- `THEME_KEY = 'word-loom-theme'` - localStorage key (shared with Godot)
+- `THEME_LIGHT = 'light'`
+- `THEME_DARK = 'dark'`
+
+**Functions:**
+- `detectSystemTheme()` - Uses `window.matchMedia('(prefers-color-scheme: dark)')` to detect OS preference
+- `getTheme()` - Reads from localStorage, falls back to system detection
+- `setTheme(theme)` - Validates and saves to localStorage
+
+**Error Handling:**
+- Try/catch around localStorage (handles Safari private mode)
+- Console warnings for failures (not errors)
+- Graceful fallback to system theme
 
 ### App Integration (`landing/src/App.jsx`)
-- Initializes theme on mount
-- Sets `data-theme` attribute on document element
-- Re-renders on theme change
-- Passes `currentTheme` and `toggleTheme` to components
+**File location:** `/Users/ulizzle/Work/word-loom/landing/src/App.jsx`
 
-### CSS Variables (`landing/src/index.css`)
-- Defines theme variables in `:root` (light mode)
-- Overrides in `[data-theme='dark']` selector
-- Uses CSS custom properties for all colors
-- Includes smooth transitions (200ms)
+**On mount (useEffect):**
+1. Loads high score from storage
+2. Calls `getTheme()` from theme service
+3. Stores theme in React state: `theme: 'light'` or `theme: 'dark'`
+4. Starts prefetch process
+
+**Theme Application:**
+- Applied via CSS class: `<div className={landing-container theme-${state.theme}`}>`
+- Results in `.landing-container.theme-light` or `.landing-container.theme-dark`
+
+**Theme Passing to Godot:**
+- When launching game, passes theme in settings: `settings: { theme: state.theme }`
+
+### CSS Variables (`landing/src/App.css`)
+**File location:** `/Users/ulizzle/Work/word-loom/landing/src/App.css`
+
+**Structure:**
+- `.theme-light { ... }` - Light mode variables (lines 11-29)
+- `.theme-dark { ... }` - Dark mode variables (lines 32-50)
+
+**NO transitions:** Theme is applied instantly on page load (no flash prevention)
+
+**Color System:**
+- Primary color: Terracotta (#E07857 light, #F29170 dark)
+- Secondary color: Sage/teal variants
+- Background: Cream (#F5F2E8) vs dark teal (#2B3D4F)
+- Complete variable set for buttons, cards, text, borders, shadows
 
 ## Browser Compatibility
 
@@ -227,39 +287,57 @@ computing gzip size...
 
 ## Known Limitations
 
-1. **No server-side rendering (SSR):** Theme may flash on first load
-   - Could be fixed with SSR or critical CSS injection
-   - Low priority for single-page app
+1. **No theme toggle UI:** Theme is automatically detected only
+   - User cannot manually switch themes in current implementation
+   - Future: Add toggle button in UI
+   - Future: Sync toggle state between React landing and Godot game
 
-2. **No theme transition on first load:** Initial theme is applied instantly
-   - Only toggling has transitions
-   - This is intentional to prevent flash
+2. **Theme may flash on first load:** No SSR or critical CSS
+   - Could be fixed with SSR or inline critical CSS
+   - Low priority for single-page app
+   - Not noticeable with fast connections
 
 3. **No custom themes:** Only light and dark modes supported
    - Future: Add accent color picker
-   - Future: Add high-contrast mode
+   - Future: Add high-contrast mode for accessibility
 
 ## Deployment Verification
 
 **After deployment to Netlify:**
 1. Visit production URL
-2. Run through all manual tests above
-3. Verify theme switching works in production build
-4. Test on mobile devices (iOS Safari, Android Chrome)
-5. Test in different browsers (Chrome, Firefox, Safari, Edge)
+2. Run through all manual tests above (Tests 1-7)
+3. Verify automatic theme detection works in production build
+4. Test localStorage persistence across page refreshes
+5. Test on mobile devices (iOS Safari, Android Chrome)
+6. Test in different browsers (Chrome, Firefox, Safari, Edge)
+7. Verify OS dark mode toggle updates theme on refresh
 
 ## Next Steps
 
-1. **Manual Testing:** Perform all checklist items above in a browser
+1. **Manual Testing:** Perform Tests 1-7 in a browser environment
 2. **Cross-Browser Testing:** Test on Chrome, Firefox, Safari, Edge
 3. **Mobile Testing:** Test on iOS and Android devices
-4. **Production Deploy:** Push to Netlify and verify live
-5. **Integration:** Connect to Godot web build theme system (Task 5)
+4. **localStorage Testing:** Verify `word-loom-theme` key is correctly set
+5. **Production Deploy:** Push to Netlify and verify live
+6. **Task 5:** Add localStorage sync to Godot ThemeManager (read `word-loom-theme` key)
+7. **Future:** Add theme toggle button UI to allow manual theme switching
 
 ## Conclusion
 
 **Build Status:** ✓ PASSED
+**Documentation Status:** ✓ CORRECTED (now matches actual implementation)
 **Manual Testing Status:** Pending (requires browser environment)
 **Ready for Deployment:** YES
 
-The React landing page theme switching implementation is complete and built successfully. All code is in place and the build produces the expected output files with no errors or warnings. Manual testing should be performed in a browser environment to verify the visual results and functionality described in the checklists above.
+The React landing page automatic theme detection is complete and built successfully. Implementation includes:
+- Automatic OS preference detection using `window.matchMedia`
+- Persistence via localStorage key `word-loom-theme`
+- CSS class-based theming (`.theme-light` / `.theme-dark`)
+- Error handling for localStorage failures
+
+**What is NOT included (future enhancements):**
+- Theme toggle button UI
+- Manual theme switching capability
+- Cross-page theme synchronization (single page app)
+
+Manual testing should be performed in a browser environment to verify the automatic theme detection and persistence described in Tests 1-7 above.
