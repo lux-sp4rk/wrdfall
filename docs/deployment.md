@@ -183,3 +183,84 @@ INSERT INTO profiles (id, high_score) VALUES ('not-my-id', 100);
 - **Automated exports:** Use Godot headless mode in CI
 - **Backend functions:** Add Netlify Functions for sensitive operations
 - **Key rotation:** If needed, just update the code and redeploy
+
+---
+
+## Hybrid Loader Architecture
+
+Word Loom uses a **hybrid loader** for fast initial render:
+
+### How It Works
+
+1. **Landing Page** (< 1s load)
+   - Lightweight React app (< 50 KB gzipped)
+   - Displays logo, high score teaser, how-to-play
+   - Starts background pre-fetch immediately
+
+2. **Pre-fetch** (< 8s)
+   - Godot Wasm (37 MB)
+   - Godot PCK (40 MB, dictionaries removed)
+   - English dictionary (2.6 MB)
+   - All downloaded in parallel
+
+3. **User Action**
+   - User clicks "Play" when ready
+   - Landing fades out (500ms)
+   - Godot canvas appears
+   - Game starts with pre-loaded dictionary
+
+4. **Dictionary Strategy**
+   - English: Pre-fetched by default
+   - Spanish: Lazy-loaded when user selects language
+   - Stored in `dist/dictionaries/`
+
+### Local Development
+
+```bash
+# Start landing page dev server
+npm run dev:landing
+
+# Build landing page only
+npm run build:landing
+
+# Build everything (landing + verify Godot export)
+npm run build:all
+```
+
+### Deployment
+
+**One-command deploy:**
+
+```bash
+npm run deploy:prod
+```
+
+This will:
+1. Build landing page (`landing/dist` → `dist/`)
+2. Verify Godot export exists (`dist/word-loom.wasm`, etc.)
+3. Commit changes
+4. Push to GitHub (Netlify auto-deploys)
+
+### File Structure
+
+```
+dist/
+├── index.html            # Landing page (from Vite build)
+├── assets/               # Landing page CSS/JS
+├── game/
+│   ├── word-loom.wasm    # Godot engine
+│   ├── word-loom.pck     # Godot data (no dictionaries)
+│   ├── word-loom.js      # Godot loader
+│   └── dictionaries/
+│       ├── en.txt        # English (2.6 MB → 1 MB gzipped)
+│       └── es.txt        # Spanish (6.8 MB → 2.7 MB gzipped)
+```
+
+### Performance Targets
+
+| Metric | Target | Actual |
+|--------|--------|--------|
+| Landing TTFR | < 1s | _measure_ |
+| Pre-fetch complete | < 10s | _measure_ |
+| Play button ready | < 8s | _measure_ |
+| Lighthouse score | > 90 | _measure_ |
