@@ -17,9 +17,9 @@ User Action → React Theme Service → localStorage → Godot ThemeManager
 ```
 
 **Key Components:**
-- **React:** `themeService.js`, `App.jsx`, CSS variables in `styles.css`
-- **Godot:** `ThemeManager.gd` with localStorage sync
-- **Storage:** `localStorage.theme` key (values: `"light"` | `"dark"`)
+- **React:** `landing/src/services/theme.js`, `landing/src/App.jsx`, CSS variables in `landing/src/App.css`
+- **Godot:** `godot/scripts/ThemeManager.gd` with localStorage sync
+- **Storage:** `localStorage['word-loom-theme']` key (values: `"light"` | `"dark"`)
 
 ## Prerequisites
 
@@ -34,8 +34,7 @@ Before testing, ensure:
 
 2. **React Build** - Production build deployed
    ```bash
-   cd react
-   npm run build
+   npm run build:landing
    # Verify dist/ contains React build artifacts
    ```
 
@@ -68,26 +67,25 @@ Before testing, ensure:
 
 | Component | Expected State |
 |-----------|---------------|
-| localStorage | `localStorage.getItem('theme') === null` initially |
+| localStorage | `localStorage.getItem('word-loom-theme') === null` initially |
 | React UI | Light theme (cream background, terracotta buttons) |
 | Godot Game | Light theme after engine loads |
-| CSS Variables | `--bg-primary: #f5f1e8` (check via DevTools) |
-| Console Logs | `[ThemeService] Initialized with light theme` |
+| CSS Variables | `--bg-primary: #F5F2E8` (check via DevTools) |
+| Console Logs | No initialization log (theme loaded silently) |
 
 **Visual Verification:**
-- [ ] React overlay has cream background (`#f5f1e8`)
+- [ ] React overlay has cream background (`#F5F2E8`)
 - [ ] Godot canvas shows light theme (cream grid background)
 - [ ] No theme "flash" or FOUC (Flash of Unstyled Content)
-- [ ] Theme toggle button shows moon icon (dark mode available)
 
 **Technical Verification:**
 ```javascript
 // In DevTools Console:
-localStorage.getItem('theme'); // Should be null initially
+localStorage.getItem('word-loom-theme'); // Should be null initially
 
 // After page load:
-getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
-// Expected: "rgb(245, 241, 232)" or "#f5f1e8"
+getComputedStyle(document.querySelector('.landing-container')).getPropertyValue('--bg-primary').trim();
+// Expected: "rgb(245, 242, 232)" or "#F5F2E8"
 
 // Check React root element:
 document.querySelector('#root').className; // Should include theme-related class
@@ -112,26 +110,25 @@ document.querySelector('#root').className; // Should include theme-related class
 
 | Component | Expected State |
 |-----------|---------------|
-| localStorage | `localStorage.getItem('theme') === null` initially |
+| localStorage | `localStorage.getItem('word-loom-theme') === null` initially |
 | React UI | Dark theme (dark teal background, muted accents) |
 | Godot Game | Dark theme after engine loads |
-| CSS Variables | `--bg-primary: #1a2e2e` (check via DevTools) |
-| Console Logs | `[ThemeService] Initialized with dark theme` |
+| CSS Variables | `--bg-primary: #2B3D4F` (check via DevTools) |
+| Console Logs | No initialization log (theme loaded silently) |
 
 **Visual Verification:**
-- [ ] React overlay has dark teal background (`#1a2e2e`)
+- [ ] React overlay has dark teal background (`#2B3D4F`)
 - [ ] Godot canvas shows dark theme (dark grid background)
 - [ ] High contrast text (white/cream on dark)
-- [ ] Theme toggle button shows sun icon (light mode available)
 
 **Technical Verification:**
 ```javascript
 // In DevTools Console:
-localStorage.getItem('theme'); // Should be null initially
+localStorage.getItem('word-loom-theme'); // Should be null initially
 
 // After page load:
-getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
-// Expected: "rgb(26, 46, 46)" or "#1a2e2e"
+getComputedStyle(document.querySelector('.landing-container')).getPropertyValue('--bg-primary').trim();
+// Expected: "rgb(43, 61, 79)" or "#2B3D4F"
 
 // Verify prefers-color-scheme detection:
 window.matchMedia('(prefers-color-scheme: dark)').matches; // Should be true
@@ -157,10 +154,10 @@ window.matchMedia('(prefers-color-scheme: dark)').matches; // Should be true
 
 **Expected Results:**
 - [ ] React UI immediately switches to dark theme
-- [ ] localStorage updated: `localStorage.getItem('theme') === 'dark'`
+- [ ] localStorage updated: `localStorage.getItem('word-loom-theme') === 'dark'`
 - [ ] CSS variables updated to dark theme values
 - [ ] No page reload or flicker
-- [ ] Console log: `[ThemeService] Theme changed to dark`
+- [ ] Godot log: `ThemeManager: Synced theme to localStorage: dark`
 
 **Technical Verification:**
 ```javascript
@@ -170,10 +167,10 @@ window.addEventListener('storage', (e) => {
 });
 
 // After changing theme in Godot:
-localStorage.getItem('theme'); // Should be 'dark'
+localStorage.getItem('word-loom-theme'); // Should be 'dark'
 
-getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
-// Expected: "rgb(26, 46, 46)"
+getComputedStyle(document.querySelector('.landing-container')).getPropertyValue('--bg-primary').trim();
+// Expected: "rgb(43, 61, 79)"
 ```
 
 **Step 3b: Switch Back to Light Theme**
@@ -182,9 +179,9 @@ getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim
 
 **Expected Results:**
 - [ ] React UI immediately switches to light theme
-- [ ] localStorage updated: `localStorage.getItem('theme') === 'light'`
+- [ ] localStorage updated: `localStorage.getItem('word-loom-theme') === 'light'`
 - [ ] CSS variables updated to light theme values
-- [ ] Console log: `[ThemeService] Theme changed to light`
+- [ ] Godot log: `ThemeManager: Synced theme to localStorage: light`
 
 ---
 
@@ -196,7 +193,7 @@ getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim
 1. Clear localStorage
 2. Set invalid theme value:
    ```javascript
-   localStorage.setItem('theme', 'invalid-value');
+   localStorage.setItem('word-loom-theme', 'invalid-value');
    ```
 3. Reload page
 
@@ -217,23 +214,77 @@ getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim
 **Technical Verification:**
 ```javascript
 // Set invalid value:
-localStorage.setItem('theme', 'neon-purple');
+localStorage.setItem('word-loom-theme', 'neon-purple');
 
 // Reload page (Cmd+R / Ctrl+R)
 
 // After page load:
-localStorage.getItem('theme');
+localStorage.getItem('word-loom-theme');
 // Should be 'light' or 'dark' (OS preference), NOT 'neon-purple'
 
 // Check for console warnings:
-// Expected: [ThemeService] Invalid theme value, falling back to OS preference
+// Expected: console.warn() from theme service about invalid value
 ```
 
 **Additional Edge Cases to Test:**
-- Empty string: `localStorage.setItem('theme', '');`
-- Null string: `localStorage.setItem('theme', 'null');`
-- Number: `localStorage.setItem('theme', '1');`
-- Object: `localStorage.setItem('theme', '[object Object]');`
+- Empty string: `localStorage.setItem('word-loom-theme', '');`
+- Null string: `localStorage.setItem('word-loom-theme', 'null');`
+- Number: `localStorage.setItem('word-loom-theme', '1');`
+- Object: `localStorage.setItem('word-loom-theme', '[object Object]');`
+
+---
+
+### Scenario 5: React → Godot Transition (No Visual Flash)
+
+**Objective:** Verify seamless theme transition when Godot game loads — the primary UX goal of this feature.
+
+**Setup:**
+1. Set a known theme in localStorage: `localStorage.setItem('word-loom-theme', 'dark');`
+2. Reload page
+3. Watch closely as the page loads
+
+**Test Steps:**
+
+1. Clear localStorage and reload (to reset state)
+2. Set OS to dark mode
+3. Reload the page
+4. Observe the full load sequence:
+   - React loading screen appears
+   - Progress bar loads
+   - "Play" button appears
+   - Click Play
+   - Godot canvas appears
+
+**Expected Results:**
+
+| Phase | Expected |
+|-------|----------|
+| React loading screen | Dark theme (dark teal `#2B3D4F` background) immediately |
+| After clicking Play | Godot canvas appears with same dark theme |
+| Transition moment | NO color flash or white/light flash |
+| After Godot loads | Theme matches React exactly (same background color) |
+
+**Visual Verification:**
+- [ ] React loading screen background: `#2B3D4F` (dark)
+- [ ] Godot game background: matches `#2B3D4F` exactly
+- [ ] NO white flash or light-colored flash during transition
+- [ ] NO visible theme switch after Godot canvas appears
+
+**Technical Verification:**
+```javascript
+// Before clicking Play, confirm React theme:
+localStorage.getItem('word-loom-theme'); // 'dark'
+getComputedStyle(document.querySelector('.landing-container')).getPropertyValue('--bg-primary').trim();
+// Expected: rgb(43, 61, 79) or #2B3D4F
+
+// The Godot canvas should appear with the same background color
+// as the React container, creating a seamless transition
+```
+
+**Tips for testing:**
+- Record screen if possible to catch flash (may be <100ms)
+- Test on slow network (DevTools > Network > Slow 3G) to extend the transition window
+- Test both light→Godot and dark→Godot transitions
 
 ---
 
@@ -242,20 +293,18 @@ localStorage.getItem('theme');
 Use this checklist for each theme state:
 
 ### Light Theme Visual Checks
-- [ ] Background color: Cream (`#f5f1e8`)
-- [ ] Primary buttons: Terracotta (`#c15c3f`)
-- [ ] Secondary buttons: Sage (`#7a9a86`)
-- [ ] Text: Dark (`#2c1810`)
+- [ ] Background color: Cream (`#F5F2E8`)
+- [ ] Primary buttons: Terracotta (`#E07857`)
+- [ ] Secondary buttons: Sage (`#7A9D8C`)
+- [ ] Text: Dark (`#1F1F1F`)
 - [ ] Grid cells: White/cream
-- [ ] Theme toggle icon: Moon (dark mode available)
 
 ### Dark Theme Visual Checks
-- [ ] Background color: Dark teal (`#1a2e2e`)
-- [ ] Primary buttons: Muted terracotta (`#a84d32`)
-- [ ] Secondary buttons: Muted sage (`#5e7a68`)
-- [ ] Text: Cream (`#f5f1e8`)
+- [ ] Background color: Dark teal (`#2B3D4F`)
+- [ ] Primary buttons: Muted terracotta (`#F29170`)
+- [ ] Secondary buttons: Muted sage (`#4D6B8A`)
+- [ ] Text: Cream (`#F2F2F2`)
 - [ ] Grid cells: Dark blue-grey
-- [ ] Theme toggle icon: Sun (light mode available)
 
 ### Animation/Transition Checks
 - [ ] Theme transitions are smooth (CSS transitions applied)
@@ -279,19 +328,19 @@ performance.getEntriesByType('paint').find(p => p.name === 'first-contentful-pai
 
 ### Theme Switch Performance
 ```javascript
-// Measure theme switch time:
-const start = performance.now();
-// [Change theme in Godot Settings]
-const end = performance.now();
-console.log(`Theme switch took ${end - start}ms`);
-// Expected: < 50ms
+// Theme switch performance cannot be measured synchronously.
+// Godot writes to localStorage asynchronously after a user interaction.
+// Instead, verify the theme value is updated within a few seconds:
+// 1. Open DevTools > Application > localStorage
+// 2. Watch 'word-loom-theme' value while changing theme in Godot Settings
+// 3. Value should update within 1 second of changing in Settings
 ```
 
 ### localStorage Access Performance
 ```javascript
 // Verify localStorage isn't blocked:
 console.time('localStorage-read');
-localStorage.getItem('theme');
+localStorage.getItem('word-loom-theme');
 console.timeEnd('localStorage-read');
 // Expected: < 1ms
 ```
@@ -375,10 +424,10 @@ document.querySelector('canvas#canvas');
 ### Check Current State
 ```javascript
 // Current theme in localStorage
-localStorage.getItem('theme');
+localStorage.getItem('word-loom-theme');
 
 // Current CSS variable values
-const styles = getComputedStyle(document.documentElement);
+const styles = getComputedStyle(document.querySelector('.landing-container'));
 console.log({
   bgPrimary: styles.getPropertyValue('--bg-primary').trim(),
   bgSecondary: styles.getPropertyValue('--bg-secondary').trim(),
@@ -405,26 +454,26 @@ localStorage.setItem = function(key, value) {
 // Watch CSS variable changes:
 const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
-    if (mutation.attributeName === 'style') {
-      console.log('[CSS] Root styles changed');
+    if (mutation.attributeName === 'class') {
+      console.log('[CSS] Landing container class changed');
     }
   });
 });
-observer.observe(document.documentElement, { attributes: true });
+observer.observe(document.querySelector('.landing-container'), { attributes: true });
 ```
 
 ### Force Theme States
 ```javascript
 // Force light theme:
-localStorage.setItem('theme', 'light');
+localStorage.setItem('word-loom-theme', 'light');
 location.reload();
 
 // Force dark theme:
-localStorage.setItem('theme', 'dark');
+localStorage.setItem('word-loom-theme', 'dark');
 location.reload();
 
 // Clear theme (use OS preference):
-localStorage.removeItem('theme');
+localStorage.removeItem('word-loom-theme');
 location.reload();
 ```
 
@@ -432,7 +481,7 @@ location.reload();
 ```javascript
 // Simulate cross-tab update (for testing):
 window.dispatchEvent(new StorageEvent('storage', {
-  key: 'theme',
+  key: 'word-loom-theme',
   oldValue: 'light',
   newValue: 'dark',
   url: window.location.href,
@@ -447,9 +496,9 @@ window.dispatchEvent(new StorageEvent('storage', {
 After any code changes to theme system, re-run all scenarios and verify:
 
 ### React Changes
-- [ ] `react/src/services/themeService.js` - Theme detection logic
-- [ ] `react/src/App.jsx` - Theme initialization and listener
-- [ ] `react/src/styles.css` - CSS variables and theme classes
+- [ ] `landing/src/services/theme.js` - Theme detection logic
+- [ ] `landing/src/App.jsx` - Theme initialization and listener
+- [ ] `landing/src/App.css` - CSS variables and theme classes
 
 ### Godot Changes
 - [ ] `godot/scripts/ThemeManager.gd` - localStorage sync
@@ -467,7 +516,7 @@ After any code changes to theme system, re-run all scenarios and verify:
 
 The theme sync system is **PASSING** if:
 
-✅ All 4 test scenarios complete without errors
+✅ All 5 test scenarios complete without errors
 ✅ Visual verification checklist passes for both themes
 ✅ localStorage persists across page reloads
 ✅ React ↔ Godot sync is bidirectional and immediate
@@ -475,6 +524,7 @@ The theme sync system is **PASSING** if:
 ✅ No console errors or warnings (except expected fallback logs)
 ✅ Performance metrics within acceptable ranges
 ✅ Works in at least 2 modern browsers
+✅ React → Godot transition has no visible color flash
 
 ---
 
@@ -483,7 +533,7 @@ The theme sync system is **PASSING** if:
 If integration testing fails:
 
 1. **Identify failing component:**
-   - React-only issue → Check `themeService.js`, `App.jsx`
+   - React-only issue → Check `theme.js`, `App.jsx`
    - Godot-only issue → Check `ThemeManager.gd`
    - Sync issue → Check localStorage read/write timing
 
@@ -531,9 +581,9 @@ If integration testing fails:
 ## Appendix: File Locations
 
 **React:**
-- `/Users/ulizzle/Work/word-loom/react/src/services/themeService.js`
-- `/Users/ulizzle/Work/word-loom/react/src/App.jsx`
-- `/Users/ulizzle/Work/word-loom/react/src/styles.css`
+- `/Users/ulizzle/Work/word-loom/landing/src/services/theme.js`
+- `/Users/ulizzle/Work/word-loom/landing/src/App.jsx`
+- `/Users/ulizzle/Work/word-loom/landing/src/App.css`
 
 **Godot:**
 - `/Users/ulizzle/Work/word-loom/godot/scripts/ThemeManager.gd`
@@ -571,12 +621,15 @@ Notes:
 Scenario 4 (Invalid localStorage): [ PASS / FAIL ]
 Notes:
 
+Scenario 5 (Transition Flash): [ PASS / FAIL ]
+Notes:
+
 Overall Result: [ PASS / FAIL ]
 Issues Found:
 ```
 
 ---
 
-**Document Version:** 1.0
+**Document Version:** 1.1
 **Last Updated:** 2026-02-16
 **Related Docs:** `2026-02-16-theme-sync-implementation.md`
