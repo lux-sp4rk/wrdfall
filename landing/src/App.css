@@ -11,6 +11,7 @@
 .theme-light {
   --bg-primary: #F5F2E8;
   --bg-card: #FFFFFF;
+  --bg-error: #FFF5F5;
   --color-primary: #E07857;
   --color-primary-hover: #EB8563;
   --color-primary-pressed: #D16A48;
@@ -18,6 +19,10 @@
   --text-primary: #1F1F1F;
   --text-secondary: #4D6659;
   --text-muted: #999999;
+  --border-neutral: #DDDDDD;
+  --progress-bg: rgba(0, 0, 0, 0.1);
+  --disabled-bg: #CCCCCC;
+  --disabled-text: #888888;
   --shadow: rgba(0, 0, 0, 0.12);
 }
 
@@ -25,6 +30,7 @@
 .theme-dark {
   --bg-primary: #2B3D4F;
   --bg-card: #364A5E;
+  --bg-error: #4A2E2E;
   --color-primary: #F29170;
   --color-primary-hover: #FA9E7D;
   --color-primary-pressed: #E07857;
@@ -32,6 +38,10 @@
   --text-primary: #F2F2F2;
   --text-secondary: #99BFB3;
   --text-muted: #999999;
+  --border-neutral: #4D6B8A;
+  --progress-bg: rgba(255, 255, 255, 0.15);
+  --disabled-bg: #4A5A6B;
+  --disabled-text: #8A9BA8;
   --shadow: rgba(0, 0, 0, 0.3);
 }
 
@@ -119,7 +129,7 @@
 .progress-bar {
   width: 100%;
   height: 8px;
-  background: rgba(0, 0, 0, 0.1);
+  background: var(--progress-bg);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -148,7 +158,7 @@
 }
 
 .error-message {
-  background: #fff5f5;
+  background: var(--bg-error);
   border: 2px solid #dc3545;
   border-radius: 8px;
   padding: 16px 24px;
@@ -213,8 +223,8 @@
 }
 
 .play-button:disabled {
-  background: #ccc;
-  color: #888;
+  background: var(--disabled-bg);
+  color: var(--disabled-text);
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -228,7 +238,7 @@
 
 .language-button {
   background: var(--bg-card);
-  border: 2px solid #ddd;
+  border: 2px solid var(--border-neutral);
   color: var(--text-secondary);
   font-size: 16px;
   font-weight: 600;
