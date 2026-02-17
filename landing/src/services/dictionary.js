@@ -50,7 +50,7 @@ export class DictionaryManager {
    * Fetch dictionary from server
    */
   async _fetch(language) {
-    const url = `/game/dictionaries/${language}.txt`;
+    const url = `/dictionaries/${language}.txt`;
     try {
       const response = await fetch(url);
 
