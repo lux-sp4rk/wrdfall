@@ -96,7 +96,7 @@ export class GodotLauncher {
   async _loadEngineScript() {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = '/game/word-loom.js';
+      script.src = '/index.js';
       script.onload = () => {
         if (window.Engine) {
           resolve(window.Engine);

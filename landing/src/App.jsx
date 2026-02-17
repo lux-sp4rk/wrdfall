@@ -102,8 +102,8 @@ function App() {
 
       // Initialize Godot
       godotLauncher.current = new GodotLauncher({
-        executable: '/game/word-loom.js',
-        mainPack: '/game/word-loom.pck',
+        executable: '/index',
+        mainPack: '/index.pck',
       });
 
       await godotLauncher.current.initialize();
