@@ -134,7 +134,7 @@ function App() {
           words: words,
         },
         settings: {
-          theme: 'light', // Default theme
+          theme: state.theme,
         },
       });
 
