@@ -1,17 +1,26 @@
 #!/bin/bash
-# Netlify build script for Word Loom
-# Verifies the exported Godot web build exists in dist/
 
-set -e
+# Build script for Word Loom (Netlify)
 
-echo "🎮 Building Word Loom for web..."
+set -e  # Exit on error
 
-# Check that the Godot export exists
-if [ ! -f "dist/index.html" ]; then
-  echo "❌ Error: dist/index.html not found."
-  echo "   Export the game from Godot first:"
-  echo "   Project → Export → Web → Export Project"
-  echo "   (export_presets.cfg already targets dist/)"
+echo "Building landing page..."
+npm run build:landing
+
+echo "Verifying dist/ exists..."
+if [ ! -d "dist" ]; then
+  echo "Error: dist/ directory not found. Run Godot export first."
+  exit 1
+fi
+
+echo "Verifying dictionaries exist..."
+if [ ! -f "dist/dictionaries/en.txt" ]; then
+  echo "Error: dist/dictionaries/en.txt not found."
+  exit 1
+fi
+
+if [ ! -f "dist/dictionaries/es.txt" ]; then
+  echo "Error: dist/dictionaries/es.txt not found."
   exit 1
 fi
 
@@ -24,6 +33,10 @@ if [ -f "scripts/minify.js" ]; then
 else
   echo "⚠️  Minification script not found. Skipping."
 fi
+echo ""
+echo "Landing page: dist/index.html"
+echo "Godot engine: dist/index.wasm, dist/index.pck"
+echo "Dictionaries: dist/dictionaries/*.txt"
 echo ""
 echo "📝 Note: Supabase credentials are hardcoded in the game."
 echo "   They're public anon keys - safe to commit (security via RLS)."
