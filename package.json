@@ -8,7 +8,7 @@
     "open": "open http://localhost:8000",
     "minify": "node scripts/minify.js",
     "build:landing": "cd landing && npm run build",
-    "build:all": "npm run build:landing",
+    "build:all": "./build.sh",
     "deploy:prod": "npm run build:all && git add . && git commit -m 'Deploy web build' && git push origin main",
     "dev:landing": "cd landing && npm run dev"
   },
