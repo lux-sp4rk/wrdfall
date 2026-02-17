@@ -9,7 +9,7 @@ import './App.css';
 
 // Initialize Supabase client
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key';
+const supabaseKey = import.meta.env.VITE_SUPABASE_KEY || 'placeholder-key';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Theme background colors (must match ThemeConstants.gd)
