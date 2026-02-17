@@ -13,16 +13,16 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 function App() {
-  // State management
-  const [state, setState] = useState({
+  // State management — theme is read synchronously to avoid flash of wrong theme
+  const [state, setState] = useState(() => ({
     prefetchStatus: 'idle', // idle | loading | ready | error
     prefetchProgress: 0,
     highScore: null,
     selectedLanguage: 'en',
     error: null,
     transitioning: false,
-    theme: 'light',
-  });
+    theme: getTheme(),
+  }));
 
   // Service refs (persistent across renders)
   const landingRef = useRef(null);
@@ -31,10 +31,9 @@ function App() {
   const prefetchManager = useRef(null);
   const godotLauncher = useRef(null);
 
-  // Load high score on mount
+  // Load high score and start prefetch on mount
   useEffect(() => {
     loadHighScore();
-    loadTheme();
     startPrefetch();
   }, []);
 
@@ -48,19 +47,6 @@ function App() {
     } catch (error) {
       console.warn('Failed to load high score:', error);
       // Non-critical - continue without high score
-    }
-  }
-
-  /**
-   * Load theme from storage
-   */
-  function loadTheme() {
-    try {
-      const theme = getTheme();
-      setState(prev => ({ ...prev, theme }));
-    } catch (error) {
-      console.warn('Failed to load theme:', error);
-      // Non-critical - continue with default theme
     }
   }
 
