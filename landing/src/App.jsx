@@ -4,6 +4,7 @@ import { StorageManager } from './services/storage.js';
 import { DictionaryManager } from './services/dictionary.js';
 import { PrefetchManager } from './services/prefetch.js';
 import { GodotLauncher } from './services/godotLauncher.js';
+import { getTheme } from './services/theme.js';
 import './App.css';
 
 // Initialize Supabase client
@@ -20,6 +21,7 @@ function App() {
     selectedLanguage: 'en',
     error: null,
     transitioning: false,
+    theme: 'light',
   });
 
   // Service refs (persistent across renders)
@@ -32,6 +34,7 @@ function App() {
   // Load high score on mount
   useEffect(() => {
     loadHighScore();
+    loadTheme();
     startPrefetch();
   }, []);
 
@@ -45,6 +48,19 @@ function App() {
     } catch (error) {
       console.warn('Failed to load high score:', error);
       // Non-critical - continue without high score
+    }
+  }
+
+  /**
+   * Load theme from storage
+   */
+  function loadTheme() {
+    try {
+      const theme = getTheme();
+      setState(prev => ({ ...prev, theme }));
+    } catch (error) {
+      console.warn('Failed to load theme:', error);
+      // Non-critical - continue with default theme
     }
   }
 
@@ -173,7 +189,7 @@ function App() {
   const canPlay = state.prefetchStatus === 'ready' && !state.transitioning;
 
   return (
-    <div className="landing-container" ref={landingRef}>
+    <div className={`landing-container theme-${state.theme}`} ref={landingRef}>
       <div className="landing-content">
         {/* Hero Section */}
         <div className="hero">
