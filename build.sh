@@ -9,7 +9,8 @@ echo "Building landing page..."
 # --- Git LFS Pull ---
 # Force Netlify to pull binary WASM/PCK files if it missed them during the clone.
 if command -v git-lfs &> /dev/null; then
-  echo "📦 Git LFS detected. Pulling binaries..."
+  echo "📦 Git LFS detected. Initializing and pulling binaries..."
+  git lfs install
   git lfs pull
 else
   echo "⚠️  Git LFS not found in build environment. This may cause 'Magic Word' errors."
@@ -21,6 +22,20 @@ echo "Verifying dist/ exists..."
 if [ ! -d "dist" ]; then
   echo "Error: dist/ directory not found. Run Godot export first."
   exit 1
+fi
+
+echo "Checking WASM size..."
+WASM_SIZE=$(stat -c%s "dist/index.wasm" 2>/dev/null || stat -f%z "dist/index.wasm" 2>/dev/null)
+echo "index.wasm size: $WASM_SIZE bytes"
+if [ "$WASM_SIZE" -lt 1000 ]; then
+  echo "❌ Error: index.wasm is too small! (Likely an LFS pointer)."
+  echo "   Attempting forced pull with credential info..."
+  git lfs pull
+  WASM_SIZE_RETRY=$(stat -c%s "dist/index.wasm" 2>/dev/null || stat -f%z "dist/index.wasm" 2>/dev/null)
+  if [ "$WASM_SIZE_RETRY" -lt 1000 ]; then
+    echo "❌ ERROR: Still a pointer after retry. Failing build."
+    exit 1
+  fi
 fi
 
 echo "Verifying dictionaries exist..."
