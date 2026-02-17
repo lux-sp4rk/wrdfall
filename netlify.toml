@@ -1,5 +1,5 @@
 [build]
-  command = ""
+  command = "npm run build:all"
   publish = "dist"
 
 # Redirect all routes to index.html (SPA routing)
@@ -9,26 +9,24 @@
   status = 200
   force = false
 
-# Cache headers for Godot Wasm (immutable)
+# Cache headers for Godot Wasm (immutable, 1 year)
 [[headers]]
-  for = "/game/*.wasm"
+  for = "/*.wasm"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
-    Content-Encoding = "br"
+    Content-Type = "application/wasm"
 
-# Cache headers for Godot PCK (immutable)
+# Cache headers for Godot PCK (immutable, 1 year)
 [[headers]]
-  for = "/game/*.pck"
+  for = "/*.pck"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
-    Content-Encoding = "br"
 
 # Cache headers for dictionaries (30 days)
 [[headers]]
-  for = "/game/dictionaries/*.txt"
+  for = "/dictionaries/*.txt"
   [headers.values]
     Cache-Control = "public, max-age=2592000"
-    Content-Encoding = "gzip"
 
 # Security headers
 [[headers]]

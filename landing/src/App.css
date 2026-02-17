@@ -233,83 +233,6 @@
   box-shadow: none;
 }
 
-/* ===== Language Selector ===== */
-
-.language-selector {
-  display: flex;
-  gap: 12px;
-}
-
-.language-button {
-  background: var(--bg-card);
-  border: 2px solid var(--border-neutral);
-  color: var(--text-secondary);
-  font-size: 16px;
-  font-weight: 600;
-  padding: 12px 24px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 150ms ease;
-  min-height: 48px;
-  min-width: 100px;
-}
-
-.language-button:hover {
-  border-color: var(--color-primary);
-}
-
-.language-button.active {
-  background: var(--color-primary);
-  color: var(--text-on-primary);
-  border-color: var(--color-primary);
-}
-
-.language-button:active {
-  transform: scale(0.98);
-}
-
-/* ===== How to Play Section ===== */
-
-.how-to-play {
-  background: var(--bg-card);
-  border-radius: 12px;
-  padding: 24px;
-  width: 100%;
-  box-shadow: 0 2px 8px var(--shadow);
-}
-
-.how-to-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--color-primary);
-  margin: 0 0 16px 0;
-}
-
-.how-to-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.how-to-list li {
-  font-size: 16px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  padding-left: 24px;
-  position: relative;
-}
-
-.how-to-list li::before {
-  content: '•';
-  color: var(--color-primary);
-  font-weight: 700;
-  font-size: 20px;
-  position: absolute;
-  left: 0;
-}
 
 /* ===== Mobile Responsiveness ===== */
 
@@ -340,13 +263,6 @@
     min-height: 56px;
   }
 
-  .how-to-title {
-    font-size: 18px;
-  }
-
-  .how-to-list li {
-    font-size: 14px;
-  }
 }
 
 /* ===== Accessibility & Senior-Friendly ===== */
