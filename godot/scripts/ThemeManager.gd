@@ -57,8 +57,54 @@ var themes: Dictionary = {
 }
 
 func _ready() -> void:
+	# Web: Try localStorage first, then ConfigFile
+	if OS.has_feature("web"):
+		var web_theme = _load_from_localstorage()
+		if web_theme != "":
+			current_theme = web_theme
+			GameSettings.theme = web_theme
+			print("ThemeManager: Loaded theme from localStorage: ", web_theme)
+			return  # Skip ConfigFile load on web if localStorage has valid theme
+
+	# Desktop or localStorage empty: Load from ConfigFile
 	_load_settings()
 	current_theme = GameSettings.theme
+
+func _load_from_localstorage() -> String:
+	"""Load theme from localStorage (web only)
+	Returns theme string ('light' or 'dark') or empty string if unavailable
+	"""
+	if not OS.has_feature("web"):
+		return ""  # Desktop build, skip localStorage
+
+	var js_interface = JavaScriptBridge.get_interface("localStorage")
+	if js_interface == null:
+		push_warning("localStorage interface not available")
+		return ""
+
+	var theme = js_interface.getItem("word-loom-theme")
+	if theme == null or theme == "":
+		return ""
+
+	# Validate theme value
+	if theme != "light" and theme != "dark":
+		push_warning("Invalid theme in localStorage: " + str(theme))
+		return ""
+
+	return theme
+
+func _sync_to_localstorage(theme_name: String) -> void:
+	"""Write theme to localStorage (web only)"""
+	if not OS.has_feature("web"):
+		return  # Desktop build, skip localStorage
+
+	var js_interface = JavaScriptBridge.get_interface("localStorage")
+	if js_interface == null:
+		push_warning("localStorage interface not available, cannot sync theme")
+		return
+
+	js_interface.setItem("word-loom-theme", theme_name)
+	print("ThemeManager: Synced theme to localStorage: ", theme_name)
 
 func get_color(key: String) -> Color:
 	var theme_colors = themes.get(current_theme, themes["light"])
@@ -72,6 +118,7 @@ func set_theme(theme_name: String) -> void:
 	current_theme = theme_name
 	GameSettings.theme = theme_name
 	_save_settings()
+	_sync_to_localstorage(theme_name)  # NEW: Sync to localStorage on web
 	theme_changed.emit()
 
 func toggle_theme() -> void:
