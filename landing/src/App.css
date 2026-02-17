@@ -3,6 +3,38 @@
    Mobile-first, senior-friendly design
    ============================================ */
 
+/* ============================================
+   Theme Variables
+   ============================================ */
+
+/* Light Theme (default) */
+.theme-light {
+  --bg-primary: #F5F2E8;
+  --bg-card: #FFFFFF;
+  --color-primary: #E07857;
+  --color-primary-hover: #EB8563;
+  --color-primary-pressed: #D16A48;
+  --color-secondary: #7A9D8C;
+  --text-primary: #1F1F1F;
+  --text-secondary: #4D6659;
+  --text-muted: #999999;
+  --shadow: rgba(0, 0, 0, 0.12);
+}
+
+/* Dark Theme */
+.theme-dark {
+  --bg-primary: #2B3D4F;
+  --bg-card: #364A5E;
+  --color-primary: #F29170;
+  --color-primary-hover: #FA9E7D;
+  --color-primary-pressed: #E07857;
+  --color-secondary: #4D6B8A;
+  --text-primary: #F2F2F2;
+  --text-secondary: #99BFB3;
+  --text-muted: #999999;
+  --shadow: rgba(0, 0, 0, 0.3);
+}
+
 /* ===== Layout ===== */
 
 .landing-container {
@@ -11,7 +43,7 @@
   align-items: center;
   min-height: 100vh;
   width: 100vw;
-  background: linear-gradient(to bottom, #f5f3ed, #e8e4d9);
+  background: var(--bg-primary);
   padding: 24px;
   transition: opacity 500ms ease-out;
 }
@@ -34,14 +66,14 @@
 .logo {
   font-size: 48px;
   font-weight: 700;
-  color: #a0522d; /* Terracotta */
+  color: var(--color-primary);
   margin: 0 0 12px 0;
   letter-spacing: -0.5px;
 }
 
 .tagline {
   font-size: 20px;
-  color: #6b5b4d;
+  color: var(--text-secondary);
   margin: 0;
   font-weight: 400;
 }
@@ -49,20 +81,20 @@
 /* ===== High Score Badge ===== */
 
 .high-score-badge {
-  background: white;
-  border: 2px solid #a0522d;
+  background: var(--bg-card);
+  border: 2px solid var(--color-primary);
   border-radius: 24px;
   padding: 16px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--shadow);
 }
 
 .badge-label {
   font-size: 14px;
-  color: #6b5b4d;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 600;
@@ -71,7 +103,7 @@
 .badge-score {
   font-size: 32px;
   font-weight: 700;
-  color: #a0522d;
+  color: var(--color-primary);
 }
 
 /* ===== Loading Progress ===== */
@@ -94,14 +126,14 @@
 
 .progress-fill {
   height: 100%;
-  background: #a0522d;
+  background: var(--color-primary);
   transition: width 200ms ease-out;
   border-radius: 4px;
 }
 
 .progress-text {
   font-size: 14px;
-  color: #6b5b4d;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -127,9 +159,9 @@
 }
 
 .retry-button {
-  background: white;
-  border: 2px solid #a0522d;
-  color: #a0522d;
+  background: var(--bg-card);
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
   font-size: 16px;
   font-weight: 600;
   padding: 12px 32px;
@@ -141,7 +173,7 @@
 }
 
 .retry-button:hover {
-  background: #a0522d;
+  background: var(--color-primary);
   color: white;
 }
 
@@ -152,7 +184,7 @@
 /* ===== Play Button ===== */
 
 .play-button {
-  background: #a0522d;
+  background: var(--color-primary);
   color: white;
   font-size: 24px;
   font-weight: 700;
@@ -161,7 +193,7 @@
   border-radius: 12px;
   cursor: pointer;
   transition: all 150ms ease;
-  box-shadow: 0 4px 12px rgba(160, 82, 45, 0.3);
+  box-shadow: 0 4px 12px var(--shadow);
   width: 100%;
   max-width: 300px;
   height: 60px;
@@ -169,14 +201,15 @@
 }
 
 .play-button:hover:not(:disabled) {
-  background: #8b4513;
+  background: var(--color-primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(160, 82, 45, 0.4);
+  box-shadow: 0 6px 16px var(--shadow);
 }
 
 .play-button:active:not(:disabled) {
+  background: var(--color-primary-pressed);
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(160, 82, 45, 0.3);
+  box-shadow: 0 2px 8px var(--shadow);
 }
 
 .play-button:disabled {
@@ -194,9 +227,9 @@
 }
 
 .language-button {
-  background: white;
+  background: var(--bg-card);
   border: 2px solid #ddd;
-  color: #6b5b4d;
+  color: var(--text-secondary);
   font-size: 16px;
   font-weight: 600;
   padding: 12px 24px;
@@ -208,13 +241,13 @@
 }
 
 .language-button:hover {
-  border-color: #a0522d;
+  border-color: var(--color-primary);
 }
 
 .language-button.active {
-  background: #a0522d;
+  background: var(--color-primary);
   color: white;
-  border-color: #a0522d;
+  border-color: var(--color-primary);
 }
 
 .language-button:active {
@@ -224,17 +257,17 @@
 /* ===== How to Play Section ===== */
 
 .how-to-play {
-  background: white;
+  background: var(--bg-card);
   border-radius: 12px;
   padding: 24px;
   width: 100%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px var(--shadow);
 }
 
 .how-to-title {
   font-size: 20px;
   font-weight: 700;
-  color: #a0522d;
+  color: var(--color-primary);
   margin: 0 0 16px 0;
 }
 
@@ -249,7 +282,7 @@
 
 .how-to-list li {
   font-size: 16px;
-  color: #6b5b4d;
+  color: var(--text-secondary);
   line-height: 1.5;
   padding-left: 24px;
   position: relative;
@@ -257,7 +290,7 @@
 
 .how-to-list li::before {
   content: '•';
-  color: #a0522d;
+  color: var(--color-primary);
   font-weight: 700;
   font-size: 20px;
   position: absolute;
@@ -317,6 +350,6 @@ button {
 
 /* Focus states for keyboard navigation */
 button:focus-visible {
-  outline: 3px solid #a0522d;
+  outline: 3px solid var(--color-primary);
   outline-offset: 2px;
 }
