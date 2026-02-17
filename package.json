@@ -9,7 +9,7 @@
     "minify": "node scripts/minify.js",
     "build:landing": "cd landing && npm run build",
     "build:all": "npm run build:landing",
-    "deploy:prod": "npm run build:all && git add . && git commit -m 'Deploy web build' && git push origin main",
+    "deploy:prod": "git add . && git commit -m 'Deploy web build' && git push origin main",
     "dev:landing": "cd landing && npm run dev"
   },
   "workspaces": [
