@@ -16,9 +16,11 @@
   --color-primary-hover: #EB8563;
   --color-primary-pressed: #D16A48;
   --color-secondary: #7A9D8C;
+  --color-error: #dc3545;
   --text-primary: #1F1F1F;
   --text-secondary: #4D6659;
   --text-muted: #999999;
+  --text-on-primary: #FFFFFF;
   --border-neutral: #DDDDDD;
   --progress-bg: rgba(0, 0, 0, 0.1);
   --disabled-bg: #CCCCCC;
@@ -35,9 +37,11 @@
   --color-primary-hover: #FA9E7D;
   --color-primary-pressed: #E07857;
   --color-secondary: #4D6B8A;
+  --color-error: #FF6B6B;
   --text-primary: #F2F2F2;
   --text-secondary: #99BFB3;
   --text-muted: #999999;
+  --text-on-primary: #FFFFFF;
   --border-neutral: #4D6B8A;
   --progress-bg: rgba(255, 255, 255, 0.15);
   --disabled-bg: #4A5A6B;
@@ -159,10 +163,10 @@
 
 .error-message {
   background: var(--bg-error);
-  border: 2px solid #dc3545;
+  border: 2px solid var(--color-error);
   border-radius: 8px;
   padding: 16px 24px;
-  color: #dc3545;
+  color: var(--color-error);
   font-size: 16px;
   text-align: center;
   width: 100%;
@@ -184,7 +188,7 @@
 
 .retry-button:hover {
   background: var(--color-primary);
-  color: white;
+  color: var(--text-on-primary);
 }
 
 .retry-button:active {
@@ -195,7 +199,7 @@
 
 .play-button {
   background: var(--color-primary);
-  color: white;
+  color: var(--text-on-primary);
   font-size: 24px;
   font-weight: 700;
   padding: 0 48px;
@@ -256,7 +260,7 @@
 
 .language-button.active {
   background: var(--color-primary);
-  color: white;
+  color: var(--text-on-primary);
   border-color: var(--color-primary);
 }
 
