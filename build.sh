@@ -5,6 +5,16 @@
 set -e  # Exit on error
 
 echo "Building landing page..."
+
+# --- Git LFS Pull ---
+# Force Netlify to pull binary WASM/PCK files if it missed them during the clone.
+if command -v git-lfs &> /dev/null; then
+  echo "📦 Git LFS detected. Pulling binaries..."
+  git lfs pull
+else
+  echo "⚠️  Git LFS not found in build environment. This may cause 'Magic Word' errors."
+fi
+
 npm run build:landing
 
 echo "Verifying dist/ exists..."
