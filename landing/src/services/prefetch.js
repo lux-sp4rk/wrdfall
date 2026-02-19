@@ -8,9 +8,11 @@
 export class PrefetchManager {
   constructor(onProgress) {
     this.onProgress = onProgress; // Callback: (progress: 0-100) => void
+    // Sizes in MB — used as fallback when Content-Length header is missing.
+    // Progress is capped at 1.0 to prevent > 100% display.
     this.downloads = {
-      wasm: { size: 37, progress: 0 },
-      pck: { size: 40, progress: 0 },
+      wasm: { size: 37.686, progress: 0 },
+      pck: { size: 58.2, progress: 0 },
       dict: { size: 2.6, progress: 0 },
     };
   }
@@ -22,12 +24,11 @@ export class PrefetchManager {
     const results = await Promise.allSettled([
       this.fetchGodotWasm(),
       this.fetchGodotPck(),
-      this.fetchDictionary('en'),
     ]);
 
     // Check for failures
     const failed = results
-      .map((r, i) => ({ result: r, file: ['wasm', 'pck', 'dict'][i] }))
+      .map((r, i) => ({ result: r, file: ['wasm', 'pck'][i] }))
       .filter(({ result }) => result.status === 'rejected');
 
     if (failed.length > 0) {
@@ -40,7 +41,6 @@ export class PrefetchManager {
     return {
       wasm: results[0].value,
       pck: results[1].value,
-      dict: results[2].value,
     };
   }
 
@@ -98,8 +98,8 @@ export class PrefetchManager {
       chunks.push(value);
       receivedLength += value.length;
 
-      // Update progress
-      this.downloads[key].progress = receivedLength / contentLength;
+      // Update progress — cap at 1.0 to prevent > 100% display
+      this.downloads[key].progress = Math.min(1, receivedLength / contentLength);
       this._updateTotalProgress();
     }
 
@@ -112,15 +112,13 @@ export class PrefetchManager {
   _updateTotalProgress() {
     const totalSize =
       this.downloads.wasm.size +
-      this.downloads.pck.size +
-      this.downloads.dict.size;
+      this.downloads.pck.size;
 
     const progress =
       (this.downloads.wasm.progress * this.downloads.wasm.size +
-        this.downloads.pck.progress * this.downloads.pck.size +
-        this.downloads.dict.progress * this.downloads.dict.size) /
+        this.downloads.pck.progress * this.downloads.pck.size) /
       totalSize;
 
-    this.onProgress(Math.round(progress * 100));
+    this.onProgress(Math.min(100, Math.round(progress * 100)));
   }
 }

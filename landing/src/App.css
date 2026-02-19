@@ -55,11 +55,12 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  min-height: 100dvh; /* Use dynamic viewport height for mobile browsers */
   width: 100vw;
   background: var(--bg-primary);
   padding: 24px;
   transition: opacity 500ms ease-out;
+  overflow-y: auto; /* Allow scrolling if content overflows on small screens */
 }
 
 .landing-content {
@@ -68,7 +69,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 32px;
+  gap: clamp(16px, 5vh, 48px); /* Responsive gap */
+  padding: 20px 0;
 }
 
 /* ===== Hero Section ===== */
@@ -239,6 +241,7 @@
 @media (max-width: 640px) {
   .landing-container {
     padding: 16px;
+    align-items: center;
   }
 
   .landing-content {
@@ -246,11 +249,11 @@
   }
 
   .logo {
-    font-size: 40px;
+    font-size: clamp(32px, 12vw, 48px); /* Fluid typography */
   }
 
   .tagline {
-    font-size: 18px;
+    font-size: clamp(16px, 5vw, 20px);
   }
 
   .badge-score {

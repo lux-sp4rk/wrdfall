@@ -56,7 +56,14 @@ function App() {
         setState(prev => ({ ...prev, prefetchProgress: progress }));
       });
 
-      await prefetchManager.current.start();
+      const blobs = await prefetchManager.current.start();
+      
+      // Store Blobs as Object URLs to prevent double-download in Godot
+      window.WORD_LOOM_BLOBS = {
+        wasm: URL.createObjectURL(blobs.wasm),
+        pck: URL.createObjectURL(blobs.pck)
+      };
+
       await dictionaryManager.current.load('en');
 
       setState(prev => ({ ...prev, prefetchStatus: 'ready' }));
@@ -75,6 +82,9 @@ function App() {
 
     setState(prev => ({ ...prev, transitioning: true }));
 
+    // Set body background immediately to match game theme (eliminates black bars during transition)
+    document.body.style.backgroundColor = THEME_BG[state.theme] || THEME_BG.dark;
+
     try {
       if (landingRef.current) {
         landingRef.current.style.opacity = '0';
@@ -82,9 +92,11 @@ function App() {
 
       await new Promise(resolve => setTimeout(resolve, 500));
 
+      const { wasm, pck } = window.WORD_LOOM_BLOBS || {};
+      
       godotLauncher.current = new GodotLauncher({
-        executable: '/index',
-        mainPack: '/index.pck',
+        executable: wasm || '/index',
+        mainPack: pck || '/index.pck',
       });
 
       await godotLauncher.current.initialize();
@@ -99,9 +111,6 @@ function App() {
       window.saveHighScore = (score) => {
         storageManager.current.saveHighScore(score);
       };
-
-      // Set body background to match game theme (eliminates black landscape bars)
-      document.body.style.backgroundColor = THEME_BG[state.theme] || THEME_BG.dark;
 
       if (landingRef.current) {
         landingRef.current.style.display = 'none';

@@ -23,17 +23,7 @@ export class GodotLauncher {
       // Import Godot engine script
       const Engine = await this._loadEngineScript();
 
-      // Create engine instance
-      this.engine = new Engine({
-        args: [],
-        canvasResizePolicy: 2, // Adaptive
-        executable: this.config.executable,
-        experimentalVK: false,
-        focusCanvas: true,
-        gdextension: false,
-      });
-
-      // Create canvas
+      // Create canvas and append to DOM first
       this.canvas = document.createElement('canvas');
       this.canvas.id = 'godot-canvas';
       this.canvas.style.width = '100vw';
@@ -41,13 +31,25 @@ export class GodotLauncher {
       this.canvas.style.position = 'absolute';
       this.canvas.style.top = '0';
       this.canvas.style.left = '0';
-
       document.body.appendChild(this.canvas);
 
-      // Initialize engine with canvas
-      // NOTE: Order verified in plan - init() before setCanvas() for Godot 4.6
-      await this.engine.init(this.config.mainPack);
-      this.engine.setCanvas(this.canvas);
+      // In Godot 4 JS API, canvas is passed in the config object — no setCanvas().
+      this.engine = new Engine({
+        args: [],
+        canvas: this.canvas,
+        canvasResizePolicy: 2,
+        executable: this.config.executable.startsWith('blob:') ? this.config.executable : this.config.executable,
+        experimentalVK: false,
+        focusCanvas: true,
+      });
+
+      // If executable is a blob, we must pass it as-is to init. 
+      // Godot 4 init() usually appends .wasm if no extension is present.
+      const initPath = this.config.executable.startsWith('blob:') 
+        ? this.config.executable 
+        : this.config.executable;
+
+      await this.engine.init(initPath);
 
       return this.engine;
     } catch (error) {
@@ -82,8 +84,8 @@ export class GodotLauncher {
         language: dictionary.language,
       };
 
-      // Start Godot
-      await this.engine.startGame();
+      // Start Godot — must pass mainPack so the engine knows where to find the PCK.
+      await this.engine.startGame({ mainPack: this.config.mainPack });
     } catch (error) {
       console.error('Failed to start Godot game:', error);
       throw new Error(`Game start failed: ${error.message}`);
