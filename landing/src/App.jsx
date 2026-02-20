@@ -26,6 +26,7 @@ function App() {
     error: null,
     transitioning: false,
     theme: getTheme(),
+    showProgress: false,
   }));
 
   const landingRef = useRef(null);
@@ -51,6 +52,11 @@ function App() {
   async function startPrefetch() {
     setState(prev => ({ ...prev, prefetchStatus: 'loading', prefetchProgress: 0, error: null }));
 
+    // Show progress if it takes more than 1.5s (likely not cached)
+    const timer = setTimeout(() => {
+      setState(prev => ({ ...prev, showProgress: true }));
+    }, 1500);
+
     try {
       prefetchManager.current = new PrefetchManager((progress) => {
         setState(prev => ({ ...prev, prefetchProgress: progress }));
@@ -66,8 +72,10 @@ function App() {
 
       await dictionaryManager.current.load('en');
 
+      clearTimeout(timer);
       setState(prev => ({ ...prev, prefetchStatus: 'ready' }));
     } catch (error) {
+      clearTimeout(timer);
       console.error('Pre-fetch failed:', error);
       setState(prev => ({
         ...prev,
@@ -78,6 +86,10 @@ function App() {
   }
 
   async function handlePlayClick() {
+    if (state.prefetchStatus === 'loading') {
+      setState(prev => ({ ...prev, showProgress: true }));
+      return;
+    }
     if (state.prefetchStatus !== 'ready') return;
 
     setState(prev => ({ ...prev, transitioning: true }));
@@ -126,7 +138,7 @@ function App() {
     }
   }
 
-  const canPlay = state.prefetchStatus === 'ready' && !state.transitioning;
+  const canPlay = !state.transitioning && state.prefetchStatus !== 'error';
 
   return (
     <div className={`landing-container theme-${state.theme}`} ref={landingRef}>
@@ -143,7 +155,7 @@ function App() {
           </div>
         )}
 
-        {state.prefetchStatus === 'loading' && (
+        {state.prefetchStatus === 'loading' && state.showProgress && (
           <div className="progress-container">
             <div className="progress-bar">
               <div className="progress-fill" style={{ width: `${state.prefetchProgress}%` }} />
@@ -161,8 +173,13 @@ function App() {
           </div>
         )}
 
-        <button className="play-button" onClick={handlePlayClick} disabled={!canPlay}>
-          {state.transitioning ? 'Starting...' : 'Play'}
+        <button 
+          className="play-button" 
+          onClick={handlePlayClick} 
+          disabled={state.transitioning}
+        >
+          {state.transitioning ? 'Starting...' : 
+           (state.prefetchStatus === 'loading' && state.showProgress) ? 'Loading...' : 'Play'}
         </button>
       </div>
     </div>
