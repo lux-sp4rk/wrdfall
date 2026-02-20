@@ -64,10 +64,10 @@ function App() {
 
       const blobs = await prefetchManager.current.start();
       
-      // Store Blobs as Object URLs to prevent double-download in Godot
+      // Use direct URLs to prevent blob isolation/fetch issues
       window.WORD_LOOM_BLOBS = {
-        wasm: URL.createObjectURL(blobs.wasm),
-        pck: URL.createObjectURL(blobs.pck)
+        wasm: 'index.wasm',
+        pck: 'index.pck'
       };
 
       await dictionaryManager.current.load('en');
