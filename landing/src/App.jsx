@@ -107,8 +107,8 @@ function App() {
       const { wasm, pck } = window.WORD_LOOM_BLOBS || {};
       
       godotLauncher.current = new GodotLauncher({
-        executable: wasm || '/index',
-        mainPack: pck || '/index.pck',
+        executable: wasm || 'index',
+        mainPack: pck || 'index.pck',
       });
 
       await godotLauncher.current.initialize();

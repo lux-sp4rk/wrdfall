@@ -49,7 +49,7 @@ export class PrefetchManager {
    */
   async fetchGodotWasm() {
     return this._fetchWithProgress(
-      '/index.wasm',
+      'index.wasm',
       'wasm'
     );
   }
@@ -59,7 +59,7 @@ export class PrefetchManager {
    */
   async fetchGodotPck() {
     return this._fetchWithProgress(
-      '/index.pck',
+      'index.pck',
       'pck'
     );
   }
@@ -69,7 +69,7 @@ export class PrefetchManager {
    */
   async fetchDictionary(language) {
     return this._fetchWithProgress(
-      `/dictionaries/${language}.txt`,
+      `dictionaries/${language}.txt`,
       'dict'
     );
   }
