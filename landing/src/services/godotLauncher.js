@@ -49,7 +49,7 @@ export class GodotLauncher {
         ? this.config.executable 
         : this.config.executable;
 
-      await this.engine.init(initPath);
+      await this.engine.init(initPath, 'wasm');
 
       return this.engine;
     } catch (error) {
