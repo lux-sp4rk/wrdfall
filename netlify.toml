@@ -2,6 +2,10 @@
   command = "npm run build:all"
   publish = "dist"
 
+[build.environment]
+  GIT_LFS_ENABLED = "true"
+  GIT_LFS_FETCH_INCLUDE = "dist/*"
+
 # Redirect all routes to index.html (SPA routing)
 [[redirects]]
   from = "/*"
