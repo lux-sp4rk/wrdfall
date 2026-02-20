@@ -29,11 +29,15 @@ WASM_SIZE=$(stat -c%s "dist/index.wasm" 2>/dev/null || stat -f%z "dist/index.was
 echo "index.wasm size: $WASM_SIZE bytes"
 if [ "$WASM_SIZE" -lt 1000 ]; then
   echo "❌ Error: index.wasm is too small! (Likely an LFS pointer)."
-  echo "   Attempting forced pull with credential info..."
-  git lfs pull
+  echo "   Pointer content:"
+  cat "dist/index.wasm"
+  echo "   Attempting forced pull..."
+  git lfs pull || echo "⚠️ git lfs pull failed"
   WASM_SIZE_RETRY=$(stat -c%s "dist/index.wasm" 2>/dev/null || stat -f%z "dist/index.wasm" 2>/dev/null)
+  echo "index.wasm size after retry: $WASM_SIZE_RETRY bytes"
   if [ "$WASM_SIZE_RETRY" -lt 1000 ]; then
     echo "❌ ERROR: Still a pointer after retry. Failing build."
+    echo "💡 TIP: Ensure GIT_LFS_ENABLED=true is set in Netlify environment variables."
     exit 1
   fi
 fi
