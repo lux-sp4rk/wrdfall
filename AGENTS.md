@@ -1,4 +1,4 @@
-# CLAUDE.md — Word Loom Instructions
+# AGENTS.md — Word Loom Instructions
 
 ## Project Context
 Word Loom is a strategic word puzzle game built with **Godot 4.6 (GDScript)** — strategic word puzzles meet Tetris.
