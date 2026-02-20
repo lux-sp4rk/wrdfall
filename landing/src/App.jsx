@@ -64,9 +64,13 @@ function App() {
 
       const blobs = await prefetchManager.current.start();
       
-      // Use direct URLs to prevent blob isolation/fetch issues
+      // Pass direct paths to GodotLauncher.
+      // NOTE: 'wasm' is the Godot ENGINE BASE NAME (no extension).
+      // GodotLauncher strips any '.wasm' suffix before calling engine.init(),
+      // because Godot internally appends '.wasm'. Passing 'index.wasm' would
+      // cause Godot to fetch 'index.wasm.wasm' → 404 → HTML → magic word error.
       window.WORD_LOOM_BLOBS = {
-        wasm: 'index.wasm',
+        wasm: 'index',
         pck: 'index.pck'
       };
 
