@@ -90,8 +90,17 @@ User can switch theme via Settings > Theme selector (OptionButton).
 - **Naming**: `snake_case` for variables/functions, `PascalCase` for classes.
 - **Nodes**: Access nodes using `@onready var name = $Path` or `%UniqueName`.
 
+## Web Deployment Architecture
+**IMPORTANT**: This project uses a hybrid deployment model.
+- **`dist/` must be committed**: Netlify serves the web build directly from the `dist/` directory in the repository.
+- **No CI Export**: Netlify does NOT run the Godot export process (no Godot SDK in build environment).
+- **LFS Required**: Large binaries (`.wasm`, `.pck`) and dictionary files in `dist/` are tracked via **Git LFS**.
+- **Manual Export**: After making changes in `godot/`, you must manually export to `dist/` from the Godot Editor before pushing to trigger a Netlify update.
+- **`build.sh`**: This script only pulls LFS assets and builds the React landing page; it does not generate the Godot engine files.
+
 ## Workflow Rules
 - **Verification**: After logic changes, test in Godot by pressing F5 to run the game.
+- **Deployment**: If changes affect the web build, ensure you export to `dist/`, verify files are staged, and commit. **Never delete `dist/` or add it to `.gitignore`**.
 - **Git**: Work on feature branches (`fix/` or `feat/`).
 - **PRs**: Include a summary of changes and mention which issue is being addressed.
 - **Updates**: Keep this `CLAUDE.md` updated with new build commands or style shifts.
