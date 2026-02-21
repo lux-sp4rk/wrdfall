@@ -13,6 +13,10 @@ open godot/project.godot   # macOS — or open via Godot's Import dialog
 # Press F5 to run (launches Home screen)
 ```
 
+## Deployment
+
+**Note on Architecture:** This project serves the web build directly from the `dist/` directory. Netlify does not have the Godot SDK to export the project itself, so pre-built artifacts must be committed (tracked via Git LFS). **Do not delete `dist/` or ignore it.**
+
 ## Development
 
 ### Project Structure

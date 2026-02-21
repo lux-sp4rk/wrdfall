@@ -33,23 +33,26 @@ export class GodotLauncher {
       this.canvas.style.left = '0';
       document.body.appendChild(this.canvas);
 
+      // CRITICAL: Godot Engine.init() and the Engine config's `executable` field expect the
+      // BASE NAME without any file extension. The engine internally appends '.wasm' when
+      // fetching the binary. If we pass 'index.wasm', it fetches 'index.wasm.wasm' → 404 →
+      // Netlify SPA redirect returns index.html → CompileError: expected magic word 00 61 73 6d,
+      // found 3c 21 44 4f (i.e. '<!DO' = start of <!DOCTYPE html>).
+      // See: https://github.com/lux-sp4rk/word-loom/issues/141
+      const basePath = this.config.executable.replace(/\.wasm$/, '');
+
       // In Godot 4 JS API, canvas is passed in the config object — no setCanvas().
       this.engine = new Engine({
         args: [],
         canvas: this.canvas,
         canvasResizePolicy: 2,
-        executable: this.config.executable.startsWith('blob:') ? this.config.executable : this.config.executable,
+        executable: basePath,
         experimentalVK: false,
         focusCanvas: true,
       });
 
-      // If executable is a blob, we must pass it as-is to init. 
-      // Godot 4 init() usually appends .wasm if no extension is present.
-      const initPath = this.config.executable.startsWith('blob:') 
-        ? this.config.executable 
-        : this.config.executable;
-
-      await this.engine.init(initPath, 'wasm');
+      // Pass the base path (without .wasm) — Godot appends .wasm internally.
+      await this.engine.init(basePath);
 
       return this.engine;
     } catch (error) {
@@ -98,7 +101,7 @@ export class GodotLauncher {
   async _loadEngineScript() {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = '/index.js';
+      script.src = 'index.js';
       script.onload = () => {
         if (window.Engine) {
           resolve(window.Engine);

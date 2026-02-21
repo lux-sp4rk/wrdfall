@@ -64,10 +64,14 @@ function App() {
 
       const blobs = await prefetchManager.current.start();
       
-      // Store Blobs as Object URLs to prevent double-download in Godot
+      // Pass direct paths to GodotLauncher.
+      // NOTE: 'wasm' is the Godot ENGINE BASE NAME (no extension).
+      // GodotLauncher strips any '.wasm' suffix before calling engine.init(),
+      // because Godot internally appends '.wasm'. Passing 'index.wasm' would
+      // cause Godot to fetch 'index.wasm.wasm' → 404 → HTML → magic word error.
       window.WORD_LOOM_BLOBS = {
-        wasm: URL.createObjectURL(blobs.wasm),
-        pck: URL.createObjectURL(blobs.pck)
+        wasm: 'index',
+        pck: 'index.pck'
       };
 
       await dictionaryManager.current.load('en');
@@ -107,8 +111,8 @@ function App() {
       const { wasm, pck } = window.WORD_LOOM_BLOBS || {};
       
       godotLauncher.current = new GodotLauncher({
-        executable: wasm || '/index',
-        mainPack: pck || '/index.pck',
+        executable: wasm || 'index',
+        mainPack: pck || 'index.pck',
       });
 
       await godotLauncher.current.initialize();
