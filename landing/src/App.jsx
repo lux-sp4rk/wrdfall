@@ -5,6 +5,9 @@ import { DictionaryManager } from './services/dictionary.js';
 import { PrefetchManager } from './services/prefetch.js';
 import { GodotLauncher } from './services/godotLauncher.js';
 import { getTheme } from './services/theme.js';
+import { HomeScreen } from './screens/HomeScreen.jsx';
+import { StatsScreen } from './screens/StatsScreen.jsx';
+import { SettingsScreen } from './screens/SettingsScreen.jsx';
 import './App.css';
 
 // Initialize Supabase client
@@ -27,6 +30,7 @@ function App() {
     transitioning: false,
     theme: getTheme(),
     showProgress: false,
+    currentScreen: 'home',
   }));
 
   const landingRef = useRef(null);
@@ -142,52 +146,33 @@ function App() {
     }
   }
 
-  const canPlay = !state.transitioning && state.prefetchStatus !== 'error';
-
   return (
-    <div className={`landing-container theme-${state.theme}`} ref={landingRef}>
-      <div className="landing-content">
-        <div className="hero">
-          <h1 className="logo">Word Loom</h1>
-          <p className="tagline">Word-building meets Tetris</p>
+    <>
+      {state.currentScreen === 'home' && (
+        <div ref={landingRef}>
+          <HomeScreen
+            state={{ ...state, onRetry: startPrefetch }}
+            onPlayClick={handlePlayClick}
+            onStatsClick={() => setState(prev => ({ ...prev, currentScreen: 'stats' }))}
+            onSettingsClick={() => setState(prev => ({ ...prev, currentScreen: 'settings' }))}
+          />
         </div>
-
-        {state.highScore !== null && (
-          <div className="high-score-badge">
-            <div className="badge-label">Your Best</div>
-            <div className="badge-score">{state.highScore.toLocaleString()}</div>
-          </div>
-        )}
-
-        {state.prefetchStatus === 'loading' && state.showProgress && (
-          <div className="progress-container">
-            <div className="progress-bar">
-              <div className="progress-fill" style={{ width: `${state.prefetchProgress}%` }} />
-            </div>
-            <div className="progress-text">Loading... {state.prefetchProgress}%</div>
-          </div>
-        )}
-
-        {state.error && (
-          <div className="error-container">
-            <div className="error-message">{state.error}</div>
-            {state.prefetchStatus === 'error' && (
-              <button className="retry-button" onClick={startPrefetch}>Retry</button>
-            )}
-          </div>
-        )}
-
-        <button 
-          className="play-button" 
-          onClick={handlePlayClick} 
-          disabled={state.transitioning}
-        >
-          {state.transitioning ? 'Starting...' : 
-           (state.prefetchStatus === 'loading' && state.showProgress) ? 'Loading...' : 'Play'}
-        </button>
-      </div>
-    </div>
-  );
+      )}
+      {state.currentScreen === 'stats' && (
+        <StatsScreen
+          theme={state.theme}
+          onBack={() => setState(prev => ({ ...prev, currentScreen: 'home' }))}
+        />
+      )}
+      {state.currentScreen === 'settings' && (
+        <SettingsScreen
+          theme={state.theme}
+          onBack={() => setState(prev => ({ ...prev, currentScreen: 'home' }))}
+          onThemeChange={(theme) => setState(prev => ({ ...prev, theme }))}
+        />
+      )}
+    </>
+  )
 }
 
 export default App;
