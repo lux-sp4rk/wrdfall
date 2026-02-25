@@ -49,11 +49,15 @@ export function StatsScreen({ theme, onBack }) {
     })
   }
 
-  function handleShare() {
+  async function handleShare() {
     if (!stats) return
-    navigator.clipboard.writeText(statsService.getShareText(stats))
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
+    try {
+      await navigator.clipboard.writeText(statsService.getShareText(stats))
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    } catch {
+      // Clipboard API unavailable (non-HTTPS or restricted context) — no-op
+    }
   }
 
   async function handleReset() {
@@ -65,7 +69,7 @@ export function StatsScreen({ theme, onBack }) {
   if (!stats) {
     return (
       <div className={`landing-container theme-${theme}`}>
-        <div className="main-card"><p className="tagline">Loading\u2026</p></div>
+        <div className="main-card"><p className="tagline">Loading…</p></div>
       </div>
     )
   }
@@ -74,10 +78,10 @@ export function StatsScreen({ theme, onBack }) {
     <div className={`landing-container theme-${theme}`}>
       <div className="main-card stats-card">
         <div className="screen-header">
-          <button className="back-button" onClick={onBack}>\u2190 Back</button>
+          <button className="back-button" onClick={onBack}>← Back</button>
           <h2 className="screen-title">Stats</h2>
           <div className="header-actions">
-            <button className="icon-button" onClick={handleShare}>{copied ? '\u2713' : 'Share'}</button>
+            <button className="icon-button" onClick={handleShare}>{copied ? '✓' : 'Share'}</button>
             <button className="icon-button icon-button-danger" onClick={() => setShowReset(true)}>Reset</button>
           </div>
         </div>
@@ -85,7 +89,7 @@ export function StatsScreen({ theme, onBack }) {
         <div className="stats-section">
           <h3 className="stats-section-title">Records</h3>
           <StatRow label="High Score" value={(stats.high_score ?? 0).toLocaleString()} />
-          <StatRow label="Longest Word" value={stats.longest_word || '\u2014'} />
+          <StatRow label="Longest Word" value={stats.longest_word || '—'} />
           <StatRow label="Max WPM" value={(stats.max_wpm ?? 0).toFixed(1)} />
         </div>
 
