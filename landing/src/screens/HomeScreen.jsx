@@ -28,7 +28,7 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick }
             <div className="progress-bar">
               <div className="progress-fill" style={{ width: `${state.prefetchProgress}%` }} />
             </div>
-            <div className="progress-text">Loading... {state.prefetchProgress}%</div>
+            <div className="progress-text">Loading… {state.prefetchProgress}%</div>
           </div>
         )}
 

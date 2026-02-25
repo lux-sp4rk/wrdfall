@@ -728,19 +728,7 @@ Append to the bottom of `landing/src/App.css`:
 
 ```css
 /* ===== Main Card (matches Godot MainCardPanel) ===== */
-
-.landing-container {
-  /* override: remove old padding-based centering */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100dvh;
-  width: 100vw;
-  background: var(--bg-primary);
-  transition: opacity 500ms ease-out;
-  padding: 24px;
-  overflow-y: auto;
-}
+/* NOTE: .landing-container already defined earlier in App.css — do NOT re-declare it here */
 
 .main-card {
   background: var(--bg-card);
@@ -816,12 +804,9 @@ Append to the bottom of `landing/src/App.css`:
   transform: translateY(0);
 }
 
-/* Play button height override (matches Godot's 110px) */
-.play-button {
-  height: 110px;
-  min-height: 110px;
-  font-size: clamp(24px, 5vw, 48px);
-}
+/* Play button: update the existing .play-button rule in App.css directly —
+   do NOT add a second .play-button block. Set height: 110px; width: 100%;
+   max-width: none; font-size: clamp(24px, 5vw, 48px); font-family: inherit */
 
 /* ===== Divider + Copyright ===== */
 
