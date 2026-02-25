@@ -61,6 +61,8 @@
   padding: 24px;
   transition: opacity 500ms ease-out;
   overflow-y: auto; /* Allow scrolling if content overflows on small screens */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .landing-content {
@@ -275,11 +277,7 @@ button {
   min-height: 48px;
 }
 
-/* High contrast text */
-.landing-container {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+/* High contrast text — font smoothing already set on .landing-container */
 
 /* Focus states for keyboard navigation */
 button:focus-visible {
@@ -288,19 +286,6 @@ button:focus-visible {
 }
 
 /* ===== Main Card (matches Godot MainCardPanel) ===== */
-
-.landing-container {
-  /* override: remove old padding-based centering */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100dvh;
-  width: 100vw;
-  background: var(--bg-primary);
-  transition: opacity 500ms ease-out;
-  padding: 24px;
-  overflow-y: auto;
-}
 
 .main-card {
   background: var(--bg-card);
@@ -376,11 +361,13 @@ button:focus-visible {
   transform: translateY(0);
 }
 
-/* Play button height override (matches Godot's 110px) */
+/* Play button overrides (matches Godot's 110px full-width button) */
 .play-button {
   height: 110px;
   min-height: 110px;
   font-size: clamp(24px, 5vw, 48px);
+  width: 100%;
+  max-width: none;
 }
 
 /* ===== Divider + Copyright ===== */
