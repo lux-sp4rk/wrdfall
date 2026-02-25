@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { getSettings, saveSettings } from '../services/settings.js'
 
-export function SettingsScreen({ theme, onBack, onThemeChange }) {
+export function SettingsScreen({ onBack, onThemeChange }) {
   const [settings, setSettings] = useState(() => getSettings())
 
   function handleChange(key, value) {

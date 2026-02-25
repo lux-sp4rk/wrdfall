@@ -162,7 +162,6 @@ function App() {
       )}
       {state.currentScreen === 'settings' && (
         <SettingsScreen
-          theme={state.theme}
           onBack={() => setState(prev => ({ ...prev, currentScreen: 'home' }))}
           onThemeChange={(theme) => setState(prev => ({ ...prev, theme }))}
         />
