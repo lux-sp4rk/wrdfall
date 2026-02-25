@@ -35,7 +35,7 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick }
           </div>
         )}
 
-        <button className="play-button" onClick={onPlayClick} disabled={state.transitioning}>
+        <button className="play-button" onClick={onPlayClick} disabled={state.transitioning || state.prefetchStatus === 'error'}>
           {state.transitioning ? 'Starting...' :
            (state.prefetchStatus === 'loading' && state.showProgress) ? 'Loading...' : 'Play'}
         </button>

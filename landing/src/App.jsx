@@ -106,10 +106,7 @@ function App() {
     document.body.style.backgroundColor = THEME_BG[state.theme] || THEME_BG.dark;
 
     try {
-      if (landingRef.current) {
-        landingRef.current.style.opacity = '0';
-      }
-
+      // CSS transition in HomeScreen handles the 500ms fade (opacity driven by state.transitioning)
       await new Promise(resolve => setTimeout(resolve, 500));
 
       const { wasm, pck } = window.WORD_LOOM_BLOBS || {};
@@ -140,7 +137,6 @@ function App() {
       setState(prev => ({ ...prev, transitioning: false, error: error.message || 'Failed to start game' }));
 
       if (landingRef.current) {
-        landingRef.current.style.opacity = '1';
         landingRef.current.style.display = 'flex';
       }
     }
