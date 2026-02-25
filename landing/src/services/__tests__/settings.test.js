@@ -6,7 +6,8 @@ beforeEach(() => localStorage.clear())
 describe('getSettings', () => {
   it('returns defaults when nothing is saved', () => {
     const s = getSettings()
-    expect(s.theme).toBe('light')
+    // theme is handled by theme.js which falls back to OS preference
+    expect(['light', 'dark']).toContain(s.theme)
     expect(s.language).toBe('en')
     expect(s.difficulty).toBe('normal')
   })

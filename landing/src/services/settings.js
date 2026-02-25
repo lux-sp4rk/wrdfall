@@ -1,5 +1,6 @@
+import { getTheme, setTheme } from './theme.js'
+
 const KEYS = {
-  theme: 'word-loom-theme',
   language: 'word-loom-language',
   difficulty: 'word-loom-difficulty',
 }
@@ -17,7 +18,7 @@ const VALID = {
 }
 
 export function getSettings() {
-  const result = {}
+  const result = { theme: getTheme() }
   for (const [key, storageKey] of Object.entries(KEYS)) {
     const saved = localStorage.getItem(storageKey)
     result[key] = VALID[key].includes(saved) ? saved : DEFAULTS[key]
@@ -26,8 +27,11 @@ export function getSettings() {
 }
 
 export function saveSettings(partial) {
+  if ('theme' in partial && VALID.theme.includes(partial.theme)) {
+    setTheme(partial.theme)
+  }
   for (const [key, value] of Object.entries(partial)) {
-    if (KEYS[key] && VALID[key]?.includes(value)) {
+    if (key !== 'theme' && KEYS[key] && VALID[key]?.includes(value)) {
       localStorage.setItem(KEYS[key], value)
     }
   }
