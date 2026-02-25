@@ -436,3 +436,128 @@ button:focus-visible {
 .radio-option input[type="radio"] {
   display: none;
 }
+
+/* ===== Stats screen ===== */
+
+.stats-card {
+  overflow-y: auto;
+  max-height: 90dvh;
+  gap: 24px;
+}
+
+.stats-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stats-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.stat-label {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stats-empty {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0;
+}
+
+.history-chart {
+  width: 100%;
+  height: 120px;
+  border-radius: 8px;
+  background: var(--bg-primary);
+}
+
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.lb-rank { color: var(--text-muted); width: 24px; flex-shrink: 0; }
+.lb-name { flex: 1; }
+.lb-score { font-weight: 700; color: var(--color-primary); }
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-button {
+  background: none;
+  border: 2px solid var(--border-neutral);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  min-height: 36px;
+}
+
+.icon-button-danger {
+  color: var(--color-error);
+  border-color: var(--color-error);
+}
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.confirm-dialog {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 320px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.confirm-danger-button {
+  background: var(--color-error) !important;
+  height: 52px;
+  min-height: 52px;
+  font-size: 16px;
+}
