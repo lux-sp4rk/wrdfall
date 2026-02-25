@@ -65,21 +65,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.landing-content {
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(16px, 5vh, 48px); /* Responsive gap */
-  padding: 20px 0;
-}
-
 /* ===== Hero Section ===== */
-
-.hero {
-  text-align: center;
-}
 
 .logo {
   font-size: 48px;
@@ -94,34 +80,6 @@
   color: var(--text-secondary);
   margin: 0;
   font-weight: 400;
-}
-
-/* ===== High Score Badge ===== */
-
-.high-score-badge {
-  background: var(--bg-card);
-  border: 2px solid var(--color-primary);
-  border-radius: 24px;
-  padding: 16px 32px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  box-shadow: 0 2px 8px var(--shadow);
-}
-
-.badge-label {
-  font-size: 14px;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 600;
-}
-
-.badge-score {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--color-primary);
 }
 
 /* ===== Loading Progress ===== */
@@ -243,11 +201,6 @@
 @media (max-width: 640px) {
   .landing-container {
     padding: 16px;
-    align-items: center;
-  }
-
-  .landing-content {
-    gap: 24px;
   }
 
   .logo {
@@ -257,17 +210,6 @@
   .tagline {
     font-size: clamp(16px, 5vw, 20px);
   }
-
-  .badge-score {
-    font-size: 28px;
-  }
-
-  .play-button {
-    font-size: 20px;
-    height: 56px;
-    min-height: 56px;
-  }
-
 }
 
 /* ===== Accessibility & Senior-Friendly ===== */
