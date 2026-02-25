@@ -1,0 +1,44 @@
+import { describe, it, expect, beforeEach } from 'vitest'
+import { getSettings, saveSettings, DEFAULTS } from '../settings.js'
+
+beforeEach(() => localStorage.clear())
+
+describe('getSettings', () => {
+  it('returns defaults when nothing is saved', () => {
+    const s = getSettings()
+    expect(s.theme).toBe('light')
+    expect(s.language).toBe('en')
+    expect(s.difficulty).toBe('normal')
+  })
+
+  it('reads saved values', () => {
+    localStorage.setItem('word-loom-theme', 'dark')
+    localStorage.setItem('word-loom-language', 'es')
+    localStorage.setItem('word-loom-difficulty', 'hard')
+    const s = getSettings()
+    expect(s.theme).toBe('dark')
+    expect(s.language).toBe('es')
+    expect(s.difficulty).toBe('hard')
+  })
+
+  it('ignores invalid values and returns default', () => {
+    localStorage.setItem('word-loom-theme', 'banana')
+    expect(getSettings().theme).toBe('light')
+  })
+})
+
+describe('saveSettings', () => {
+  it('writes all three keys', () => {
+    saveSettings({ theme: 'dark', language: 'es', difficulty: 'hard' })
+    expect(localStorage.getItem('word-loom-theme')).toBe('dark')
+    expect(localStorage.getItem('word-loom-language')).toBe('es')
+    expect(localStorage.getItem('word-loom-difficulty')).toBe('hard')
+  })
+
+  it('partial update does not clobber other keys', () => {
+    saveSettings({ theme: 'dark', language: 'en', difficulty: 'normal' })
+    saveSettings({ theme: 'light' })
+    expect(localStorage.getItem('word-loom-theme')).toBe('light')
+    expect(localStorage.getItem('word-loom-language')).toBe('en')
+  })
+})
