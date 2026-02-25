@@ -53,7 +53,7 @@ func is_rescue_enabled() -> bool:
 	return RESCUE_ENABLED.get(difficulty, true)
 
 func _ready() -> void:
-	load_from_localstorage()
+	pass  # Boot scene calls load_from_localstorage() explicitly on web builds
 
 func load_from_localstorage() -> void:
 	"""Read language and difficulty from localStorage (set by React SettingsScreen).

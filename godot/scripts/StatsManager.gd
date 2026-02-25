@@ -327,7 +327,11 @@ func push_session_to_supabase(session_record: Dictionary) -> void:
 		"difficulty": session_record.get("difficulty", "normal"),
 		"language": session_record.get("language", "en")
 	}
-	Supabase.database.query(SupabaseQuery.new().from("sessions").insert([data]))
+	var task = Supabase.database.query(SupabaseQuery.new().from("sessions").insert([data]))
+	task.completed.connect(func(result):
+		if not result:
+			push_error("StatsManager: failed to insert session into Supabase")
+	)
 
 func pull_stats_from_supabase() -> void:
 	if not is_authenticated() or _is_syncing:
@@ -350,17 +354,37 @@ func pull_stats_from_supabase() -> void:
 	)
 
 func _resolve_conflicts(remote_data: Dictionary) -> void:
-	var remote_high_score = remote_data.get("high_score", 0)
-	var remote_total_words = remote_data.get("total_words", 0)
-
-	# Conflict resolution: Max score / Max words
+	# Conflict resolution: keep the better value across all tracked fields
 	var changed = false
+
+	var remote_high_score = remote_data.get("high_score", 0)
 	if remote_high_score > high_score:
 		high_score = remote_high_score
 		changed = true
 
+	var remote_total_words = remote_data.get("total_words", 0)
 	if remote_total_words > total_words_found:
 		total_words_found = remote_total_words
+		changed = true
+
+	var remote_max_wpm = remote_data.get("max_wpm", 0.0)
+	if remote_max_wpm > max_wpm:
+		max_wpm = remote_max_wpm
+		changed = true
+
+	var remote_longest = remote_data.get("longest_word", "")
+	if remote_longest.length() > longest_word.length():
+		longest_word = remote_longest
+		changed = true
+
+	var remote_total_tiles = remote_data.get("total_tiles", 0)
+	if remote_total_tiles > total_tiles_cleared:
+		total_tiles_cleared = remote_total_tiles
+		changed = true
+
+	var remote_total_time = remote_data.get("total_time", 0.0)
+	if remote_total_time > total_time_played:
+		total_time_played = remote_total_time
 		changed = true
 
 	if changed:
