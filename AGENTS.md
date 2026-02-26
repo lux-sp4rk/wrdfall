@@ -100,7 +100,7 @@ User can switch theme via Settings > Theme selector (OptionButton).
 > Editing ANY `.gd` file requires a Godot re-export to regenerate `dist/index.pck`.
 > React/JS-only changes in `landing/` do NOT require a PCK rebuild.
 > GDScript changes are invisible on web until the PCK is rebuilt and committed.
-> **Rebuild command (run from project root):** `cd godot && /home/uli/bin/godot --headless --export-release "Web" ../dist/index.html`
+> **Rebuild command:** `npm run export:godot`
 - **`build.sh`**: This script only pulls LFS assets and builds the React landing page; it does not generate the Godot engine files.
 
 ## Workflow Rules
