@@ -64,11 +64,13 @@ func _ready() -> void:
 			current_theme = web_theme
 			GameSettings.theme = web_theme
 			print("ThemeManager: Loaded theme from localStorage: ", web_theme)
+			_apply_clear_color()
 			return  # Skip ConfigFile load on web if localStorage has valid theme
 
 	# Desktop or localStorage empty: Load from ConfigFile
 	_load_settings()
 	current_theme = GameSettings.theme
+	_apply_clear_color()
 
 func _load_from_localstorage() -> String:
 	"""Load theme from localStorage (web only)
@@ -119,11 +121,15 @@ func set_theme(theme_name: String) -> void:
 	GameSettings.theme = theme_name
 	_save_settings()
 	_sync_to_localstorage(theme_name)  # NEW: Sync to localStorage on web
+	_apply_clear_color()
 	theme_changed.emit()
 
 func toggle_theme() -> void:
 	var new_theme = "dark" if current_theme == "light" else "light"
 	set_theme(new_theme)
+
+func _apply_clear_color() -> void:
+	RenderingServer.set_default_clear_color(get_color("background"))
 
 func _save_settings() -> void:
 	var config = ConfigFile.new()
