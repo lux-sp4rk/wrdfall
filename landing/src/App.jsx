@@ -44,6 +44,10 @@ function App() {
     startPrefetch();
 
     window.wordLoomGoHome = () => {
+      if (godotLauncher.current) {
+        godotLauncher.current.stop();
+        godotLauncher.current = null;
+      }
       if (landingRef.current) {
         landingRef.current.style.display = 'flex';
       }

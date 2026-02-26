@@ -98,6 +98,24 @@ export class GodotLauncher {
   }
 
   /**
+   * Stop the engine and remove the canvas from the DOM.
+   */
+  stop() {
+    if (this.engine) {
+      try {
+        this.engine.requestQuit();
+      } catch (_) {
+        // Engine may already be stopped
+      }
+      this.engine = null;
+    }
+    if (this.canvas) {
+      this.canvas.remove();
+      this.canvas = null;
+    }
+  }
+
+  /**
    * Load Godot engine script dynamically
    */
   async _loadEngineScript() {
