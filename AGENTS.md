@@ -96,6 +96,11 @@ User can switch theme via Settings > Theme selector (OptionButton).
 - **No CI Export**: Netlify does NOT run the Godot export process (no Godot SDK in build environment).
 - **LFS Required**: Large binaries (`.wasm`, `.pck`) and dictionary files in `dist/` are tracked via **Git LFS**.
 - **Manual Export**: After making changes in `godot/`, you must manually export to `dist/` from the Godot Editor before pushing to trigger a Netlify update.
+> **⚠️ PCK FOOTGUN — easy to forget, painful to debug:**
+> Editing ANY `.gd` file requires a Godot re-export to regenerate `dist/index.pck`.
+> React/JS-only changes in `landing/` do NOT require a PCK rebuild.
+> GDScript changes are invisible on web until the PCK is rebuilt and committed.
+> **Rebuild command (run from project root):** `cd godot && /home/uli/bin/godot --headless --export-release "Web" ../dist/index.html`
 - **`build.sh`**: This script only pulls LFS assets and builds the React landing page; it does not generate the Godot engine files.
 
 ## Workflow Rules
