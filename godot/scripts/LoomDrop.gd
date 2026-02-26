@@ -168,7 +168,10 @@ func _debug_fill_grid() -> void:
 	_update_grid_display()
 
 func _on_home_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/Home.tscn")
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.wordLoomGoHome && window.wordLoomGoHome()")
+	else:
+		get_tree().change_scene_to_file("res://scenes/Home.tscn")
 
 
 func _on_pause_pressed() -> void:
@@ -208,7 +211,10 @@ func _on_retry_pressed() -> void:
 
 
 func _on_quit_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/Home.tscn")
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.wordLoomGoHome && window.wordLoomGoHome()")
+	else:
+		get_tree().change_scene_to_file("res://scenes/Home.tscn")
 
 
 func _restart_with_language(code: String) -> void:

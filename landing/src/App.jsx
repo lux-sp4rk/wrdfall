@@ -42,6 +42,16 @@ function App() {
   useEffect(() => {
     loadHighScore();
     startPrefetch();
+
+    window.wordLoomGoHome = () => {
+      if (landingRef.current) {
+        landingRef.current.style.display = 'flex';
+      }
+      document.body.style.backgroundColor = '';
+      setState(prev => ({ ...prev, transitioning: false }));
+    };
+
+    return () => { delete window.wordLoomGoHome; };
   }, []);
 
   async function loadHighScore() {

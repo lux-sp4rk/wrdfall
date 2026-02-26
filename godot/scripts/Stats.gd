@@ -186,7 +186,10 @@ func _format_time(seconds: float) -> String:
 		return "<1m"
 
 func _on_back_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/Home.tscn")
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.wordLoomGoHome && window.wordLoomGoHome()")
+	else:
+		get_tree().change_scene_to_file("res://scenes/Home.tscn")
 
 func _on_reset_pressed() -> void:
 	"""Show confirmation dialog before resetting stats"""
