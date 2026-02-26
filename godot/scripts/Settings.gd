@@ -79,7 +79,10 @@ func _on_difficulty_selected(index: int) -> void:
 	GameSettings.difficulty = difficulty_option.get_item_metadata(index)
 
 func _on_back_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/Home.tscn")
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.wordLoomGoHome && window.wordLoomGoHome()")
+	else:
+		get_tree().change_scene_to_file("res://scenes/Home.tscn")
 
 func _setup_themes() -> void:
 	theme_option.clear()

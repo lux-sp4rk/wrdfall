@@ -5,6 +5,9 @@ import { DictionaryManager } from './services/dictionary.js';
 import { PrefetchManager } from './services/prefetch.js';
 import { GodotLauncher } from './services/godotLauncher.js';
 import { getTheme } from './services/theme.js';
+import { HomeScreen } from './screens/HomeScreen.jsx';
+import { StatsScreen } from './screens/StatsScreen.jsx';
+import { SettingsScreen } from './screens/SettingsScreen.jsx';
 import './App.css';
 
 // Initialize Supabase client
@@ -27,6 +30,7 @@ function App() {
     transitioning: false,
     theme: getTheme(),
     showProgress: false,
+    currentScreen: 'home',
   }));
 
   const landingRef = useRef(null);
@@ -38,6 +42,20 @@ function App() {
   useEffect(() => {
     loadHighScore();
     startPrefetch();
+
+    window.wordLoomGoHome = () => {
+      if (godotLauncher.current) {
+        godotLauncher.current.stop();
+        godotLauncher.current = null;
+      }
+      if (landingRef.current) {
+        landingRef.current.style.display = 'flex';
+      }
+      document.body.style.backgroundColor = '';
+      setState(prev => ({ ...prev, transitioning: false }));
+    };
+
+    return () => { delete window.wordLoomGoHome; };
   }, []);
 
   async function loadHighScore() {
@@ -102,10 +120,7 @@ function App() {
     document.body.style.backgroundColor = THEME_BG[state.theme] || THEME_BG.dark;
 
     try {
-      if (landingRef.current) {
-        landingRef.current.style.opacity = '0';
-      }
-
+      // CSS transition in HomeScreen handles the 500ms fade (opacity driven by state.transitioning)
       await new Promise(resolve => setTimeout(resolve, 500));
 
       const { wasm, pck } = window.WORD_LOOM_BLOBS || {};
@@ -113,6 +128,7 @@ function App() {
       godotLauncher.current = new GodotLauncher({
         executable: wasm || 'index',
         mainPack: pck || 'index.pck',
+        backgroundColor: THEME_BG[state.theme] || THEME_BG.dark,
       });
 
       await godotLauncher.current.initialize();
@@ -136,58 +152,37 @@ function App() {
       setState(prev => ({ ...prev, transitioning: false, error: error.message || 'Failed to start game' }));
 
       if (landingRef.current) {
-        landingRef.current.style.opacity = '1';
         landingRef.current.style.display = 'flex';
       }
     }
   }
 
-  const canPlay = !state.transitioning && state.prefetchStatus !== 'error';
-
   return (
-    <div className={`landing-container theme-${state.theme}`} ref={landingRef}>
-      <div className="landing-content">
-        <div className="hero">
-          <h1 className="logo">Word Loom</h1>
-          <p className="tagline">Word-building meets Tetris</p>
+    <>
+      {state.currentScreen === 'home' && (
+        <div ref={landingRef}>
+          <HomeScreen
+            state={{ ...state, onRetry: startPrefetch }}
+            onPlayClick={handlePlayClick}
+            onStatsClick={() => setState(prev => ({ ...prev, currentScreen: 'stats' }))}
+            onSettingsClick={() => setState(prev => ({ ...prev, currentScreen: 'settings' }))}
+          />
         </div>
-
-        {state.highScore !== null && (
-          <div className="high-score-badge">
-            <div className="badge-label">Your Best</div>
-            <div className="badge-score">{state.highScore.toLocaleString()}</div>
-          </div>
-        )}
-
-        {state.prefetchStatus === 'loading' && state.showProgress && (
-          <div className="progress-container">
-            <div className="progress-bar">
-              <div className="progress-fill" style={{ width: `${state.prefetchProgress}%` }} />
-            </div>
-            <div className="progress-text">Loading... {state.prefetchProgress}%</div>
-          </div>
-        )}
-
-        {state.error && (
-          <div className="error-container">
-            <div className="error-message">{state.error}</div>
-            {state.prefetchStatus === 'error' && (
-              <button className="retry-button" onClick={startPrefetch}>Retry</button>
-            )}
-          </div>
-        )}
-
-        <button 
-          className="play-button" 
-          onClick={handlePlayClick} 
-          disabled={state.transitioning}
-        >
-          {state.transitioning ? 'Starting...' : 
-           (state.prefetchStatus === 'loading' && state.showProgress) ? 'Loading...' : 'Play'}
-        </button>
-      </div>
-    </div>
-  );
+      )}
+      {state.currentScreen === 'stats' && (
+        <StatsScreen
+          theme={state.theme}
+          onBack={() => setState(prev => ({ ...prev, currentScreen: 'home' }))}
+        />
+      )}
+      {state.currentScreen === 'settings' && (
+        <SettingsScreen
+          onBack={() => setState(prev => ({ ...prev, currentScreen: 'home' }))}
+          onThemeChange={(theme) => setState(prev => ({ ...prev, theme }))}
+        />
+      )}
+    </>
+  )
 }
 
 export default App;

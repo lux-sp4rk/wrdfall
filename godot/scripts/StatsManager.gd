@@ -122,6 +122,7 @@ func end_session(final_score: int, metadata: Dictionary = {}) -> void:
 	if is_authenticated():
 		push_stats_to_supabase()
 		submit_to_leaderboard(final_score)
+		push_session_to_supabase(session_record)
 
 func record_word(word: String, tiles_cleared: int) -> void:
 	"""Track a word being found during gameplay"""
@@ -172,6 +173,21 @@ func save_stats() -> void:
 	var err := config.save(STATS_FILE)
 	if err != OK:
 		push_error("Failed to save stats: " + str(err))
+
+	# Write guest-accessible JSON blob for React Stats page
+	if OS.has_feature("web"):
+		var js = JavaScriptBridge.get_interface("localStorage")
+		if js:
+			var blob = {
+				"high_score": high_score,
+				"longest_word": longest_word,
+				"max_wpm": max_wpm,
+				"total_words": total_words_found,
+				"total_tiles": total_tiles_cleared,
+				"total_time": total_time_played,
+				"session_history": session_history
+			}
+			js.setItem("word-loom-stats", JSON.stringify(blob))
 
 func load_stats() -> void:
 	"""Load stats from disk/IndexedDB"""
@@ -280,6 +296,10 @@ func push_stats_to_supabase() -> void:
 		"id": user_id,
 		"high_score": high_score,
 		"total_words": total_words_found,
+		"longest_word": longest_word,
+		"max_wpm": max_wpm,
+		"total_tiles": total_tiles_cleared,
+		"total_time": total_time_played,
 		"last_sync": Time.get_datetime_string_from_system(true)
 	}
 
@@ -292,6 +312,25 @@ func push_stats_to_supabase() -> void:
 			sync_completed.emit(true)
 		else:
 			sync_completed.emit(false)
+	)
+
+func push_session_to_supabase(session_record: Dictionary) -> void:
+	if not is_authenticated():
+		return
+	var data = {
+		"user_id": _current_user.id,
+		"score": session_record.get("score", 0),
+		"wpm": session_record.get("wpm", 0.0),
+		"words_found": session_record.get("words_found", 0),
+		"duration": session_record.get("duration", 0.0),
+		"timestamp": Time.get_datetime_string_from_system(true),
+		"difficulty": session_record.get("difficulty", "normal"),
+		"language": session_record.get("language", "en")
+	}
+	var task = Supabase.database.query(SupabaseQuery.new().from("sessions").insert([data]))
+	task.completed.connect(func(result):
+		if not result:
+			push_error("StatsManager: failed to insert session into Supabase")
 	)
 
 func pull_stats_from_supabase() -> void:
@@ -315,17 +354,37 @@ func pull_stats_from_supabase() -> void:
 	)
 
 func _resolve_conflicts(remote_data: Dictionary) -> void:
-	var remote_high_score = remote_data.get("high_score", 0)
-	var remote_total_words = remote_data.get("total_words", 0)
-
-	# Conflict resolution: Max score / Max words
+	# Conflict resolution: keep the better value across all tracked fields
 	var changed = false
+
+	var remote_high_score = remote_data.get("high_score", 0)
 	if remote_high_score > high_score:
 		high_score = remote_high_score
 		changed = true
 
+	var remote_total_words = remote_data.get("total_words", 0)
 	if remote_total_words > total_words_found:
 		total_words_found = remote_total_words
+		changed = true
+
+	var remote_max_wpm = remote_data.get("max_wpm", 0.0)
+	if remote_max_wpm > max_wpm:
+		max_wpm = remote_max_wpm
+		changed = true
+
+	var remote_longest = remote_data.get("longest_word", "")
+	if remote_longest.length() > longest_word.length():
+		longest_word = remote_longest
+		changed = true
+
+	var remote_total_tiles = remote_data.get("total_tiles", 0)
+	if remote_total_tiles > total_tiles_cleared:
+		total_tiles_cleared = remote_total_tiles
+		changed = true
+
+	var remote_total_time = remote_data.get("total_time", 0.0)
+	if remote_total_time > total_time_played:
+		total_time_played = remote_total_time
 		changed = true
 
 	if changed:

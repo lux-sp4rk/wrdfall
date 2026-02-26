@@ -40,6 +40,11 @@ func _ready() -> void:
 	background_overlay.modulate.a = 0.0
 	background_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
+	# On web, React shell owns Stats and Settings navigation
+	if OS.has_feature("web"):
+		settings_button.hide()
+		stats_button.hide()
+
 
 func toggle() -> void:
 	if is_open:

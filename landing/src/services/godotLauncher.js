@@ -31,6 +31,8 @@ export class GodotLauncher {
       this.canvas.style.position = 'absolute';
       this.canvas.style.top = '0';
       this.canvas.style.left = '0';
+      // Match letterbox bars to the theme background so they aren't black
+      this.canvas.style.backgroundColor = this.config.backgroundColor || '#2B3D4F';
       document.body.appendChild(this.canvas);
 
       // CRITICAL: Godot Engine.init() and the Engine config's `executable` field expect the
@@ -92,6 +94,24 @@ export class GodotLauncher {
     } catch (error) {
       console.error('Failed to start Godot game:', error);
       throw new Error(`Game start failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Stop the engine and remove the canvas from the DOM.
+   */
+  stop() {
+    if (this.engine) {
+      try {
+        this.engine.requestQuit();
+      } catch (_) {
+        // Engine may already be stopped
+      }
+      this.engine = null;
+    }
+    if (this.canvas) {
+      this.canvas.remove();
+      this.canvas = null;
     }
   }
 

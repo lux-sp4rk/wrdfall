@@ -61,23 +61,11 @@
   padding: 24px;
   transition: opacity 500ms ease-out;
   overflow-y: auto; /* Allow scrolling if content overflows on small screens */
-}
-
-.landing-content {
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(16px, 5vh, 48px); /* Responsive gap */
-  padding: 20px 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ===== Hero Section ===== */
-
-.hero {
-  text-align: center;
-}
 
 .logo {
   font-size: 48px;
@@ -92,34 +80,6 @@
   color: var(--text-secondary);
   margin: 0;
   font-weight: 400;
-}
-
-/* ===== High Score Badge ===== */
-
-.high-score-badge {
-  background: var(--bg-card);
-  border: 2px solid var(--color-primary);
-  border-radius: 24px;
-  padding: 16px 32px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  box-shadow: 0 2px 8px var(--shadow);
-}
-
-.badge-label {
-  font-size: 14px;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 600;
-}
-
-.badge-score {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--color-primary);
 }
 
 /* ===== Loading Progress ===== */
@@ -202,18 +162,17 @@
 .play-button {
   background: var(--color-primary);
   color: var(--text-on-primary);
-  font-size: 24px;
+  font-family: inherit;
+  font-size: clamp(24px, 5vw, 48px);
   font-weight: 700;
-  padding: 0 48px;
   border: none;
   border-radius: 12px;
   cursor: pointer;
   transition: all 150ms ease;
   box-shadow: 0 4px 12px var(--shadow);
   width: 100%;
-  max-width: 300px;
-  height: 60px;
-  min-height: 60px;
+  height: 110px;
+  min-height: 110px;
 }
 
 .play-button:hover:not(:disabled) {
@@ -241,11 +200,6 @@
 @media (max-width: 640px) {
   .landing-container {
     padding: 16px;
-    align-items: center;
-  }
-
-  .landing-content {
-    gap: 24px;
   }
 
   .logo {
@@ -255,17 +209,6 @@
   .tagline {
     font-size: clamp(16px, 5vw, 20px);
   }
-
-  .badge-score {
-    font-size: 28px;
-  }
-
-  .play-button {
-    font-size: 20px;
-    height: 56px;
-    min-height: 56px;
-  }
-
 }
 
 /* ===== Accessibility & Senior-Friendly ===== */
@@ -275,14 +218,346 @@ button {
   min-height: 48px;
 }
 
-/* High contrast text */
-.landing-container {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+/* High contrast text — font smoothing already set on .landing-container */
 
 /* Focus states for keyboard navigation */
 button:focus-visible {
   outline: 3px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+/* ===== Main Card (matches Godot MainCardPanel) ===== */
+
+.main-card {
+  background: var(--bg-card);
+  border-radius: 24px;
+  box-shadow: 0 8px 20px var(--shadow);
+  padding: 60px 50px;
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== Title section ===== */
+
+.title-section {
+  text-align: center;
+}
+
+/* Override .logo to be larger (matches Godot's 104px Title) */
+.main-card .logo {
+  font-size: clamp(48px, 10vw, 80px);
+  text-align: center;
+}
+
+.main-card .tagline {
+  font-size: clamp(16px, 3vw, 22px);
+  text-align: center;
+}
+
+.high-score-text {
+  font-size: clamp(18px, 3.5vw, 28px);
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 8px 0 0 0;
+  text-align: center;
+}
+
+/* ===== Secondary buttons row ===== */
+
+.secondary-buttons {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+}
+
+.secondary-button {
+  flex: 1;
+  background: var(--color-secondary);
+  color: var(--text-on-primary);
+  font-family: inherit;
+  font-size: clamp(18px, 3vw, 28px);
+  font-weight: 700;
+  height: 85px;
+  min-height: 85px;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 150ms ease;
+  box-shadow: 0 3px 8px var(--shadow);
+}
+
+.secondary-button:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+}
+
+.secondary-button:active {
+  filter: brightness(0.95);
+  transform: translateY(0);
+}
+
+/* ===== Divider + Copyright ===== */
+
+.card-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border-neutral);
+  opacity: 0.5;
+}
+
+.copyright {
+  font-size: 14px;
+  color: var(--text-muted);
+  opacity: 0.5;
+  margin: 0;
+  text-align: center;
+}
+
+/* ===== Decorative background tiles ===== */
+/* Matches Godot's DecorativePattern — 4 subtle squares at corners */
+
+.decorative-pattern {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.letter-tile {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+}
+
+.tile-1 { background: var(--color-secondary); opacity: 0.08; top: 100px; left: 50px; transform: rotate(10deg); }
+.tile-2 { background: var(--color-primary);   opacity: 0.08; top: 200px; right: 50px; transform: rotate(-15deg); }
+.tile-3 { background: var(--color-secondary); opacity: 0.08; bottom: 160px; left: 80px; transform: rotate(20deg); }
+.tile-4 { background: var(--color-primary);   opacity: 0.08; bottom: 100px; right: 60px; transform: rotate(-10deg); }
+
+/* ===== Mobile card adjustments ===== */
+
+@media (max-width: 560px) {
+  .main-card {
+    padding: 40px 24px;
+    gap: 24px;
+  }
+  .secondary-button {
+    height: 70px;
+    min-height: 70px;
+  }
+  .play-button {
+    height: 88px;
+    min-height: 88px;
+  }
+}
+
+/* ===== Shared screen chrome ===== */
+
+.screen-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 0;
+  min-height: 44px;
+}
+
+.screen-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  flex: 1;
+  text-align: center;
+}
+
+/* ===== Settings screen ===== */
+
+.settings-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.radio-group {
+  display: flex;
+  gap: 12px;
+}
+
+.radio-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  border: 2px solid var(--border-neutral);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: all 150ms ease;
+}
+
+.radio-option.selected {
+  border-color: var(--color-primary);
+  background: var(--bg-primary);
+  color: var(--color-primary);
+}
+
+.radio-option input[type="radio"] {
+  display: none;
+}
+
+/* ===== Stats screen ===== */
+
+.stats-card {
+  overflow-y: auto;
+  max-height: 90dvh;
+  gap: 24px;
+}
+
+.stats-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stats-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.stat-label {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stats-empty {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0;
+}
+
+.history-chart {
+  width: 100%;
+  height: 120px;
+  border-radius: 8px;
+  background: var(--bg-primary);
+}
+
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.lb-rank { color: var(--text-muted); width: 24px; flex-shrink: 0; }
+.lb-name { flex: 1; }
+.lb-score { font-weight: 700; color: var(--color-primary); }
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-button {
+  background: none;
+  border: 2px solid var(--border-neutral);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  min-height: 48px;
+}
+
+.icon-button-danger {
+  color: var(--color-error);
+  border-color: var(--color-error);
+}
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.confirm-dialog {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 320px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.confirm-danger-button {
+  background: var(--color-error) !important;
+  height: 52px;
+  min-height: 52px;
+  font-size: 16px;
 }

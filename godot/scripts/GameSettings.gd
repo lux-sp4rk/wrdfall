@@ -53,5 +53,19 @@ func is_rescue_enabled() -> bool:
 	return RESCUE_ENABLED.get(difficulty, true)
 
 func _ready() -> void:
-	# Load saved settings if any
-	pass
+	pass  # Boot scene calls load_from_localstorage() explicitly on web builds
+
+func load_from_localstorage() -> void:
+	"""Read language and difficulty from localStorage (set by React SettingsScreen).
+	Theme is handled separately by ThemeManager."""
+	if not OS.has_feature("web"):
+		return
+	var js = JavaScriptBridge.get_interface("localStorage")
+	if js == null:
+		return
+	var lang = js.getItem("word-loom-language")
+	if lang == "en" or lang == "es":
+		current_language = lang
+	var diff = js.getItem("word-loom-difficulty")
+	if diff == "normal" or diff == "hard":
+		difficulty = diff

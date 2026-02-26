@@ -168,7 +168,10 @@ func _debug_fill_grid() -> void:
 	_update_grid_display()
 
 func _on_home_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/Home.tscn")
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.wordLoomGoHome && window.wordLoomGoHome()")
+	else:
+		get_tree().change_scene_to_file("res://scenes/Home.tscn")
 
 
 func _on_pause_pressed() -> void:
@@ -208,7 +211,10 @@ func _on_retry_pressed() -> void:
 
 
 func _on_quit_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/Home.tscn")
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.wordLoomGoHome && window.wordLoomGoHome()")
+	else:
+		get_tree().change_scene_to_file("res://scenes/Home.tscn")
 
 
 func _restart_with_language(code: String) -> void:
@@ -1146,6 +1152,9 @@ func _start_drop_timer() -> void:
 
 
 func _ratchet_drop_speed() -> void:
+	# Temporarily disabled until tutorial explains the mechanic (Issue #148)
+	return
+
 	current_drop_interval = maxf(
 		current_drop_interval - GameConstants.RATCHET_SPEEDUP,
 		GameConstants.RATCHET_MIN_INTERVAL)
