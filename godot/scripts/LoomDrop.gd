@@ -1146,6 +1146,9 @@ func _start_drop_timer() -> void:
 
 
 func _ratchet_drop_speed() -> void:
+	# Temporarily disabled until tutorial explains the mechanic (Issue #148)
+	return
+
 	current_drop_interval = maxf(
 		current_drop_interval - GameConstants.RATCHET_SPEEDUP,
 		GameConstants.RATCHET_MIN_INTERVAL)

@@ -114,6 +114,7 @@ function App() {
       godotLauncher.current = new GodotLauncher({
         executable: wasm || 'index',
         mainPack: pck || 'index.pck',
+        backgroundColor: THEME_BG[state.theme] || THEME_BG.dark,
       });
 
       await godotLauncher.current.initialize();

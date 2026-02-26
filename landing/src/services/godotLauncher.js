@@ -31,6 +31,8 @@ export class GodotLauncher {
       this.canvas.style.position = 'absolute';
       this.canvas.style.top = '0';
       this.canvas.style.left = '0';
+      // Match letterbox bars to the theme background so they aren't black
+      this.canvas.style.backgroundColor = this.config.backgroundColor || '#2B3D4F';
       document.body.appendChild(this.canvas);
 
       // CRITICAL: Godot Engine.init() and the Engine config's `executable` field expect the
