@@ -11,7 +11,7 @@
     "build:all": "./build.sh",
     "deploy:prod": "npm run build:all && git add . && git commit -m 'Deploy web build' && git push origin main",
     "dev:landing": "cd landing && npm run dev",
-    "export:godot": "cd godot && godot --headless --export-release \"Web\" ../dist/index.html"
+    "export:godot": "cd godot && /home/uli/bin/godot --headless --export-release \"Web\" ../dist/index.html"
   },
   "workspaces": [
     "landing"
