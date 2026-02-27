@@ -21,6 +21,7 @@ config/features=PackedStringArray("4.6")
 
 [autoload]
 
+FeatureFlags="*res://scripts/FeatureFlags.gd"
 GameSettings="*res://scripts/GameSettings.gd"
 StatsManager="*res://scripts/StatsManager.gd"
 GameConstants="*res://scripts/GameConstants.gd"
