@@ -36,8 +36,9 @@ func load_flags() -> void:
 	var err := config.load(FLAGS_FILE)
 	
 	if err == OK:
-		# Use direct assignment to avoid triggering signal/save during load
 		drop_ratchet_enabled = config.get_value("flags", "drop_ratchet_enabled", false)
+	else:
+		drop_ratchet_enabled = false
 	
 	# Web localStorage override (React-driven changes)
 	if OS.has_feature("web"):
