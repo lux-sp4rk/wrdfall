@@ -4,6 +4,8 @@ extends Control
 @onready var difficulty_option: OptionButton = %DifficultyOption
 @onready var difficulty_label: Label = %DifficultyLabel
 @onready var theme_option: OptionButton = %ThemeOption
+@onready var feature_label: Label = %FeatureLabel
+@onready var drop_ratchet_toggle: CheckButton = %DropRatchetToggle
 @onready var back_button: Button = %BackButton
 
 func _ready() -> void:
@@ -11,6 +13,7 @@ func _ready() -> void:
 	_setup_languages()
 	_setup_difficulties()
 	_setup_themes()
+	_setup_features()
 	_apply_theme()
 	_update_sync_ui()
 	back_button.pressed.connect(_on_back_pressed)
@@ -37,6 +40,8 @@ func _on_sync_completed(success: bool) -> void:
 func _setup_ui_text() -> void:
 	var cfg = LanguageConfig.get_config(GameSettings.current_language)
 	difficulty_label.text = cfg.ui_strings["difficulty_label"]
+	feature_label.text = cfg.ui_strings.get("experimental_features", "Experimental Features")
+	drop_ratchet_toggle.text = cfg.ui_strings.get("drop_ratchet", "Drop Ratchet")
 
 func _setup_languages() -> void:
 	language_option.clear()
@@ -101,6 +106,14 @@ func _on_theme_selected(index: int) -> void:
 	var theme_name = theme_option.get_item_metadata(index)
 	ThemeManager.set_theme(theme_name)
 
+func _setup_features() -> void:
+	drop_ratchet_toggle.button_pressed = FeatureFlags.drop_ratchet_enabled
+	if not drop_ratchet_toggle.toggled.is_connected(_on_drop_ratchet_toggled):
+		drop_ratchet_toggle.toggled.connect(_on_drop_ratchet_toggled)
+
+func _on_drop_ratchet_toggled(pressed: bool) -> void:
+	FeatureFlags.drop_ratchet_enabled = pressed
+
 func _apply_theme() -> void:
 	# Update background
 	var bg = $ColorRect
@@ -109,6 +122,8 @@ func _apply_theme() -> void:
 
 	# Update difficulty label color
 	difficulty_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+	feature_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
+	drop_ratchet_toggle.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
 
 	# Update all labels in LanguageBox
 	var lang_label = $MarginContainer/VBox/LanguageBox/Label

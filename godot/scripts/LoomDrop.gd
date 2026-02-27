@@ -134,6 +134,7 @@ func _ready() -> void:
 	# Apply theme
 	_apply_theme()
 	ThemeManager.theme_changed.connect(_apply_theme)
+	FeatureFlags.feature_flag_changed.connect(_on_feature_flag_changed)
 
 	# Dev toolbar (debug builds only)
 	if OS.is_debug_build():
@@ -193,6 +194,11 @@ func _on_pause_pressed() -> void:
 	_update_shake_button()
 	_update_swap_button()
 	_update_draw_more_button()
+
+
+func _on_feature_flag_changed(flag_name: String, value: bool) -> void:
+	if flag_name == "drop_ratchet_enabled" and not value:
+		_reset_drop_speed()
 
 
 func _on_sidebar_opened() -> void:
@@ -1152,8 +1158,8 @@ func _start_drop_timer() -> void:
 
 
 func _ratchet_drop_speed() -> void:
-	# Temporarily disabled until tutorial explains the mechanic (Issue #148)
-	return
+	if not FeatureFlags.drop_ratchet_enabled:
+		return
 
 	current_drop_interval = maxf(
 		current_drop_interval - GameConstants.RATCHET_SPEEDUP,

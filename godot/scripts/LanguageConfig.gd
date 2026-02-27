@@ -118,6 +118,8 @@ static func english() -> LanguageConfig:
 		"difficulty_hard": "Hard",
 		"paused": "Game Paused",
 		"streak": "streak %d!",
+		"experimental_features": "Experimental Features",
+		"drop_ratchet": "Drop Ratchet",
 	}
 	return cfg
 
@@ -208,5 +210,7 @@ static func spanish() -> LanguageConfig:
 		"difficulty_hard": "Dif\u00edcil",
 		"paused": "Juego pausado",
 		"streak": "racha %d!",
+		"experimental_features": "Funciones Experimentales",
+		"drop_ratchet": "Aceleraci\u00f3n de Ca\u00edda",
 	}
 	return cfg
