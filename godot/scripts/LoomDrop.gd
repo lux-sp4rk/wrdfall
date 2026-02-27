@@ -168,6 +168,58 @@ func _debug_fill_grid() -> void:
 				grid[row][col] = _random_letter()
 	_update_grid_display()
 
+func _toggle_debug_flags_panel() -> void:
+	var panel = get_node_or_null("DebugFlagsPanel")
+	if panel:
+		panel.visible = not panel.visible
+		return
+	_create_debug_flags_panel()
+
+func _create_debug_flags_panel() -> void:
+	var overlay := PanelContainer.new()
+	overlay.name = "DebugFlagsPanel"
+	overlay.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	overlay.offset_top = 48
+	overlay.offset_bottom = 48
+	overlay.z_index = 100
+	add_child(overlay)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	overlay.add_child(vbox)
+
+	var title := Label.new()
+	title.text = "🛠 Feature Flags  [Ctrl+Shift+D to close]"
+	title.add_theme_font_size_override("font_size", 13)
+	vbox.add_child(title)
+
+	var close_btn := Button.new()
+	close_btn.text = "✕ Close"
+	close_btn.custom_minimum_size = Vector2(120, 28)
+	close_btn.pressed.connect(func(): overlay.queue_free())
+	vbox.add_child(close_btn)
+
+	# Enumerate all flags on FeatureFlags singleton
+	var flags: Array = ["drop_ratchet_enabled"]
+	for flag_name in flags:
+		var row := HBoxContainer.new()
+		vbox.add_child(row)
+
+		var lbl := Label.new()
+		lbl.text = flag_name + ":"
+		lbl.custom_minimum_size = Vector2(200, 0)
+		row.add_child(lbl)
+
+		var toggle := CheckButton.new()
+		toggle.button_pressed = FeatureFlags.get(flag_name)
+		toggle.toggled.connect(func(state: bool):
+			FeatureFlags.set(flag_name, state)
+			print("[DebugPanel] %s = %s" % [flag_name, state])
+		)
+		row.add_child(toggle)
+
+
+
 func _on_home_pressed() -> void:
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.wordLoomGoHome && window.wordLoomGoHome()")
@@ -561,6 +613,9 @@ func _input(event: InputEvent) -> void:
 			return
 		if event.keycode == KEY_L and Input.is_key_pressed(KEY_CTRL):
 			_trigger_game_complete("dev_lose")
+			return
+		if event.keycode == KEY_D and Input.is_key_pressed(KEY_CTRL) and Input.is_key_pressed(KEY_SHIFT):
+			_toggle_debug_flags_panel()
 			return
 
 	# Block word selection when paused, but allow UI buttons to work
