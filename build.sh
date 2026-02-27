@@ -10,7 +10,7 @@ echo "Building landing page..."
 # Force Netlify to pull binary WASM/PCK files if it missed them during the clone.
 if command -v git-lfs &> /dev/null; then
   echo "📦 Git LFS detected. Initializing and pulling binaries..."
-  git lfs install
+  git lfs install --force
   git lfs pull
 else
   echo "⚠️  Git LFS not found in build environment. This may cause 'Magic Word' errors."
