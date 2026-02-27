@@ -16,6 +16,7 @@ else
   echo "⚠️  Git LFS not found in build environment. This may cause 'Magic Word' errors."
 fi
 
+# npm run build:godot
 npm run build:landing
 
 echo "Verifying dist/ exists..."
