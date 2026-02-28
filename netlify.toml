@@ -19,12 +19,14 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
     Content-Type = "application/wasm"
+    Cross-Origin-Resource-Policy = "same-origin"
 
 # Cache headers for Godot PCK (immutable, 1 year)
 [[headers]]
   for = "/*.pck"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+    Cross-Origin-Resource-Policy = "same-origin"
 
 # Cache headers for dictionaries (30 days)
 [[headers]]

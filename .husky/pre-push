@@ -1,4 +1,8 @@
 #!/bin/bash
-. "$(dirname "$0")/_/husky.sh"
-
+echo "🔨 Building Godot dist before push..."
 npm run build:godot
+if [ $? -ne 0 ]; then
+  echo "❌ Godot build failed. Aborting push."
+  exit 1
+fi
+echo "✅ Godot dist built successfully."

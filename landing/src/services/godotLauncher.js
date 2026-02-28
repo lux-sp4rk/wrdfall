@@ -42,15 +42,23 @@ export class GodotLauncher {
       // found 3c 21 44 4f (i.e. '<!DO' = start of <!DOCTYPE html>).
       // See: https://github.com/lux-sp4rk/word-loom/issues/141
       const basePath = this.config.executable.replace(/\.wasm$/, '');
+      const pckPath = this.config.mainPack || `${basePath}.pck`;
 
       // In Godot 4 JS API, canvas is passed in the config object — no setCanvas().
+      // Added ensureCrossOriginIsolationHeaders and fileSizes to match Godot export exactly.
       this.engine = new Engine({
         args: [],
         canvas: this.canvas,
         canvasResizePolicy: 2,
+        ensureCrossOriginIsolationHeaders: true,
         executable: basePath,
+        mainPack: pckPath,
         experimentalVK: false,
         focusCanvas: true,
+        fileSizes: {
+          [`${basePath}.wasm`]: 35376909, // Hardcoded from Godot export to ensure progress works
+          [`${pckPath}`]: 52786592,
+        },
       });
 
       // Pass the base path (without .wasm) — Godot appends .wasm internally.
