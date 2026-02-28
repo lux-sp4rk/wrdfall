@@ -27,7 +27,7 @@ StatsManager="*res://scripts/StatsManager.gd"
 GameConstants="*res://scripts/GameConstants.gd"
 ThemeConstants="*res://scripts/ThemeConstants.gd"
 ThemeManager="*res://scripts/ThemeManager.gd"
-Supabase="*uid://bnqjaif2kq8td"
+Supabase="*res://addons/supabase/Supabase/supabase.gd"
 
 [display]
 
@@ -49,6 +49,7 @@ theme/default_font_size=22
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
 
 [supabase]
 
