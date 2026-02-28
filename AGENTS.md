@@ -74,10 +74,12 @@ Each scene implements `_apply_theme()` method and connects to `ThemeManager.them
 User can switch theme via Settings > Theme selector (OptionButton).
 
 ## Core Workflows
+- **Fresh Start**: **CRITICAL** — Before starting any new task, run `npm run sync`. This ensures your local `main` is up-to-date and cleans up merged feature branches.
 - **Build/Run**: Open `godot/project.godot` in Godot 4.6+ and press F5 (launches LoomDrop directly).
 - **HTML5 Export**: Project > Export > Web preset > Export Project (exports to top-level `dist/`). Serve locally with `python3 -m http.server -d dist/ 8000`.
 - **Data**: English (SOWPODS) in `godot/data/words_en.txt`, Spanish (FISE 2017) in `godot/data/words_es.txt`.
 - **Deploy**: Web build deployed from `dist/` via Netlify (see `netlify.toml`).
+- **Sync Repository**: Run `npm run sync` to fetch origin changes and prune merged branches.
 
 ## Display Config
 - **Viewport**: 720×1280 portrait orientation

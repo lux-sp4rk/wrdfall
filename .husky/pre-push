@@ -1,4 +1,17 @@
 #!/bin/bash
+echo "🔍 Checking if branch is up to date..."
+git fetch origin main
+LOCAL=$(git rev-parse HEAD)
+REMOTE=$(git rev-parse origin/main)
+BASE=$(git merge-base HEAD origin/main)
+
+if [ "$LOCAL" = "$REMOTE" ]; then
+    echo "✅ Already up to date."
+elif [ "$LOCAL" = "$BASE" ]; then
+    echo "❌ Your branch is behind origin/main. Run 'npm run sync' first."
+    exit 1
+fi
+
 echo "🔨 Building Godot dist before push..."
 npm run build:godot
 if [ $? -ne 0 ]; then
