@@ -40,6 +40,7 @@ export class DictionaryManager {
     try {
       const words = await promise;
       this.cache.set(language, words);
+      console.log('[SPIKE #165] cache.set(en):', { size: words?.size, type: words?.constructor.name });
       return words;
     } finally {
       this.loading.delete(language);
@@ -51,8 +52,12 @@ export class DictionaryManager {
    * Splits by newlines, trims, uppercases, and filters empty/# lines
    */
   parseWords(text) {
+    console.log('[SPIKE #165] parseWords called with:', { textType: typeof text, textLength: text?.length });
     const words = new Set();
-    if (!text) return words;
+    if (!text) {
+      console.warn('[SPIKE #165] parseWords: input text is falsy, returning empty Set');
+      return words;
+    }
 
     const lines = text.split('\n');
     for (const line of lines) {
@@ -61,6 +66,7 @@ export class DictionaryManager {
         words.add(word);
       }
     }
+    console.log('[SPIKE #165] parseWords returning Set:', { size: words.size });
     return words;
   }
 

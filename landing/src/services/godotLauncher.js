@@ -84,6 +84,13 @@ export class GodotLauncher {
    * Start game with dictionary and settings
    */
   async start({ dictionary, settings }) {
+    console.log("[SPIKE #165] start() called with:", { 
+      dictType: typeof dictionary, 
+      dictKeys: dictionary ? Object.keys(dictionary) : null,
+      wordsType: typeof dictionary?.words,
+      wordsLength: dictionary?.words?.length,
+      wordsSample: Array.isArray(dictionary?.words) ? dictionary.words.slice(0, 3) : "not-array"
+    });
     // Validate inputs
     if (!dictionary || !dictionary.words) {
       throw new Error('dictionary with words is required');
