@@ -46,9 +46,9 @@ export class CompressionService {
   async fetchDictionary(language) {
     // Try formats in order of preference
     const formats = [
-      { ext: '.br', decompress: (data) => this._decompressBrotli(data) },
-      { ext: '.gz', decompress: (data) => this._decompressGzip(data) },
-      { ext: '.txt', decompress: (data) => data } // raw format
+      { ext: '.br', decompress: async (data) => await this._decompressBrotli(data) },
+      { ext: '.gz', decompress: async (data) => await this._decompressGzip(data) },
+      { ext: '.txt', decompress: async (data) => data } // raw format
     ];
 
     for (const { ext, decompress } of formats) {
@@ -69,7 +69,7 @@ export class CompressionService {
         }
 
         const buffer = await response.arrayBuffer();
-        const decompressed = decompress(new Uint8Array(buffer));
+        const decompressed = await decompress(new Uint8Array(buffer));
         const text = new TextDecoder().decode(decompressed);
         const elapsed = (performance.now() - start).toFixed(2);
 
@@ -114,7 +114,7 @@ export class CompressionService {
       });
 
       const decompressed = stream
-        .pipeThrough(new DecompressionStream('deflate-raw'));
+        .pipeThrough(new DecompressionStream('br'));
       
       const reader = decompressed.getReader();
       const chunks = [];
