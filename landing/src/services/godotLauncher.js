@@ -56,8 +56,8 @@ export class GodotLauncher {
         experimentalVK: false,
         focusCanvas: true,
         fileSizes: {
-          [`${basePath}.wasm`]: 35376909, // Hardcoded from Godot export to ensure progress works
-          [`${pckPath}`]: 52786592,
+          [`${basePath}.wasm`]: parseInt(import.meta.env.VITE_GODOT_WASM_SIZE || '35376909'),
+          [`${pckPath}`]: parseInt(import.meta.env.VITE_GODOT_PCK_SIZE || '52786592'),
         },
       });
 
@@ -129,7 +129,8 @@ export class GodotLauncher {
   async _loadEngineScript() {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = 'index.js';
+      const filename = import.meta.env.VITE_GODOT_JS || 'index';
+      script.src = `${filename}.js`;
       script.onload = () => {
         if (window.Engine) {
           resolve(window.Engine);

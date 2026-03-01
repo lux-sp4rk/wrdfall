@@ -85,11 +85,11 @@ function App() {
       // Pass direct paths to GodotLauncher.
       // NOTE: 'wasm' is the Godot ENGINE BASE NAME (no extension).
       // GodotLauncher strips any '.wasm' suffix before calling engine.init(),
-      // because Godot internally appends '.wasm'. Passing 'index.wasm' would
+      // Godot internally appends '.wasm'. Passing 'index.wasm' would
       // cause Godot to fetch 'index.wasm.wasm' → 404 → HTML → magic word error.
       window.WORD_LOOM_BLOBS = {
-        wasm: 'index',
-        pck: 'index.pck'
+        wasm: import.meta.env.VITE_GODOT_WASM || 'index',
+        pck: import.meta.env.VITE_GODOT_PCK || 'index.pck'
       };
 
       await dictionaryManager.current.load('en');
