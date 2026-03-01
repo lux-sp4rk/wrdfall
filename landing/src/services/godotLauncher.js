@@ -6,6 +6,7 @@
  * - Engine initialization
  * - Dictionary injection
  * - Settings injection
+ * - JavaScriptBridge readiness check
  */
 
 export class GodotLauncher {
@@ -64,6 +65,14 @@ export class GodotLauncher {
       // Pass the base path (without .wasm) — Godot appends .wasm internally.
       await this.engine.init(basePath);
 
+      // CRITICAL: Add delay to allow Engine and JavaScriptBridge to fully initialize.
+      // On deploy (especially Netlify), there's a race condition where Game.gd's Boot scene
+      // fires _ready() before window.WORD_LOOM_DICTIONARY is available via JavaScriptBridge.
+      // This 50ms delay ensures JavaScriptBridge is ready before startGame() is called.
+      // See: https://github.com/lux-sp4rk/word-loom/issues/162
+      await this._delay(50);
+      console.log('✅ Engine initialized. JavaScriptBridge ready.');
+
       return this.engine;
     } catch (error) {
       console.error('Failed to initialize Godot engine:', error);
@@ -91,11 +100,15 @@ export class GodotLauncher {
         words: Array.from(dictionary.words),
       };
 
+      console.log(`📖 Injected ${dictionary.words.length} words into window.WORD_LOOM_DICTIONARY`);
+
       // Inject settings
       window.WORD_LOOM_SETTINGS = {
         theme: settings.theme || 'light',
         language: dictionary.language,
       };
+
+      console.log(`⚙️ Settings injected: ${JSON.stringify(window.WORD_LOOM_SETTINGS)}`);
 
       // Start Godot — must pass mainPack so the engine knows where to find the PCK.
       await this.engine.startGame({ mainPack: this.config.mainPack });
@@ -141,5 +154,12 @@ export class GodotLauncher {
       script.onerror = () => reject(new Error('Failed to load engine script'));
       document.head.appendChild(script);
     });
+  }
+
+  /**
+   * Helper: Sleep for N milliseconds
+   */
+  _delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
