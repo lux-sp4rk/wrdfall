@@ -2,18 +2,14 @@
 set -e
 
 echo "🧹 Running asset cleanup..."
-rm -f landing/dist/index*.{js,wasm,pck,worklet.js,png}
-
-echo "🧹 Cleaning stale assets..."
-STALE_COUNT=$(find dist -type f \( -name "index.*.js" -o -name "index.*.wasm" -o -name "index.*.pck" \) -mmin +60 -delete 2>/dev/null | wc -l)
-echo "✅ Cleaned $STALE_COUNT stale asset(s)"
+rm -f landing/dist/index*.{js,wasm,pck,worklet.js,png} 2>/dev/null || true
 
 echo "📦 Git LFS detected. Initializing and pulling binaries..."
 git lfs install --skip-repo
 git lfs pull || echo "Git LFS pull failed or already initialized"
 
-echo "Cleaning up old versioned Godot files..."
-rm -f dist/index.*.js dist/index.*.wasm dist/index.*.pck dist/index.*.worklet.js dist/index.*.png
+echo "Cleaning up old versioned Godot files in dist/..."
+rm -f dist/index.*.js dist/index.*.wasm dist/index.*.pck dist/index.*.worklet.js dist/index.*.png 2>/dev/null || true
 
 echo "Building landing page..."
 cd landing
@@ -21,18 +17,18 @@ npm run build
 cd ..
 
 echo "Verifying Godot export files exist in dist/..."
-if ! compgen -G "dist/index.*.wasm" > /dev/null; then
+if ! ls dist/index.*.wasm > /dev/null 2>&1; then
   echo "Error: Godot WASM not found in dist/. Godot export must be run before build.sh."
   exit 1
 fi
 
 # Get the actual hashed filenames
-WASM_FILE=$(ls -1 dist/index.*.wasm | head -1)
-PCK_FILE=$(ls -1 dist/index.*.pck | head -1)
-JS_FILE=$(ls -1 dist/index.*.js | head -1)
+WASM_FILE=$(ls -1 dist/index.*.wasm 2>/dev/null | head -1)
+PCK_FILE=$(ls -1 dist/index.*.pck 2>/dev/null | head -1)
+JS_FILE=$(ls -1 dist/index.*.js 2>/dev/null | head -1)
 
-if [ -z "$WASM_FILE" ] || [ -z "$PCK_FILE" ] || [ -z "$JS_FILE" ]; then
-  echo "Error: Missing Godot export files (wasm, pck, or js)"
+if [ -z "$WASM_FILE" ] || [ -z "$PCK_FILE" ]; then
+  echo "Error: Missing Godot export files (wasm or pck)"
   exit 1
 fi
 
@@ -59,16 +55,31 @@ if [ ! -f "dist/dictionaries/en.txt" ]; then
   exit 1
 fi
 
+# Copy Godot and dictionary files to landing/dist so they're served with the React app
+echo "Copying Godot files to landing/dist/..."
+cp "$WASM_FILE" landing/dist/
+cp "$PCK_FILE" landing/dist/
+cp "$JS_FILE" landing/dist/
+mkdir -p landing/dist/dictionaries
+cp dist/dictionaries/*.txt landing/dist/dictionaries/ 2>/dev/null || true
+cp dist/dictionaries/*.gz landing/dist/dictionaries/ 2>/dev/null || true
+cp dist/dictionaries/*.br landing/dist/dictionaries/ 2>/dev/null || true
+
+echo "Verifying landing/dist has all files..."
+if [ ! -f "landing/dist/$(basename $WASM_FILE)" ]; then
+  echo "Error: Failed to copy WASM to landing/dist/"
+  exit 1
+fi
+
 # Run minification
 echo ""
 echo "📦 Running minification..."
 
 cd landing/dist
 for js_file in index.*.js; do
-  echo "Processing JS: $js_file"
-  # Minify (simple: remove comments and whitespace)
-  node -e "const fs=require('fs'); const code=fs.readFileSync('$js_file','utf8'); const minified=code.replace(/\/\/.*$/gm,'').replace(/\/\*[\s\S]*?\*\//g,'').replace(/\s+/g,' '); fs.writeFileSync('$js_file',minified);" || true
-  echo "✅ Minified JS: $js_file"
+  [ -f "$js_file" ] && echo "Processing JS: $js_file"
+  [ -f "$js_file" ] && node -e "const fs=require('fs'); const code=fs.readFileSync('$js_file','utf8'); const minified=code.replace(/\/\/.*$/gm,'').replace(/\/\*[\s\S]*?\*\//g,'').replace(/\s+/g,' '); fs.writeFileSync('$js_file',minified);" || true
+  [ -f "$js_file" ] && echo "✅ Minified JS: $js_file"
 done
 
 for html_file in index.html; do
@@ -79,19 +90,19 @@ done
 cd ../..
 
 echo ""
-echo "Landing page: dist/index.html"
-echo "Godot engine: dist/$WASM_FILE, dist/$PCK_FILE"
-echo "Dictionaries: dist/dictionaries/*.txt"
+echo "Landing page: landing/dist/index.html"
+echo "Godot engine: landing/dist/$(basename $WASM_FILE), landing/dist/$(basename $PCK_FILE)"
+echo "Dictionaries: landing/dist/dictionaries/*.txt"
 echo ""
 echo "📝 Note: Supabase credentials are hardcoded in the game."
 echo "   They're public anon keys - safe to commit (security via RLS)."
 
-# Compress dictionaries
+# Compress dictionaries in landing/dist
 echo ""
 echo "📦 Compressing dictionaries for optimal delivery..."
 bash -c '
   echo "📦 Compressing dictionaries..."
-  for dict in dist/dictionaries/*.txt; do
+  for dict in landing/dist/dictionaries/*.txt; do
     [ -f "$dict" ] || continue
     lang=$(basename "$dict" .txt)
     echo "  Compressing $lang..."
@@ -112,11 +123,13 @@ bash -c '
     echo "    $lang: $orig_size bytes → gzip: $gz_size bytes, brotli: $br_size bytes"
   done
   
-  total_orig=$(find dist/dictionaries -name "*.txt" -exec wc -c {} + | tail -1 | awk "{print \$1}")
-  total_gz=$(find dist/dictionaries -name "*.txt.gz" -exec wc -c {} + | tail -1 | awk "{print \$1}")
-  savings=$(( total_orig - total_gz ))
-  percent=$(( savings * 100 / total_orig ))
-  echo "✅ Total savings: $savings bytes (~$percent%)"
+  total_orig=$(find landing/dist/dictionaries -name "*.txt" -exec wc -c {} + 2>/dev/null | tail -1 | awk "{print \$1}")
+  total_gz=$(find landing/dist/dictionaries -name "*.txt.gz" -exec wc -c {} + 2>/dev/null | tail -1 | awk "{print \$1}")
+  if [ -n "$total_orig" ] && [ "$total_orig" -gt 0 ]; then
+    savings=$(( total_orig - total_gz ))
+    percent=$(( savings * 100 / total_orig ))
+    echo "✅ Total savings: $savings bytes (~$percent%)"
+  fi
 '
 
 echo "✅ Build complete!"
