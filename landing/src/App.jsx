@@ -93,9 +93,16 @@ function App() {
       };
 
       // Dictionary is already prefetched and decompressed; parse it for the cache
+      console.log('[App] Parsing dictionary from prefetch (blobs.dict type:', typeof blobs.dict, 'length:', blobs.dict?.length, ')');
       const dictWords = dictionaryManager.current.parseWords(blobs.dict);
+      console.log('[App] Dictionary parsed: Set with', dictWords.size, 'words');
+      
       dictionaryManager.current.cache.set('en', dictWords);
-
+      
+      // Verify it was cached correctly
+      const cachedWords = dictionaryManager.current.cache.get('en');
+      console.log('[App] Dictionary cached and verified:', cachedWords?.size, 'words');
+      
       clearTimeout(timer);
       setState(prev => ({ ...prev, prefetchStatus: 'ready' }));
     } catch (error) {
@@ -135,7 +142,13 @@ function App() {
 
       await godotLauncher.current.initialize();
 
+      // Retrieve dictionary from cache and validate before starting game
       const words = dictionaryManager.current.cache.get('en');
+      console.log('[App] handlePlayClick: words from cache:', { type: words?.constructor?.name, size: words?.size });
+
+      if (!words || words.size === 0) {
+        throw new Error('Dictionary failed to load or is empty (words: ' + typeof words + ', size: ' + words?.size + ')');
+      }
 
       await godotLauncher.current.start({
         dictionary: { language: 'en', words },
