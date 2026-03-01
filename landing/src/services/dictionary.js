@@ -40,10 +40,34 @@ export class DictionaryManager {
     try {
       const words = await promise;
       this.cache.set(language, words);
+      console.log('[SPIKE #165] cache.set(en):', { size: words?.size, type: words?.constructor.name });
       return words;
     } finally {
       this.loading.delete(language);
     }
+  }
+
+  /**
+   * Parse dictionary text into a Set of words
+   * Splits by newlines, trims, uppercases, and filters empty/# lines
+   */
+  parseWords(text) {
+    console.log('[SPIKE #165] parseWords called with:', { textType: typeof text, textLength: text?.length });
+    const words = new Set();
+    if (!text) {
+      console.warn('[SPIKE #165] parseWords: input text is falsy, returning empty Set');
+      return words;
+    }
+
+    const lines = text.split('\n');
+    for (const line of lines) {
+      const word = line.trim().toUpperCase();
+      if (word && !word.startsWith('#')) {
+        words.add(word);
+      }
+    }
+    console.log('[SPIKE #165] parseWords returning Set:', { size: words.size });
+    return words;
   }
 
   /**
@@ -59,19 +83,7 @@ export class DictionaryManager {
       }
 
       const text = await response.text();
-
-      // Parse into Set for fast lookups
-      const words = new Set();
-      const lines = text.split('\n');
-
-      for (const line of lines) {
-        const word = line.trim().toUpperCase();
-        if (word && !word.startsWith('#')) {
-          words.add(word);
-        }
-      }
-
-      return words;
+      return this.parseWords(text);
     } catch (error) {
       // Re-throw with context if this is a fetch/network error
       if (error.message.includes('Failed to load dictionary')) {

@@ -41,35 +41,34 @@ func _ensure_loaded() -> void:
 
 
 func _try_load_from_js() -> bool:
-	# Access window.WORD_LOOM_DICTIONARY via JavaScriptBridge
-	var js_interface = JavaScriptBridge.get_interface("window")
-	if js_interface == null:
+	# Use JavaScriptBridge.eval() for all checks (more reliable than get_interface)
+	var has_dict = JavaScriptBridge.eval("typeof window.WORD_LOOM_DICTIONARY !== 'undefined'")
+	if not has_dict:
+		print("Dictionary: window.WORD_LOOM_DICTIONARY not found (fallback to file)")
 		return false
 
-	if not js_interface.has("WORD_LOOM_DICTIONARY"):
+	var word_count = int(JavaScriptBridge.eval("window.WORD_LOOM_DICTIONARY.words.length"))
+	if word_count <= 0:
+		print("Dictionary: JavaScript words array empty (fallback to file)")
 		return false
 
-	var dict_data = js_interface.WORD_LOOM_DICTIONARY
-	if dict_data == null or not dict_data.has("words"):
-		return false
+	print("Dictionary: Loading %d words from JavaScript" % word_count)
+	
+	# Load words using eval() for reliable array access
+	var loaded_count = 0
+	for i in range(word_count):
+		var word = JavaScriptBridge.eval("window.WORD_LOOM_DICTIONARY.words[%d]" % i)
+		if word != null:
+			var w = String(word).to_upper()
+			if _is_alpha_only(w):
+				_words[w] = true
+				loaded_count += 1
 
-	var words_array = dict_data.words
-	if words_array == null:
-		return false
-
-	# Load words from JavaScript array
-	print("Loading words from JS: ", words_array.size())
-	for word in words_array:
-		var w = String(word).to_upper()
-		if _is_alpha_only(w):
-			_words[w] = true
-
-	print("Dictionary: Loaded %d words from external dictionary" % _words.size())
-	return true
+	print("Dictionary: Loaded %d words from external dictionary (filtered from %d)" % [loaded_count, word_count])
+	return loaded_count > 0
 
 
 func _load_from_file() -> void:
-	# Existing file loading logic (unchanged)
 	if not FileAccess.file_exists(_path):
 		print("Dictionary: File not found: %s" % _path)
 		return

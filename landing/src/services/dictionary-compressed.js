@@ -57,7 +57,7 @@ export class DictionaryManager {
     try {
       // Try compression service first (supports .br, .gz, .txt)
       const text = await this.compression.fetchDictionary(language);
-      return this._parseWords(text);
+      return this.parseWords(text);
     } catch (error) {
       // Re-throw with context
       throw new Error(`Failed to load dictionary for '${language}': ${error.message}`);
@@ -67,7 +67,7 @@ export class DictionaryManager {
   /**
    * Parse dictionary text into Set for fast lookups
    */
-  _parseWords(text) {
+  parseWords(text) {
     const words = new Set();
     const lines = text.split('\n');
 

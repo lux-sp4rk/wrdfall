@@ -93,9 +93,26 @@ function App() {
       };
 
       // Dictionary is already prefetched and decompressed; parse it for the cache
-      const dictWords = dictionaryManager.current._parseWords(blobs.dict);
+      console.log('[startPrefetch] blobs.dict:', typeof blobs.dict, blobs.dict?.length, 'bytes');
+      
+      const dictWords = dictionaryManager.current.parseWords(blobs.dict);
+      console.log('[startPrefetch] dictWords after parseWords:', {
+        type: dictWords?.constructor?.name,
+        size: dictWords?.size,
+        isSet: dictWords instanceof Set,
+      });
+      
       dictionaryManager.current.cache.set('en', dictWords);
-
+      console.log('[startPrefetch] Set en in cache');
+      
+      // Verify it was cached correctly
+      const cachedCheck = dictionaryManager.current.cache.get('en');
+      console.log('[startPrefetch] Verified cache.get(en):', {
+        type: cachedCheck?.constructor?.name,
+        size: cachedCheck?.size,
+        isSet: cachedCheck instanceof Set,
+      });
+      
       clearTimeout(timer);
       setState(prev => ({ ...prev, prefetchStatus: 'ready' }));
     } catch (error) {
@@ -135,7 +152,24 @@ function App() {
 
       await godotLauncher.current.initialize();
 
+      // Retrieve dictionary from cache and validate before starting game
+      console.log('[handlePlayClick] About to get dictionary from cache...');
       const words = dictionaryManager.current.cache.get('en');
+      console.log('[handlePlayClick] Retrieved words from cache:', {
+        type: words?.constructor?.name,
+        size: words?.size,
+        isSet: words instanceof Set,
+        isTruthy: !!words,
+        keys: Array.from(words || []).slice(0, 5), // first 5 words
+      });
+
+      if (!words || words.size === 0) {
+        const errMsg = `Dictionary failed to load: words=${typeof words}, size=${words?.size}`;
+        console.error('[handlePlayClick] VALIDATION FAILED:', errMsg);
+        throw new Error(errMsg);
+      }
+
+      console.log('[handlePlayClick] Dictionary validation PASSED, starting game...');
 
       await godotLauncher.current.start({
         dictionary: { language: 'en', words },
@@ -150,7 +184,7 @@ function App() {
         landingRef.current.style.display = 'none';
       }
     } catch (error) {
-      console.error('Failed to start game:', error);
+      console.error('[handlePlayClick] Game start failed:', error);
       setState(prev => ({ ...prev, transitioning: false, error: error.message || 'Failed to start game' }));
 
       if (landingRef.current) {
