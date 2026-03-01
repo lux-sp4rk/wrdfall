@@ -9,7 +9,17 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Build artifacts
+# Ignore dist/ but allow Godot export files (tracked for Netlify)
 dist/
+!dist/index.wasm
+!dist/index.pck
+!dist/index.js
+!dist/index.audio.worklet.js
+!dist/index.png
+!dist/index.icon.png
+!dist/index.apple-touch-icon.png
+!dist/dictionaries/
+!dist/dictionaries/*
 .dist/
 build/
 .out/

@@ -1,0 +1,6 @@
+
+# Godot export files (large binaries)
+dist/index.wasm filter=lfs diff=lfs merge=lfs -text
+dist/index.pck filter=lfs diff=lfs merge=lfs -text
+dist/index.js filter=lfs diff=lfs merge=lfs -text
+dist/index.audio.worklet.js filter=lfs diff=lfs merge=lfs -text
