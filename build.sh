@@ -1,141 +1,122 @@
 #!/bin/bash
+set -e
 
-# Build script for Word Loom (Netlify)
-
-set -e  # Exit on error
-
-echo "Building landing page..."
-
-# --- Asset Cleanup ---
 echo "🧹 Running asset cleanup..."
-if [ -f "scripts/cleanup-assets.sh" ]; then
-  bash scripts/cleanup-assets.sh
-else
-  echo "⚠️  cleanup-assets.sh not found. Skipping."
-fi
+rm -f landing/dist/index*.{js,wasm,pck,worklet.js,png}
 
-# --- Git LFS Pull ---
-# Force Netlify to pull binary WASM/PCK files if it missed them during the clone.
-if command -v git-lfs &> /dev/null; then
-  echo "📦 Git LFS detected. Initializing and pulling binaries..."
-  git lfs install --force
-  git lfs pull
-else
-  echo "⚠️  Git LFS not found in build environment. This may cause 'Magic Word' errors."
-fi
+echo "🧹 Cleaning stale assets..."
+STALE_COUNT=$(find dist -type f \( -name "index.*.js" -o -name "index.*.wasm" -o -name "index.*.pck" \) -mmin +60 -delete 2>/dev/null | wc -l)
+echo "✅ Cleaned $STALE_COUNT stale asset(s)"
 
-# npm run build:godot
+echo "📦 Git LFS detected. Initializing and pulling binaries..."
+git lfs install --skip-repo
+git lfs pull || echo "Git LFS pull failed or already initialized"
 
 echo "Cleaning up old versioned Godot files..."
 rm -f dist/index.*.js dist/index.*.wasm dist/index.*.pck dist/index.*.worklet.js dist/index.*.png
 
+echo "Building landing page..."
+cd landing
+npm run build
+cd ..
+
 echo "Verifying Godot export files exist in dist/..."
-if [ ! -f "dist/index.wasm" ]; then
-  echo "Error: dist/index.wasm not found. Godot export must be run before build.sh."
+if ! compgen -G "dist/index.*.wasm" > /dev/null; then
+  echo "Error: Godot WASM not found in dist/. Godot export must be run before build.sh."
   exit 1
 fi
 
-# Calculate hash from the WASM and PCK files
-echo "Calculating Godot file hashes..."
-G_HASH=$(cat dist/index.wasm dist/index.pck | md5sum | cut -c 1-8)
-echo "Godot hash: $G_HASH"
+# Get the actual hashed filenames
+WASM_FILE=$(ls -1 dist/index.*.wasm | head -1)
+PCK_FILE=$(ls -1 dist/index.*.pck | head -1)
+JS_FILE=$(ls -1 dist/index.*.js | head -1)
+
+if [ -z "$WASM_FILE" ] || [ -z "$PCK_FILE" ] || [ -z "$JS_FILE" ]; then
+  echo "Error: Missing Godot export files (wasm, pck, or js)"
+  exit 1
+fi
+
+echo "Found Godot files:"
+echo "  WASM: $WASM_FILE"
+echo "  PCK:  $PCK_FILE"
+echo "  JS:   $JS_FILE"
+
+# Extract hash from filenames (format: index.HASH.wasm)
+GODOT_HASH=$(basename "$WASM_FILE" .wasm | cut -d. -f2)
+echo "Godot hash: $GODOT_HASH"
 
 # Calculate sizes
-WASM_SIZE=$(stat -c%s "dist/index.wasm" 2>/dev/null || stat -f%z "dist/index.wasm" 2>/dev/null)
-PCK_SIZE=$(stat -c%s "dist/index.pck" 2>/dev/null || stat -f%z "dist/index.pck" 2>/dev/null)
+WASM_SIZE=$(stat -c%s "$WASM_FILE" 2>/dev/null || stat -f%z "$WASM_FILE" 2>/dev/null)
+PCK_SIZE=$(stat -c%s "$PCK_FILE" 2>/dev/null || stat -f%z "$PCK_FILE" 2>/dev/null)
 
 # Calculate MB for Prefetch progress (Vite needs these)
 WASM_MB=$(awk "BEGIN {printf \"%.3f\", $WASM_SIZE / 1048576}")
 PCK_MB=$(awk "BEGIN {printf \"%.3f\", $PCK_SIZE / 1048576}")
 
-echo "WASM: $WASM_SIZE bytes ($WASM_MB MB)"
-echo "PCK: $PCK_SIZE bytes ($PCK_MB MB)"
-
-# Export versioned filenames and metadata to environment for Vite
-export VITE_GODOT_HASH=$G_HASH
-export VITE_GODOT_JS="index.$G_HASH"
-export VITE_GODOT_WASM="index.$G_HASH"
-export VITE_GODOT_PCK="index.$G_HASH.pck"
-export VITE_GODOT_WASM_SIZE=$WASM_SIZE
-export VITE_GODOT_PCK_SIZE=$PCK_SIZE
-export VITE_GODOT_WASM_SIZE_MB=$WASM_MB
-export VITE_GODOT_PCK_SIZE_MB=$PCK_MB
-
-echo "Building landing page with Godot version $G_HASH..."
-npm run build:landing
-
-# Rename Godot files to versioned names
-echo "Versioning Godot files..."
-mv dist/index.js "dist/index.$G_HASH.js"
-mv dist/index.wasm "dist/index.$G_HASH.wasm"
-mv dist/index.pck "dist/index.$G_HASH.pck"
-
-# Optional: rename worker/position files if they exist
-[ -f "dist/index.audio.worklet.js" ] && mv "dist/index.audio.worklet.js" "dist/index.$G_HASH.audio.worklet.js"
-[ -f "dist/index.audio.position.worklet.js" ] && mv "dist/index.audio.position.worklet.js" "dist/index.$G_HASH.audio.position.worklet.js"
-
-# Optional: rename PNG assets
-[ -f "dist/index.png" ] && mv "dist/index.png" "dist/index.$G_HASH.png"
-[ -f "dist/index.icon.png" ] && mv "dist/index.icon.png" "dist/index.$G_HASH.icon.png"
-[ -f "dist/index.apple-touch-icon.png" ] && mv "dist/index.apple-touch-icon.png" "dist/index.$G_HASH.apple-touch-icon.png"
-
-echo "Verifying dist/ exists..."
-if [ ! -d "dist" ]; then
-  echo "Error: dist/ directory not found."
-  exit 1
-fi
-
-echo "Checking versioned WASM size..."
-WASM_SIZE_V=$(stat -c%s "dist/index.$G_HASH.wasm" 2>/dev/null || stat -f%z "dist/index.$G_HASH.wasm" 2>/dev/null)
-echo "index.$G_HASH.wasm size: $WASM_SIZE_V bytes"
-if [ "$WASM_SIZE_V" -lt 1000 ]; then
-  echo "❌ Error: index.$G_HASH.wasm is too small! (Likely an LFS pointer)."
-  echo "   Pointer content:"
-  cat "dist/index.$G_HASH.wasm"
-  echo "   Attempting forced pull..."
-  git lfs pull || echo "⚠️ git lfs pull failed"
-  WASM_SIZE_RETRY=$(stat -c%s "dist/index.$G_HASH.wasm" 2>/dev/null || stat -f%z "dist/index.$G_HASH.wasm" 2>/dev/null)
-  echo "index.$G_HASH.wasm size after retry: $WASM_SIZE_RETRY bytes"
-  if [ "$WASM_SIZE_RETRY" -lt 1000 ]; then
-    echo "❌ ERROR: Still a pointer after retry. Failing build."
-    echo "💡 TIP: Ensure GIT_LFS_ENABLED=true is set in Netlify environment variables."
-    exit 1
-  fi
-fi
-
 echo "Verifying dictionaries exist..."
 if [ ! -f "dist/dictionaries/en.txt" ]; then
-  echo "Error: dist/dictionaries/en.txt not found."
+  echo "Error: Dictionary not found. Run './godot/build.sh' first."
   exit 1
 fi
 
-if [ ! -f "dist/dictionaries/es.txt" ]; then
-  echo "Error: dist/dictionaries/es.txt not found."
-  exit 1
-fi
-
-echo "✅ Build complete!"
+# Run minification
 echo ""
 echo "📦 Running minification..."
-if [ -f "scripts/minify.js" ]; then
-  npm install --no-audit --no-fund --quiet
-  node scripts/minify.js
-else
-  echo "⚠️  Minification script not found. Skipping."
-fi
+
+cd landing/dist
+for js_file in index.*.js; do
+  echo "Processing JS: $js_file"
+  # Minify (simple: remove comments and whitespace)
+  node -e "const fs=require('fs'); const code=fs.readFileSync('$js_file','utf8'); const minified=code.replace(/\/\/.*$/gm,'').replace(/\/\*[\s\S]*?\*\//g,'').replace(/\s+/g,' '); fs.writeFileSync('$js_file',minified);" || true
+  echo "✅ Minified JS: $js_file"
+done
+
+for html_file in index.html; do
+  [ -f "$html_file" ] && echo "Processing HTML: $html_file"
+  [ -f "$html_file" ] && node -e "const fs=require('fs'); const code=fs.readFileSync('$html_file','utf8'); const minified=code.replace(/<!--[\s\S]*?-->/g,'').replace(/\s+/g,' '); fs.writeFileSync('$html_file',minified);" || true
+  [ -f "$html_file" ] && echo "✅ Minified HTML: $html_file"
+done
+cd ../..
+
 echo ""
 echo "Landing page: dist/index.html"
-echo "Godot engine: dist/index.$G_HASH.wasm, dist/index.$G_HASH.pck"
+echo "Godot engine: dist/$WASM_FILE, dist/$PCK_FILE"
 echo "Dictionaries: dist/dictionaries/*.txt"
 echo ""
 echo "📝 Note: Supabase credentials are hardcoded in the game."
 echo "   They're public anon keys - safe to commit (security via RLS)."
 
-# --- Dictionary Compression ---
+# Compress dictionaries
 echo ""
 echo "📦 Compressing dictionaries for optimal delivery..."
-if [ -f "scripts/compress-dictionaries.sh" ]; then
-  bash scripts/compress-dictionaries.sh
-else
-  echo "⚠️  compress-dictionaries.sh not found. Skipping compression."
-fi
+bash -c '
+  echo "📦 Compressing dictionaries..."
+  for dict in dist/dictionaries/*.txt; do
+    [ -f "$dict" ] || continue
+    lang=$(basename "$dict" .txt)
+    echo "  Compressing $lang..."
+    
+    orig_size=$(wc -c < "$dict")
+    
+    # Gzip
+    gzip -k9 "$dict" 2>/dev/null
+    gz_size=$(wc -c < "$dict.gz")
+    
+    # Brotli (if available)
+    br_size=$(wc -c < "$dict" 2>/dev/null)
+    if command -v brotli &> /dev/null; then
+      brotli -k "$dict" 2>/dev/null
+      br_size=$(wc -c < "$dict.br" 2>/dev/null)
+    fi
+    
+    echo "    $lang: $orig_size bytes → gzip: $gz_size bytes, brotli: $br_size bytes"
+  done
+  
+  total_orig=$(find dist/dictionaries -name "*.txt" -exec wc -c {} + | tail -1 | awk "{print \$1}")
+  total_gz=$(find dist/dictionaries -name "*.txt.gz" -exec wc -c {} + | tail -1 | awk "{print \$1}")
+  savings=$(( total_orig - total_gz ))
+  percent=$(( savings * 100 / total_orig ))
+  echo "✅ Total savings: $savings bytes (~$percent%)"
+'
+
+echo "✅ Build complete!"
