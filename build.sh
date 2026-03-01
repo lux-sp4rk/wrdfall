@@ -37,8 +37,8 @@ WASM_SIZE=$(stat -c%s "dist/index.wasm" 2>/dev/null || stat -f%z "dist/index.was
 PCK_SIZE=$(stat -c%s "dist/index.pck" 2>/dev/null || stat -f%z "dist/index.pck" 2>/dev/null)
 
 # Calculate MB for Prefetch progress (Vite needs these)
-WASM_MB=$(echo "scale=3; $WASM_SIZE / 1048576" | bc)
-PCK_MB=$(echo "scale=3; $PCK_SIZE / 1048576" | bc)
+WASM_MB=$(awk "BEGIN {printf \"%.3f\", $WASM_SIZE / 1048576}")
+PCK_MB=$(awk "BEGIN {printf \"%.3f\", $PCK_SIZE / 1048576}")
 
 echo "WASM: $WASM_SIZE bytes ($WASM_MB MB)"
 echo "PCK: $PCK_SIZE bytes ($PCK_MB MB)"
