@@ -57,12 +57,20 @@ func _try_load_from_js() -> bool:
 	if words_array == null:
 		return false
 
-	# Load words from JavaScript array
-	print("Loading words from JS: ", words_array.size())
-	for word in words_array:
-		var w = String(word).to_upper()
-		if _is_alpha_only(w):
-			_words[w] = true
+	# JavaScriptBridge may not properly expose JS Array as Godot Array.
+	# Use JavaScript eval to safely get array length and iterate.
+	var array_length = int(JavaScriptBridge.eval("window.WORD_LOOM_DICTIONARY.words.length"))
+	if array_length <= 0:
+		print("Dictionary: JavaScript array is empty or invalid")
+		return false
+
+	print("Loading words from JS: ", array_length)
+	for i in range(array_length):
+		var word = JavaScriptBridge.eval("window.WORD_LOOM_DICTIONARY.words[%d]" % i)
+		if word != null:
+			var w = String(word).to_upper()
+			if _is_alpha_only(w):
+				_words[w] = true
 
 	print("Dictionary: Loaded %d words from external dictionary" % _words.size())
 	return true
