@@ -94,14 +94,19 @@ export class GodotLauncher {
     }
 
     try {
-      // Convert Set to Array if needed
+      // Convert to Array and create fast lookup Set
       const wordsArray = Array.from(dictionary.words);
       const wordCount = wordsArray.length;
+      const wordSet = new Set(wordsArray.map(w => w.toLowerCase()));
 
-      // Inject dictionary into window
+      // Inject dictionary with lookup function (Godot-friendly)
       window.WORD_LOOM_DICTIONARY = {
         language: dictionary.language,
         words: wordsArray,
+        // Godot can call this via JavaScriptBridge.eval()
+        hasWord: function(word) {
+          return wordSet.has(word.toLowerCase());
+        }
       };
 
       console.log(`📖 Injected ${wordCount} words into window.WORD_LOOM_DICTIONARY`);
