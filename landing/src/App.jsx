@@ -93,7 +93,7 @@ function App() {
       };
 
       // Dictionary is already prefetched and decompressed; parse it for the cache
-      const dictWords = dictionaryManager.current._parseWords(blobs.dict);
+      const dictWords = dictionaryManager.current.parseWords(blobs.dict);
       dictionaryManager.current.cache.set('en', dictWords);
 
       clearTimeout(timer);
