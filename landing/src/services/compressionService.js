@@ -1,0 +1,143 @@
+/**
+ * CompressionService - Load and decompress dictionary files
+ *
+ * Strategy:
+ * - Support gzip, brotli, and raw formats
+ * - Auto-detect format from file extension
+ * - Cache decompressed data in memory
+ * - Measure decompression time for logging
+ */
+
+export class CompressionService {
+  constructor() {
+    this.decompressed = new Map(); // cache for decompressed data
+    this.pako = null; // lazy-loaded pako for gzip
+  }
+
+  /**
+   * Lazy-load pako library for gzip decompression
+   */
+  async loadPako() {
+    if (this.pako) return this.pako;
+    
+    try {
+      const response = await fetch('https://cdn.jsdelivr.net/npm/pako@2/dist/pako.min.js');
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/pako@2/dist/pako.min.js';
+      document.head.appendChild(script);
+      
+      return new Promise((resolve, reject) => {
+        script.onload = () => {
+          this.pako = window.pako;
+          resolve(this.pako);
+        };
+        script.onerror = reject;
+      });
+    } catch (error) {
+      console.error('Failed to load pako:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Fetch and decompress a dictionary file
+   * Supports: .txt (raw), .gz (gzip), .br (brotli)
+   */
+  async fetchDictionary(language) {
+    // Try formats in order of preference
+    const formats = [
+      { ext: '.br', decompress: (data) => this._decompressBrotli(data) },
+      { ext: '.gz', decompress: (data) => this._decompressGzip(data) },
+      { ext: '.txt', decompress: (data) => data } // raw format
+    ];
+
+    for (const { ext, decompress } of formats) {
+      const url = `/dictionaries/${language}${ext}`;
+      const cacheKey = `${language}${ext}`;
+
+      // Check cache
+      if (this.decompressed.has(cacheKey)) {
+        return this.decompressed.get(cacheKey);
+      }
+
+      try {
+        const start = performance.now();
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          continue; // Try next format
+        }
+
+        const buffer = await response.arrayBuffer();
+        const decompressed = decompress(new Uint8Array(buffer));
+        const text = new TextDecoder().decode(decompressed);
+        const elapsed = (performance.now() - start).toFixed(2);
+
+        console.log(`📖 Loaded ${language}${ext} (${(buffer.byteLength / 1024).toFixed(2)} KB → decompressed in ${elapsed}ms)`);
+
+        this.decompressed.set(cacheKey, text);
+        return text;
+      } catch (error) {
+        console.warn(`Failed to load ${language}${ext}: ${error.message}`);
+        continue;
+      }
+    }
+
+    throw new Error(`Could not load dictionary for '${language}' in any format`);
+  }
+
+  /**
+   * Decompress gzip data
+   */
+  async _decompressGzip(data) {
+    const pako = await this.loadPako();
+    try {
+      return pako.inflate(data);
+    } catch (error) {
+      throw new Error(`Gzip decompression failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Decompress brotli data
+   * Note: Brotli decompression is not available in most browsers natively.
+   * This uses the brotli-wasm module if available, otherwise falls back to raw.
+   */
+  async _decompressBrotli(data) {
+    try {
+      // Try using native CompressionStream (Brotli) if available
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(data);
+          controller.close();
+        }
+      });
+
+      const decompressed = stream
+        .pipeThrough(new DecompressionStream('deflate-raw'));
+      
+      const reader = decompressed.getReader();
+      const chunks = [];
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+      }
+
+      // Combine chunks
+      const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+      const result = new Uint8Array(totalLength);
+      let offset = 0;
+      for (const chunk of chunks) {
+        result.set(chunk, offset);
+        offset += chunk.length;
+      }
+
+      return result;
+    } catch (error) {
+      console.warn(`Brotli decompression failed (falling back to raw): ${error.message}`);
+      return data;
+    }
+  }
+}

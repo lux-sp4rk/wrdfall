@@ -6,6 +6,14 @@ set -e  # Exit on error
 
 echo "Building landing page..."
 
+# --- Asset Cleanup ---
+echo "🧹 Running asset cleanup..."
+if [ -f "scripts/cleanup-assets.sh" ]; then
+  bash scripts/cleanup-assets.sh
+else
+  echo "⚠️  cleanup-assets.sh not found. Skipping."
+fi
+
 # --- Git LFS Pull ---
 # Force Netlify to pull binary WASM/PCK files if it missed them during the clone.
 if command -v git-lfs &> /dev/null; then
@@ -122,3 +130,12 @@ echo "Dictionaries: dist/dictionaries/*.txt"
 echo ""
 echo "📝 Note: Supabase credentials are hardcoded in the game."
 echo "   They're public anon keys - safe to commit (security via RLS)."
+
+# --- Dictionary Compression ---
+echo ""
+echo "📦 Compressing dictionaries for optimal delivery..."
+if [ -f "scripts/compress-dictionaries.sh" ]; then
+  bash scripts/compress-dictionaries.sh
+else
+  echo "⚠️  compress-dictionaries.sh not found. Skipping compression."
+fi
