@@ -84,13 +84,6 @@ export class GodotLauncher {
    * Start game with dictionary and settings
    */
   async start({ dictionary, settings }) {
-    console.log("[SPIKE #165] start() called with:", { 
-      dictType: typeof dictionary, 
-      dictKeys: dictionary ? Object.keys(dictionary) : null,
-      wordsType: typeof dictionary?.words,
-      wordsLength: dictionary?.words?.length,
-      wordsSample: Array.isArray(dictionary?.words) ? dictionary.words.slice(0, 3) : "not-array"
-    });
     // Validate inputs
     if (!dictionary || !dictionary.words) {
       throw new Error('dictionary with words is required');
@@ -101,13 +94,17 @@ export class GodotLauncher {
     }
 
     try {
+      // Convert Set to Array if needed
+      const wordsArray = Array.from(dictionary.words);
+      const wordCount = wordsArray.length;
+
       // Inject dictionary into window
       window.WORD_LOOM_DICTIONARY = {
         language: dictionary.language,
-        words: Array.from(dictionary.words),
+        words: wordsArray,
       };
 
-      console.log(`📖 Injected ${dictionary.words.length} words into window.WORD_LOOM_DICTIONARY`);
+      console.log(`📖 Injected ${wordCount} words into window.WORD_LOOM_DICTIONARY`);
 
       // Inject settings
       window.WORD_LOOM_SETTINGS = {
