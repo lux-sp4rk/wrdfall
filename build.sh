@@ -17,7 +17,7 @@ fi
 # Check if files are already hashed; if not, hash them
 if [ -f "dist/index.wasm" ] && ! ls dist/index.*.wasm > /dev/null 2>&1; then
   echo "Hashing Godot export files for cache busting..."
-  bash ~/.openclaw/workspace/hash-web-export.sh dist index 2>&1 | grep -E "✅|index\."
+  bash scripts/hash-web-export.sh dist index 2>&1 | grep -E "✅|index\."
 fi
 
 # Clean up old hashed files (keep the newest ones)
