@@ -54,10 +54,11 @@ func _try_load_from_js() -> bool:
 		return false
 
 	var words_array = dict_data.words
-	if typeof(words_array) != TYPE_ARRAY:
+	if words_array == null:
 		return false
 
 	# Load words from JavaScript array
+	print("Loading words from JS: ", words_array.size())
 	for word in words_array:
 		var w = String(word).to_upper()
 		if _is_alpha_only(w):
