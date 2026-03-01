@@ -5,9 +5,12 @@
  * Tracks progress for UI feedback
  */
 
+import { CompressionService } from './compressionService.js';
+
 export class PrefetchManager {
   constructor(onProgress) {
     this.onProgress = onProgress; // Callback: (progress: 0-100) => void
+    this.compression = new CompressionService();
     // Sizes in MB — used as fallback when Content-Length header is missing.
     // Progress is capped at 1.0 to prevent > 100% display.
     this.downloads = {
@@ -24,17 +27,18 @@ export class PrefetchManager {
   }
 
   /**
-   * Start pre-fetch (parallel downloads)
+   * Start pre-fetch (parallel downloads including dictionary)
    */
   async start() {
     const results = await Promise.allSettled([
       this.fetchGodotWasm(),
       this.fetchGodotPck(),
+      this.fetchDictionary('en'),
     ]);
 
     // Check for failures
     const failed = results
-      .map((r, i) => ({ result: r, file: ['wasm', 'pck'][i] }))
+      .map((r, i) => ({ result: r, file: ['wasm', 'pck', 'dict'][i] }))
       .filter(({ result }) => result.status === 'rejected');
 
     if (failed.length > 0) {
@@ -47,6 +51,7 @@ export class PrefetchManager {
     return {
       wasm: results[0].value,
       pck: results[1].value,
+      dict: results[2].value,
     };
   }
 
@@ -73,13 +78,24 @@ export class PrefetchManager {
   }
 
   /**
-   * Fetch dictionary with progress tracking
+   * Fetch dictionary with progress tracking (decompression included)
    */
   async fetchDictionary(language) {
-    return this._fetchWithProgress(
-      `dictionaries/${language}.txt`,
-      'dict'
-    );
+    try {
+      const start = performance.now();
+      const text = await this.compression.fetchDictionary(language);
+      const elapsed = (performance.now() - start).toFixed(2);
+      
+      console.log(`📖 Dictionary '${language}' decompressed in ${elapsed}ms`);
+      
+      // Mark dict as complete
+      this.downloads.dict.progress = 1;
+      this._updateTotalProgress();
+      
+      return text;
+    } catch (error) {
+      throw new Error(`Dictionary fetch failed: ${error.message}`);
+    }
   }
 
   /**
@@ -115,16 +131,18 @@ export class PrefetchManager {
   }
 
   /**
-   * Calculate weighted total progress
+   * Calculate weighted total progress (WASM + PCK + Dict)
    */
   _updateTotalProgress() {
     const totalSize =
       this.downloads.wasm.size +
-      this.downloads.pck.size;
+      this.downloads.pck.size +
+      this.downloads.dict.size;
 
     const progress =
       (this.downloads.wasm.progress * this.downloads.wasm.size +
-        this.downloads.pck.progress * this.downloads.pck.size) /
+        this.downloads.pck.progress * this.downloads.pck.size +
+        this.downloads.dict.progress * this.downloads.dict.size) /
       totalSize;
 
     this.onProgress(Math.min(100, Math.round(progress * 100)));

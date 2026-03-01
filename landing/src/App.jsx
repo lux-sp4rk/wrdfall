@@ -92,7 +92,9 @@ function App() {
         pck: import.meta.env.VITE_GODOT_PCK || 'index.pck'
       };
 
-      await dictionaryManager.current.load('en');
+      // Dictionary is already prefetched and decompressed; parse it for the cache
+      const dictWords = dictionaryManager.current._parseWords(blobs.dict);
+      dictionaryManager.current.cache.set('en', dictWords);
 
       clearTimeout(timer);
       setState(prev => ({ ...prev, prefetchStatus: 'ready' }));
