@@ -11,8 +11,14 @@ export class PrefetchManager {
     // Sizes in MB — used as fallback when Content-Length header is missing.
     // Progress is capped at 1.0 to prevent > 100% display.
     this.downloads = {
-      wasm: { size: 37.686, progress: 0 },
-      pck: { size: 58.2, progress: 0 },
+      wasm: { 
+        size: parseFloat(import.meta.env.VITE_GODOT_WASM_SIZE_MB || '33.7'), 
+        progress: 0 
+      },
+      pck: { 
+        size: parseFloat(import.meta.env.VITE_GODOT_PCK_SIZE_MB || '50.3'), 
+        progress: 0 
+      },
       dict: { size: 2.6, progress: 0 },
     };
   }
@@ -48,8 +54,9 @@ export class PrefetchManager {
    * Fetch Godot Wasm with progress tracking
    */
   async fetchGodotWasm() {
+    const filename = import.meta.env.VITE_GODOT_WASM || 'index';
     return this._fetchWithProgress(
-      'index.wasm',
+      `${filename}.wasm`,
       'wasm'
     );
   }
@@ -58,8 +65,9 @@ export class PrefetchManager {
    * Fetch Godot PCK with progress tracking
    */
   async fetchGodotPck() {
+    const filename = import.meta.env.VITE_GODOT_PCK || 'index.pck';
     return this._fetchWithProgress(
-      'index.pck',
+      filename,
       'pck'
     );
   }

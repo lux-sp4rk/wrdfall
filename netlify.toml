@@ -34,6 +34,12 @@
   [headers.values]
     Cache-Control = "public, max-age=2592000"
 
+# No-cache for the landing page itself
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
 # Security headers
 [[headers]]
   for = "/*"
