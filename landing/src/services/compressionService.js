@@ -2,7 +2,8 @@
  * CompressionService - Load and decompress dictionary files
  *
  * Strategy:
- * - Support gzip, brotli, and raw formats
+ * - Support gzip and brotli formats
+ * - Prefer gzip for better browser support (DecompressionStream)
  * - Auto-detect format from file extension
  * - Cache decompressed data in memory
  * - Measure decompression time for logging
@@ -41,13 +42,15 @@ export class CompressionService {
 
   /**
    * Fetch and decompress a dictionary file
-   * Supports: .txt (raw), .gz (gzip), .br (brotli)
+   * Supports: .gz (gzip), .br (brotli), .txt (raw)
+   * Prefers gzip for better browser compatibility
    */
   async fetchDictionary(language) {
     // Try formats in order of preference
+    // Gzip first (widest support), then brotli, then raw
     const formats = [
-      { ext: '.br', decompress: async (data) => await this._decompressBrotli(data) },
       { ext: '.gz', decompress: async (data) => await this._decompressGzip(data) },
+      { ext: '.br', decompress: async (data) => await this._decompressBrotli(data) },
       { ext: '.txt', decompress: async (data) => data } // raw format
     ];
 
@@ -87,7 +90,7 @@ export class CompressionService {
   }
 
   /**
-   * Decompress gzip data
+   * Decompress gzip data using pako library
    */
   async _decompressGzip(data) {
     const pako = await this.loadPako();
@@ -99,13 +102,11 @@ export class CompressionService {
   }
 
   /**
-   * Decompress brotli data
-   * Note: Brotli decompression is not available in most browsers natively.
-   * This uses the brotli-wasm module if available, otherwise falls back to raw.
+   * Decompress brotli data using native DecompressionStream
+   * Falls back to error if not supported (don't silently return raw)
    */
   async _decompressBrotli(data) {
     try {
-      // Try using native CompressionStream (Brotli) if available
       const stream = new ReadableStream({
         start(controller) {
           controller.enqueue(data);
@@ -136,8 +137,7 @@ export class CompressionService {
 
       return result;
     } catch (error) {
-      console.warn(`Brotli decompression failed (falling back to raw): ${error.message}`);
-      return data;
+      throw new Error(`Brotli decompression not supported in this browser: ${error.message}`);
     }
   }
 }
