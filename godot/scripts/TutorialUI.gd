@@ -91,7 +91,7 @@ func _create_progress_indicator() -> void:
 	"""Create the progress dots indicator."""
 	progress_container = HBoxContainer.new()
 	progress_container.name = "ProgressContainer"
-	progress_container.theme_override_constants/separation = PROGRESS_DOT_SPACING
+	progress_container.add_theme_constant_override("separation", PROGRESS_DOT_SPACING)
 	progress_container.alignment = BoxContainer.ALIGNMENT_CENTER
 	
 	# Position below title
