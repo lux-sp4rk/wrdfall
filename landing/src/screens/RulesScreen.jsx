@@ -1,14 +1,29 @@
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
-import rulesContent from '@docs/game-rules.md?raw'
+import rulesEn from '@docs/game-rules.md?raw'
+import rulesEs from '@docs/game-rules.es.md?raw'
 
-export function RulesScreen({ theme, onBack }) {
+const UI_TEXT = {
+  en: {
+    back: '← Back',
+    title: 'How to Play',
+  },
+  es: {
+    back: '← Volver',
+    title: 'Cómo Jugar',
+  },
+}
+
+export function RulesScreen({ theme, language = 'en', onBack }) {
+  const rulesContent = language === 'es' ? rulesEs : rulesEn
+  const ui = UI_TEXT[language] || UI_TEXT.en
+
   return (
     <div className={`landing-container theme-${theme}`}>
       <div className="main-card rules-card">
         <div className="screen-header">
-          <button className="back-button" onClick={onBack}>← Back</button>
-          <h2 className="screen-title">How to Play</h2>
+          <button className="back-button" onClick={onBack}>{ui.back}</button>
+          <h2 className="screen-title">{ui.title}</h2>
         </div>
 
         <div className="rules-content">

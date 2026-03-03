@@ -5,6 +5,7 @@ import { DictionaryManager } from './services/dictionary.js';
 import { PrefetchManager } from './services/prefetch.js';
 import { GodotLauncher } from './services/godotLauncher.js';
 import { getTheme } from './services/theme.js';
+import { getSettings } from './services/settings.js';
 import { HomeScreen } from './screens/HomeScreen.jsx';
 import { StatsScreen } from './screens/StatsScreen.jsx';
 import { SettingsScreen } from './screens/SettingsScreen.jsx';
@@ -222,6 +223,7 @@ function App() {
       {state.currentScreen === 'rules' && (
         <RulesScreen
           theme={state.theme}
+          language={getSettings().language}
           onBack={() => setState(prev => ({ ...prev, currentScreen: 'home' }))}
         />
       )}
