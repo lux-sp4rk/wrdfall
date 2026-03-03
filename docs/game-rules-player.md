@@ -58,10 +58,6 @@ Pick any two letters and trade places. Perfect for setting up that big word.
 
 *Tap Swap, tap your first letter, tap your second letter. Done!*
 
-### ✨ New Letters (Draw More)
-**Cost:** 5 points  
-Adds up to 5 fresh letters to open spots. Useful when the board is looking sparse.
-
 ## Win & Lose
 
 ✅ **You win** when every tile is empty. Clear the whole board!

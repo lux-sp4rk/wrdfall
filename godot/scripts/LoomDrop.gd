@@ -99,6 +99,10 @@ func _ready() -> void:
 	_setup_icon_button(shake_button, ICON_SHAKE, lang_config.ui_strings["shake"])
 	_setup_icon_button(swap_button, ICON_SWAP, lang_config.ui_strings["swap"])
 	_setup_icon_button(draw_more_button, ICON_DRAW_MORE, lang_config.ui_strings["draw_more"])
+	
+	# Hide Draw More button if feature flag is disabled (default: hidden)
+	if not FeatureFlags.draw_more_enabled:
+		draw_more_button.visible = false
 
 	_update_score_display()
 	_update_shake_button()
@@ -251,6 +255,8 @@ func _on_pause_pressed() -> void:
 func _on_feature_flag_changed(flag_name: String, value: bool) -> void:
 	if flag_name == "drop_ratchet_enabled" and not value:
 		_reset_drop_speed()
+	elif flag_name == "draw_more_enabled":
+		draw_more_button.visible = value
 
 
 func _on_sidebar_opened() -> void:

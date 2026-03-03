@@ -58,10 +58,6 @@ Elige cualquier dos letras e intercambia sus posiciones. Perfecto para preparar 
 
 *Presiona Intercambiar, toca tu primera letra, toca tu segunda letra. ¡Listo!*
 
-### ✨ Nuevas Letras (Draw More)
-**Costo:** 5 puntos  
-Añade hasta 5 letras nuevas a columnas abiertas. Útil cuando el tablero se ve escaso.
-
 ## Ganar y Perder
 
 ✅ **Ganas** cuando cada casilla está vacía. ¡Limpia todo el tablero!
