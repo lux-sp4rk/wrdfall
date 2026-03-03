@@ -2,7 +2,7 @@
  * ThemeService - Detect and manage theme preference
  *
  * Strategy:
- * - First visit: Detect OS dark mode preference
+ * - First visit: Detect OS light mode preference (defaults to dark)
  * - Subsequent visits: Read from localStorage
  * - Sync with Godot via shared localStorage key
  */
@@ -16,13 +16,13 @@ const THEME_DARK = 'dark';
  */
 export function detectSystemTheme() {
   try {
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return THEME_DARK;
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      return THEME_LIGHT;
     }
   } catch (error) {
     console.warn('Failed to detect system theme:', error);
   }
-  return THEME_LIGHT;
+  return THEME_DARK;
 }
 
 /**
@@ -54,8 +54,8 @@ export function getTheme() {
  */
 export function setTheme(theme) {
   if (theme !== THEME_LIGHT && theme !== THEME_DARK) {
-    console.warn(`Invalid theme: ${theme}, defaulting to light`);
-    theme = THEME_LIGHT;
+    console.warn(`Invalid theme: ${theme}, defaulting to dark`);
+    theme = THEME_DARK;
   }
 
   try {
