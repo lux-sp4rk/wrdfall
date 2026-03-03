@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
-import rulesContent from '../../docs/game-rules.md?raw'
+import rulesContent from '@docs/game-rules.md?raw'
 
 export function RulesScreen({ theme, onBack }) {
   return (
