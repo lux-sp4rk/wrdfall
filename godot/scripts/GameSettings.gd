@@ -3,6 +3,7 @@ extends Node
 var current_language: String = "en"
 var difficulty: String = "normal"
 var theme: String = "light"
+var has_completed_tutorial: bool = false
 
 # All game constants now defined in GameConstants autoload
 # These dictionaries reference those constants for backward compatibility
@@ -53,7 +54,36 @@ func is_rescue_enabled() -> bool:
 	return RESCUE_ENABLED.get(difficulty, true)
 
 func _ready() -> void:
-	pass  # Boot scene calls load_from_localstorage() explicitly on web builds
+	_load_settings()  # Load settings including tutorial completion status
+
+func _load_settings() -> void:
+	"""Load settings from ConfigFile."""
+	var config = ConfigFile.new()
+	var err = config.load("user://settings.cfg")
+	if err == OK:
+		has_completed_tutorial = config.get_value("game", "has_completed_tutorial", false)
+
+func save_settings() -> void:
+	"""Save settings to ConfigFile."""
+	var config = ConfigFile.new()
+	config.set_value("game", "theme", theme)
+	config.set_value("game", "language", current_language)
+	config.set_value("game", "difficulty", difficulty)
+	config.set_value("game", "has_completed_tutorial", has_completed_tutorial)
+	var err = config.save("user://settings.cfg")
+	if err != OK:
+		push_warning("Failed to save settings: " + str(err))
+
+func set_has_completed_tutorial(completed: bool) -> void:
+	"""Set and save tutorial completion status."""
+	has_completed_tutorial = completed
+	save_settings()
+	
+	# Also save to localStorage on web
+	if OS.has_feature("web"):
+		var js = JavaScriptBridge.get_interface("localStorage")
+		if js != null:
+			js.setItem("word-loom-tutorial-completed", "true" if completed else "false")
 
 func load_from_localstorage() -> void:
 	"""Read language and difficulty from localStorage (set by React SettingsScreen).
@@ -69,3 +99,6 @@ func load_from_localstorage() -> void:
 	var diff = js.getItem("word-loom-difficulty")
 	if diff == "normal" or diff == "hard":
 		difficulty = diff
+	var tutorial_completed = js.getItem("word-loom-tutorial-completed")
+	if tutorial_completed == "true":
+		has_completed_tutorial = true
