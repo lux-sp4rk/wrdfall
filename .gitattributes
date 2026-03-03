@@ -1,6 +1,3 @@
-
-# Godot export files (large binaries)
-dist/index.wasm filter=lfs diff=lfs merge=lfs -text
-dist/index.pck filter=lfs diff=lfs merge=lfs -text
-dist/index.js filter=lfs diff=lfs merge=lfs -text
-dist/index.audio.worklet.js filter=lfs diff=lfs merge=lfs -text
+# No LFS tracking — dist/ files are build output from landing/public/ via Vite.
+# Godot export binaries live in landing/public/ (committed directly, no LFS).
+# See: https://github.com/lux-sp4rk/word-loom/issues/171
