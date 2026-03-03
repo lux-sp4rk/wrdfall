@@ -276,7 +276,7 @@ button:focus-visible {
   width: 100%;
   background: transparent;
   border: 2px solid var(--color-secondary);
-  color: var(--color-secondary);
+  color: var(--text-on-primary);
   font-family: inherit;
   font-size: clamp(16px, 3vw, 20px);
   font-weight: 600;
