@@ -14,6 +14,7 @@ export class GodotLauncher {
     this.config = config; // { executable, mainPack }
     this.engine = null;
     this.canvas = null;
+    this.loader = null;
   }
 
   /**
@@ -24,7 +25,10 @@ export class GodotLauncher {
       // Import Godot engine script
       const Engine = await this._loadEngineScript();
 
-      // Create canvas and append to DOM first
+      // Create loader overlay first (before canvas)
+      this._createLoader();
+
+      // Create canvas and append to DOM
       this.canvas = document.createElement('canvas');
       this.canvas.id = 'godot-canvas';
       this.canvas.style.width = '100vw';
@@ -121,6 +125,9 @@ export class GodotLauncher {
 
       // Start Godot — must pass mainPack so the engine knows where to find the PCK.
       await this.engine.startGame({ mainPack: this.config.mainPack });
+
+      // Game is now rendering — fade out and remove loader
+      this._fadeOutLoader();
     } catch (error) {
       console.error('Failed to start Godot game:', error);
       throw new Error(`Game start failed: ${error.message}`);
@@ -143,6 +150,7 @@ export class GodotLauncher {
       this.canvas.remove();
       this.canvas = null;
     }
+    this._removeLoader();
   }
 
   /**
@@ -170,5 +178,43 @@ export class GodotLauncher {
    */
   _delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Create loading overlay
+   */
+  _createLoader() {
+    this.loader = document.createElement('div');
+    this.loader.id = 'godot-loader';
+    this.loader.innerHTML = `
+      <div class="godot-loader-spinner"></div>
+      <div class="godot-loader-text">Loading game…</div>
+    `;
+    document.body.appendChild(this.loader);
+  }
+
+  /**
+   * Remove loading overlay
+   */
+  _removeLoader() {
+    if (this.loader) {
+      this.loader.remove();
+      this.loader = null;
+    }
+  }
+
+  /**
+   * Fade out and remove loader after game starts
+   */
+  _fadeOutLoader() {
+    if (!this.loader) return;
+
+    // Add fade-out class for CSS animation
+    this.loader.classList.add('fade-out');
+
+    // Remove from DOM after animation completes
+    setTimeout(() => {
+      this._removeLoader();
+    }, 350); // Slightly longer than CSS animation (300ms)
   }
 }
