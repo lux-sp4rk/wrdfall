@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
-import rulesEn from '@docs/game-rules.md?raw'
-import rulesEs from '@docs/game-rules.es.md?raw'
+import rulesEn from '@docs/game-rules-player.md?raw'
+import rulesEs from '@docs/game-rules-player.es.md?raw'
 
 const UI_TEXT = {
   en: {
