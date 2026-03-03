@@ -185,13 +185,59 @@ export class GodotLauncher {
    * Create loading overlay
    */
   _createLoader() {
+    console.log('[GodotLauncher] Creating loader...');
     this.loader = document.createElement('div');
     this.loader.id = 'godot-loader';
+    // Use inline styles to ensure visibility regardless of CSS variable availability
+    this.loader.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #2B3D4F;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    `;
     this.loader.innerHTML = `
-      <div class="godot-loader-spinner"></div>
-      <div class="godot-loader-text">Loading game…</div>
+      <div style="
+        width: 48px;
+        height: 48px;
+        border: 4px solid #4D6B8A;
+        border-top-color: #F29170;
+        border-radius: 50%;
+        animation: godot-spin 1s linear infinite;
+      "></div>
+      <div style="
+        margin-top: 16px;
+        font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 16px;
+        font-weight: 500;
+        color: #F2F2F2;
+        letter-spacing: 0.3px;
+      ">Loading game…</div>
     `;
     document.body.appendChild(this.loader);
+    console.log('[GodotLauncher] Loader appended to body');
+
+    // Inject keyframes for spinner animation
+    if (!document.getElementById('godot-loader-styles')) {
+      const style = document.createElement('style');
+      style.id = 'godot-loader-styles';
+      style.textContent = `
+        @keyframes godot-spin {
+          to { transform: rotate(360deg); }
+        }
+        @keyframes godot-fade-out {
+          from { opacity: 1; }
+          to { opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
   }
 
   /**
@@ -199,6 +245,7 @@ export class GodotLauncher {
    */
   _removeLoader() {
     if (this.loader) {
+      console.log('[GodotLauncher] Removing loader from DOM');
       this.loader.remove();
       this.loader = null;
     }
@@ -209,9 +256,10 @@ export class GodotLauncher {
    */
   _fadeOutLoader() {
     if (!this.loader) return;
+    console.log('[GodotLauncher] Fading out loader...');
 
-    // Add fade-out class for CSS animation
-    this.loader.classList.add('fade-out');
+    // Use inline animation for fade-out
+    this.loader.style.animation = 'godot-fade-out 300ms ease-out forwards';
 
     // Remove from DOM after animation completes
     setTimeout(() => {
