@@ -25,10 +25,7 @@ export class GodotLauncher {
       // Import Godot engine script
       const Engine = await this._loadEngineScript();
 
-      // Create loader overlay first (before canvas)
-      this._createLoader();
-
-      // Create canvas and append to DOM
+      // Create canvas and append to DOM first
       this.canvas = document.createElement('canvas');
       this.canvas.id = 'godot-canvas';
       this.canvas.style.width = '100vw';
@@ -36,9 +33,13 @@ export class GodotLauncher {
       this.canvas.style.position = 'absolute';
       this.canvas.style.top = '0';
       this.canvas.style.left = '0';
+      this.canvas.style.zIndex = '1';
       // Match letterbox bars to the theme background so they aren't black
       this.canvas.style.backgroundColor = this.config.backgroundColor || '#2B3D4F';
       document.body.appendChild(this.canvas);
+
+      // Create loader overlay AFTER canvas so it stacks on top
+      this._createLoader();
 
       // CRITICAL: Godot Engine.init() and the Engine config's `executable` field expect the
       // BASE NAME without any file extension. The engine internally appends '.wasm' when
