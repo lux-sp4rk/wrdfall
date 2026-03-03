@@ -24,12 +24,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download Godot 4.2
+      - name: Download Godot 4.3
         run: |
-          curl -L -o godot.zip https://github.com/godotengine/godot-releases/releases/download/4.2-stable/Godot_v4.2-stable_linux.x86_64.zip
+          curl -fL -o godot.zip https://github.com/godotengine/godot-releases/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
           unzip godot.zip
-          chmod +x Godot_v4.2-stable_linux.x86_64
-          mv Godot_v4.2-stable_linux.x86_64 godot_bin
+          chmod +x Godot_v4.3-stable_linux.x86_64
+          mv Godot_v4.3-stable_linux.x86_64 godot_bin
 
       - name: Export to Web
         working-directory: godot
