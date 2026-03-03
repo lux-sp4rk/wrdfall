@@ -5,9 +5,11 @@ import { DictionaryManager } from './services/dictionary.js';
 import { PrefetchManager } from './services/prefetch.js';
 import { GodotLauncher } from './services/godotLauncher.js';
 import { getTheme } from './services/theme.js';
+import { getSettings } from './services/settings.js';
 import { HomeScreen } from './screens/HomeScreen.jsx';
 import { StatsScreen } from './screens/StatsScreen.jsx';
 import { SettingsScreen } from './screens/SettingsScreen.jsx';
+import { RulesScreen } from './screens/RulesScreen.jsx';
 import './App.css';
 
 // Initialize Supabase client
@@ -202,6 +204,7 @@ function App() {
             onPlayClick={handlePlayClick}
             onStatsClick={() => setState(prev => ({ ...prev, currentScreen: 'stats' }))}
             onSettingsClick={() => setState(prev => ({ ...prev, currentScreen: 'settings' }))}
+            onRulesClick={() => setState(prev => ({ ...prev, currentScreen: 'rules' }))}
           />
         </div>
       )}
@@ -215,6 +218,13 @@ function App() {
         <SettingsScreen
           onBack={() => setState(prev => ({ ...prev, currentScreen: 'home' }))}
           onThemeChange={(theme) => setState(prev => ({ ...prev, theme }))}
+        />
+      )}
+      {state.currentScreen === 'rules' && (
+        <RulesScreen
+          theme={state.theme}
+          language={getSettings().language}
+          onBack={() => setState(prev => ({ ...prev, currentScreen: 'home' }))}
         />
       )}
     </>

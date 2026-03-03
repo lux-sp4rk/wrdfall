@@ -123,14 +123,6 @@ Pick any two tiles on the board and swap their positions. Enters a targeting mod
 
 Press **ESC** or tap the Swap button again to cancel targeting mode.
 
-### Draw More
-
-Draws up to 5 new letters into random open columns (the top row must have space in those columns).
-
-| | Normal | Hard |
-|---|--------|------|
-| **Cost** | 5 pts | 10 pts |
-
 ## Difficulty Modes
 
 ### Normal
@@ -152,7 +144,7 @@ Draws up to 5 new letters into random open columns (the top row must have space 
 - **Win:** Clear every letter from the 5x5 grid (all 25 cells empty).
 - **Lose:** All 25 cells are occupied — no space for the next drop.
 
-The game **does not end** when no valid words exist on the board. Players must use power-ups (Shake, Swap, Draw More) to create new word opportunities, or wait for favorable letter drops.
+The game **does not end** when no valid words exist on the board. Players must use power-ups (Shake, Swap) to create new word opportunities, or wait for favorable letter drops.
 
 ## Letter Distribution
 

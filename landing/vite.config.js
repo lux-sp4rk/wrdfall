@@ -1,8 +1,15 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      // Map @docs to the docs directory at project root
+      '@docs': path.resolve(__dirname, '../docs'),
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,
@@ -19,5 +26,13 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    fs: {
+      allow: [
+        // Allow serving files from the landing root
+        '.',
+        // Allow access to docs/ directory at project root
+        path.resolve(__dirname, '../docs'),
+      ],
+    },
   },
 });
