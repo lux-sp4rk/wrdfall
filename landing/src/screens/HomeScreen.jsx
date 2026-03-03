@@ -1,6 +1,6 @@
 import React from 'react'
 
-export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick }) {
+export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, onRulesClick }) {
   return (
     <div className={`landing-container theme-${state.theme}`}
          style={{ opacity: state.transitioning ? 0 : 1, transition: 'opacity 500ms ease-out' }}>
@@ -45,6 +45,8 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick }
           {state.transitioning ? 'Starting…' :
            (state.prefetchStatus === 'loading' && state.showProgress) ? 'Loading…' : 'Play'}
         </button>
+
+        <button className="rules-button" onClick={onRulesClick}>How to Play</button>
 
         <div className="secondary-buttons">
           <button className="secondary-button" onClick={onStatsClick}>Stats</button>
