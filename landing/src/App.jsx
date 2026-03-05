@@ -154,10 +154,20 @@ function App() {
 
       await godotLauncher.current.initialize();
 
-      // Retrieve dictionary from cache and validate before starting game
-      console.log('[handlePlayClick] About to get dictionary from cache...');
-      const words = dictionaryManager.current.cache.get('en');
-      console.log('[handlePlayClick] Retrieved words from cache:', {
+      // Get current language from user settings
+      const currentSettings = getSettings();
+      const language = currentSettings.language || 'en';
+      
+      // Load dictionary (from cache or fetch if needed)
+      console.log(`[handlePlayClick] Loading ${language} dictionary...`);
+      let words = dictionaryManager.current.cache.get(language);
+      
+      if (!words) {
+        console.log(`[handlePlayClick] ${language} dictionary not in cache, fetching...`);
+        words = await dictionaryManager.current.load(language);
+      }
+      
+      console.log(`[handlePlayClick] Retrieved ${language} words:`, {
         type: words?.constructor?.name,
         size: words?.size,
         isSet: words instanceof Set,
@@ -166,15 +176,15 @@ function App() {
       });
 
       if (!words || words.size === 0) {
-        const errMsg = `Dictionary failed to load: words=${typeof words}, size=${words?.size}`;
+        const errMsg = `Dictionary failed to load: language=${language}, words=${typeof words}, size=${words?.size}`;
         console.error('[handlePlayClick] VALIDATION FAILED:', errMsg);
         throw new Error(errMsg);
       }
 
-      console.log('[handlePlayClick] Dictionary validation PASSED, starting game...');
+      console.log(`[handlePlayClick] ${language} dictionary validation PASSED, starting game...`);
 
       await godotLauncher.current.start({
-        dictionary: { language: 'en', words },
+        dictionary: { language: language, words },
         settings: { theme: state.theme },
       });
 
