@@ -31,6 +31,13 @@ jobs:
           chmod +x Godot_v4.6-stable_linux.x86_64
           mv Godot_v4.6-stable_linux.x86_64 godot_bin
 
+      - name: Download Godot Export Templates 4.6
+        run: |
+          curl -fL -o export_templates.tpz https://github.com/godotengine/godot-builds/releases/download/4.6-stable/Godot_v4.6-stable_export_templates.tpz
+          mkdir -p ~/.local/share/godot/export_templates/4.6.stable
+          tar -xzf export_templates.tpz -C ~/.local/share/godot/export_templates/4.6.stable/
+          ls -la ~/.local/share/godot/export_templates/4.6.stable/
+
       - name: Export to Web
         working-directory: godot
         run: |
