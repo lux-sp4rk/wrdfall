@@ -1,6 +1,7 @@
 extends Control
 
 @onready var play_button: Button = %PlayButton
+@onready var tutorial_button: Button = %TutorialButton
 @onready var stats_button: Button = %StatsButton
 @onready var settings_button: Button = %SettingsButton
 @onready var high_score_label: Label = %HighScoreLabel
@@ -17,6 +18,8 @@ extends Control
 func _ready() -> void:
 	# Main navigation
 	play_button.pressed.connect(_on_play_pressed)
+	if tutorial_button:
+		tutorial_button.pressed.connect(_on_tutorial_pressed)
 	stats_button.pressed.connect(_on_stats_pressed)
 	settings_button.pressed.connect(_on_settings_pressed)
 
@@ -64,6 +67,9 @@ func _update_auth_ui() -> void:
 
 func _on_play_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/LoomDrop.tscn")
+
+func _on_tutorial_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/Tutorial.tscn")
 
 func _on_stats_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/Stats.tscn")
@@ -130,23 +136,15 @@ func _apply_theme() -> void:
 	# Update Play button StyleBoxes
 	var play_btn = %PlayButton
 	if play_btn:
-		var normal_style = play_btn.get_theme_stylebox("normal")
-		if normal_style:
-			normal_style.bg_color = ThemeManager.get_color("primary_button")
-			normal_style.shadow_color = Color(ThemeManager.get_color("primary_button").r,
-				ThemeManager.get_color("primary_button").g,
-				ThemeManager.get_color("primary_button").b, 0.2)
+		_apply_button_theme(play_btn, "primary")
 
-		var hover_style = play_btn.get_theme_stylebox("hover")
-		if hover_style:
-			hover_style.bg_color = ThemeManager.get_color("primary_button_hover")
-
-		var pressed_style = play_btn.get_theme_stylebox("pressed")
-		if pressed_style:
-			pressed_style.bg_color = ThemeManager.get_color("primary_button_pressed")
+	# Update Tutorial button StyleBoxes (if exists)
+	var tutorial_btn = %TutorialButton
+	if tutorial_btn:
+		_apply_button_theme(tutorial_btn, "secondary")
 
 	# Update Stats and Settings buttons
-	for btn_name in ["%StatsButton", "%SettingsButton"]:
+	for btn_name in ["%StatsButton", "%SettingsButton", "%TutorialButton"]:
 		var btn = get_node_or_null(btn_name)
 		if btn:
 			var normal_style = btn.get_theme_stylebox("normal")
@@ -183,3 +181,35 @@ func _apply_theme() -> void:
 	if copyright:
 		var muted = ThemeManager.get_color("text_muted")
 		copyright.add_theme_color_override("font_color", Color(muted.r, muted.g, muted.b, 0.5))
+
+func _apply_button_theme(btn: Button, button_type: String) -> void:
+	"""Apply theme colors to a button based on its type."""
+	match button_type:
+		"primary":
+			var normal_style = btn.get_theme_stylebox("normal")
+			if normal_style:
+				normal_style.bg_color = ThemeManager.get_color("primary_button")
+				normal_style.shadow_color = Color(ThemeManager.get_color("primary_button").r,
+					ThemeManager.get_color("primary_button").g,
+					ThemeManager.get_color("primary_button").b, 0.2)
+
+			var hover_style = btn.get_theme_stylebox("hover")
+			if hover_style:
+				hover_style.bg_color = ThemeManager.get_color("primary_button_hover")
+
+			var pressed_style = btn.get_theme_stylebox("pressed")
+			if pressed_style:
+				pressed_style.bg_color = ThemeManager.get_color("primary_button_pressed")
+		
+		"secondary":
+			var normal_style = btn.get_theme_stylebox("normal")
+			if normal_style:
+				normal_style.bg_color = ThemeManager.get_color("secondary_button")
+
+			var hover_style = btn.get_theme_stylebox("hover")
+			if hover_style:
+				hover_style.bg_color = ThemeManager.get_color("secondary_button_hover")
+
+			var pressed_style = btn.get_theme_stylebox("pressed")
+			if pressed_style:
+				pressed_style.bg_color = ThemeManager.get_color("secondary_button_pressed")

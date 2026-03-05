@@ -1,0 +1,81 @@
+name: Build Godot Web Export
+
+on:
+  pull_request:
+    branches: [main, tutorial/*, feature/*]
+    paths:
+      - 'godot/**'
+      - '.github/workflows/build-godot-web.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'godot/**'
+
+jobs:
+  build-godot:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download Godot 4.6
+        run: |
+          curl -fL -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.6-stable/Godot_v4.6-stable_linux.x86_64.zip
+          unzip godot.zip
+          chmod +x Godot_v4.6-stable_linux.x86_64
+          mv Godot_v4.6-stable_linux.x86_64 godot_bin
+
+      - name: Export to Web
+        working-directory: godot
+        run: |
+          ../godot_bin --headless --export-release "Web" ../landing/public/index.html
+
+      - name: Check if binaries changed
+        id: check_changes
+        run: |
+          if git diff --quiet landing/public/index.{wasm,pck,js}; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push updated binaries
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "Godot Build Action"
+          git add landing/public/index.{wasm,pck,js}
+          git commit -m "ci: rebuild Godot web exports" --no-verify
+          git push origin HEAD:${{ github.head_ref || github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comment on PR (if updated)
+        if: github.event_name == 'pull_request' && steps.check_changes.outputs.changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ Godot web exports rebuilt. Netlify deploy preview will update shortly.'
+            })
+
+      - name: Comment on PR (if unchanged)
+        if: github.event_name == 'pull_request' && steps.check_changes.outputs.changed == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'ℹ️ No Godot code changes detected. Using existing exports.'
+            })

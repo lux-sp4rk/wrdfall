@@ -1,0 +1,161 @@
+{
+  "version": "1.0",
+  "phases": [
+    {
+      "id": "intro",
+      "title_key": "intro_title",
+      "instruction_key": "intro_instruction",
+      "board_preset": [
+        ["", "", "", "", ""],
+        ["", "C", "A", "T", ""],
+        ["", "", "", "", ""],
+        ["", "B", "O", "X", ""],
+        ["", "", "", "", ""]
+      ],
+      "demo_path": [[1, 1], [2, 1], [3, 1]],
+      "target_word": "CAT",
+      "gated": true,
+      "allowed_cells": [[1, 1], [2, 1], [3, 1]],
+      "show_hand_cursor": true,
+      "wait_for_action": true,
+      "show_score_breakdown": false,
+      "highlight_powerup": ""
+    },
+    {
+      "id": "selection",
+      "title_key": "selection_title",
+      "instruction_key": "selection_instruction",
+      "board_preset": [
+        ["", "", "", "", ""],
+        ["", "T", "H", "E", ""],
+        ["", "", "", "", ""],
+        ["", "S", "T", "A", "R"],
+        ["", "", "", "", ""]
+      ],
+      "demo_path": [[1, 3], [2, 3], [3, 3], [4, 3]],
+      "target_word": "STAR",
+      "gated": false,
+      "allowed_cells": [],
+      "show_hand_cursor": false,
+      "wait_for_action": true,
+      "show_score_breakdown": false,
+      "highlight_powerup": ""
+    },
+    {
+      "id": "scoring",
+      "title_key": "scoring_title",
+      "instruction_key": "scoring_instruction",
+      "board_preset": [
+        ["", "", "", "", ""],
+        ["", "G", "O", "L", "D"],
+        ["", "", "", "", ""],
+        ["", "G", "A", "M", "E"],
+        ["", "", "", "", ""]
+      ],
+      "demo_path": [],
+      "target_word": "GAME",
+      "gated": false,
+      "allowed_cells": [],
+      "show_hand_cursor": false,
+      "wait_for_action": true,
+      "show_score_breakdown": true,
+      "highlight_powerup": ""
+    },
+    {
+      "id": "gravity",
+      "title_key": "gravity_title",
+      "instruction_key": "gravity_instruction",
+      "board_preset": [
+        ["", "", "", "", ""],
+        ["", "", "", "", ""],
+        ["D", "O", "G", "", ""],
+        ["C", "A", "T", "", ""],
+        ["", "", "", "B", ""]
+      ],
+      "demo_path": [[0, 3], [1, 3], [2, 3]],
+      "target_word": "CAT",
+      "gated": true,
+      "allowed_cells": [[0, 3], [1, 3], [2, 3]],
+      "show_hand_cursor": true,
+      "wait_for_action": true,
+      "show_score_breakdown": false,
+      "highlight_powerup": ""
+    },
+    {
+      "id": "powerups",
+      "title_key": "powerups_title",
+      "instruction_key": "powerups_instruction",
+      "board_preset": [
+        ["Z", "Q", "X", "Z", "Q"],
+        ["Z", "", "", "", "Z"],
+        ["", "", "", "", ""],
+        ["", "", "C", "A", "T"],
+        ["", "", "", "", ""]
+      ],
+      "demo_path": [],
+      "target_word": "CAT",
+      "gated": false,
+      "allowed_cells": [],
+      "show_hand_cursor": false,
+      "wait_for_action": true,
+      "show_score_breakdown": false,
+      "highlight_powerup": "shake"
+    },
+    {
+      "id": "complete",
+      "title_key": "complete_title",
+      "instruction_key": "complete_instruction",
+      "board_preset": [
+        ["", "", "", "", ""],
+        ["", "P", "L", "A", "Y"],
+        ["", "", "", "", ""],
+        ["", "N", "O", "W", ""],
+        ["", "", "", "", ""]
+      ],
+      "demo_path": [],
+      "target_word": "",
+      "gated": false,
+      "allowed_cells": [],
+      "show_hand_cursor": false,
+      "wait_for_action": false,
+      "duration": 3.0,
+      "show_score_breakdown": false,
+      "highlight_powerup": ""
+    }
+  ],
+  "scoring_examples": [
+    {
+      "word": "CAT",
+      "letters": ["C", "A", "T"],
+      "letter_values": [3, 1, 1],
+      "letter_sum": 5,
+      "length": 3,
+      "multiplier": 1,
+      "score": 5
+    },
+    {
+      "word": "STAR",
+      "letters": ["S", "T", "A", "R"],
+      "letter_values": [1, 1, 1, 1],
+      "letter_sum": 4,
+      "length": 4,
+      "multiplier": 2,
+      "score": 8
+    },
+    {
+      "word": "GOLD",
+      "letters": ["G", "O", "L", "D"],
+      "letter_values": [2, 1, 1, 2],
+      "letter_sum": 6,
+      "length": 4,
+      "multiplier": 2,
+      "score": 12
+    }
+  ],
+  "multiplier_info": {
+    "3": {"label_en": "3 letters", "label_es": "3 letras", "multiplier": "1x"},
+    "4": {"label_en": "4 letters", "label_es": "4 letras", "multiplier": "2x"},
+    "5": {"label_en": "5 letters", "label_es": "5 letras", "multiplier": "4x"},
+    "6": {"label_en": "6+ letters", "label_es": "6+ letras", "multiplier": "8x"}
+  }
+}
