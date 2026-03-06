@@ -1,0 +1,179 @@
+name: Arachne Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  arachne-review:
+    name: Arachne Review
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for proper diff
+
+      - name: Get PR diff
+        id: diff
+        run: |
+          # Get the diff between base and head
+          git diff origin/${{ github.base_ref }}...HEAD > pr_diff.txt
+          echo "diff_size=$(wc -c < pr_diff.txt)" >> $GITHUB_OUTPUT
+          
+          # Show what we're reviewing
+          echo "Files changed:"
+          git diff --stat origin/${{ github.base_ref }}...HEAD
+
+      - name: Run Arachne Review
+        id: review
+        env:
+          ARCEE_API_KEY: ${{ secrets.ARCEE_API_KEY }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          # Check if API key is set
+          if [ -z "$ARCEE_API_KEY" ]; then
+            echo "❌ ARCEE_API_KEY not set"
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "review=API key missing - cannot perform automated review" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+          # Prepare the prompt
+          cat > review_prompt.txt << 'PROMPT_EOF'
+You are Arachne, a code reviewer. Review this git diff and provide structured feedback.
+
+Analyze for:
+1. **Bugs** - Logic errors, null pointer risks, off-by-one errors
+2. **Security** - Injection risks, unsafe eval, exposed secrets, auth bypasses  
+3. **Performance** - N+1 queries, unnecessary allocations, blocking operations
+4. **Maintainability** - Code smells, anti-patterns, missing tests
+
+For each issue found, provide:
+- Severity: 🔴 Critical | 🟡 Warning | 🟢 Suggestion
+- File and line reference
+- Explanation
+- Suggested fix
+
+If no significant issues found, respond with: "LGTM 👍 Arachne approves this code."
+
+At the end, output exactly one of these status lines:
+STATUS: PASS
+STATUS: WARN  
+STATUS: FAIL
+
+DIFF TO REVIEW:
+PROMPT_EOF
+
+          # Append the actual diff (truncated if too large)
+          head -c 50000 pr_diff.txt >> review_prompt.txt
+
+          # Call Arcee API (trinity-mini)
+          echo "🕸️ Sending diff to Arachne (trinity-mini)..."
+          
+          REVIEW_RESPONSE=$(curl -s -X POST https://api.arcee.ai/v1/chat/completions \
+            -H "Authorization: Bearer $ARCEE_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d @- << CURL_EOF
+          {
+            "model": "arcee/trinity-mini",
+            "messages": [
+              {"role": "system", "content": "You are Arachne, an expert code reviewer. Be concise but thorough."},
+              {"role": "user", "content": $(cat review_prompt.txt | jq -Rs .)}
+            ],
+            "temperature": 0.2,
+            "max_tokens": 2000
+          }
+          CURL_EOF
+          )
+
+          # Extract the review text
+          REVIEW_TEXT=$(echo "$REVIEW_RESPONSE" | jq -r '.choices[0].message.content // empty')
+          
+          if [ -z "$REVIEW_TEXT" ] || [ "$REVIEW_TEXT" = "null" ]; then
+            echo "❌ Failed to get review from API"
+            echo "Response: $REVIEW_RESPONSE"
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "review=API error - could not complete review" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+          # Determine status from review text
+          if echo "$REVIEW_TEXT" | grep -q "STATUS: FAIL"; then
+            STATUS="failure"
+          elif echo "$REVIEW_TEXT" | grep -q "STATUS: WARN"; then
+            STATUS="warning"
+          else
+            STATUS="success"
+          fi
+
+          # Clean up the review text (remove STATUS line for display)
+          CLEAN_REVIEW=$(echo "$REVIEW_TEXT" | grep -v "^STATUS: ")
+
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+          echo "review<<REVIEW_EOF" >> $GITHUB_OUTPUT
+          echo "$CLEAN_REVIEW" >> $GITHUB_OUTPUT
+          echo "REVIEW_EOF" >> $GITHUB_OUTPUT
+
+          echo "Review complete: $STATUS"
+
+      - name: Post PR Review Comment
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REVIEW: ${{ steps.review.outputs.review }}
+          STATUS: ${{ steps.review.outputs.status }}
+        run: |
+          # Format status badge
+          case "$STATUS" in
+            success) BADGE="✅" ;;
+            warning) BADGE="⚠️" ;;
+            *) BADGE="❌" ;;
+          esac
+
+          # Post review comment
+          gh pr review "$PR_NUMBER" --comment --body "$BADGE **Arachne Review** (arcee/trinity-mini)
+
+$REVIEW
+
+---
+*Status: ${STATUS^^} | Reviewed: $(date -u +%Y-%m-%dT%H:%M:%SZ)*"
+
+      - name: Set Check Status
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ steps.review.outputs.status }}' || 'failure';
+            const conclusion = status === 'success' ? 'success' : 
+                              status === 'warning' ? 'neutral' : 'failure';
+            
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'Arachne Code Review',
+              head_sha: context.payload.pull_request.head.sha,
+              status: 'completed',
+              conclusion: conclusion,
+              output: {
+                title: conclusion === 'success' ? 'Arachne approves' : 
+                       conclusion === 'neutral' ? 'Arachne has warnings' : 'Arachne found issues',
+                summary: 'Automated code review by Arachne (trinity-mini)',
+                text: 'Review posted as PR comment. Check the conversation tab for detailed feedback.'
+              }
+            });
+
+      - name: Fail on Critical Issues
+        if: steps.review.outputs.status == 'failure'
+        run: |
+          echo "❌ Arachne found critical issues. Blocking merge."
+          exit 1
