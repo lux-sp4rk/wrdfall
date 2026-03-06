@@ -39,22 +39,22 @@ git diff "origin/$BASE_REF...HEAD" > pr_diff.txt || git diff HEAD~1 > pr_diff.tx
 } > prompt.txt
 
 echo "🕸️ Sending to Arachne..."
+echo "API Key length: ${#ARCEE_API_KEY}"
 
 JSON_PROMPT=$(jq -Rs . < prompt.txt)
 JSON_PAYLOAD=$(jq -n --arg p "$JSON_PROMPT" '{model: "arcee/trinity-mini", messages: [{role: "system", content: "You are Arachne, expert code reviewer."}, {role: "user", content: $p}], temperature: 0.2, max_tokens: 2000}')
 
-echo "Payload size: ${#JSON_PAYLOAD} bytes"
+echo "Payload: $JSON_PAYLOAD"
 
-curl -s -o /tmp/arachne_response.json -w "%{http_code}" -X POST https://api.arcee.ai/v1/chat/completions \
+REVIEW_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST https://api.arcee.ai/v1/chat/completions \
   -H "Authorization: Bearer $ARCEE_API_KEY" \
   -H "Content-Type: application/json" \
-  -d "$JSON_PAYLOAD" > /tmp/arachne_http_code.txt
+  -d "$JSON_PAYLOAD")
 
-HTTP_CODE=$(cat /tmp/arachne_http_code.txt)
-REVIEW_RESPONSE=$(cat /tmp/arachne_response.json)
+HTTP_CODE=$(echo "$REVIEW_RESPONSE" | tail -n1)
+REVIEW_RESPONSE=$(echo "$REVIEW_RESPONSE" | sed '$d')
 
 echo "HTTP Code: $HTTP_CODE"
-echo "Response size: $(wc -c < /tmp/arachne_response.json) bytes"
 echo "Raw response: $REVIEW_RESPONSE"
 
 REVIEW_TEXT=$(echo "$REVIEW_RESPONSE" | jq -r '.choices[0].message.content // empty')
