@@ -1,0 +1,34 @@
+# Lefthook configuration
+# See: https://lefthook.dev/configuration/
+
+# AI Code Review - Arachne reviews PRs on push
+pre-push:
+  commands:
+    ai-review:
+      run: bash .lefthook/ai-review.sh
+
+# Manual trigger: lefthook run review
+review:
+  commands:
+    manual-review:
+      run: bash .lefthook/ai-review.sh --manual
+
+# EXAMPLES (uncomment to use):
+#
+# pre-push:
+#   jobs:
+#     - name: packages audit
+#       tags:
+#         - frontend
+#         - security
+#       run: yarn audit
+#
+# pre-commit:
+#   parallel: true
+#   jobs:
+#     - run: yarn eslint {staged_files}
+#       glob: "*.{js,ts,jsx,tsx}"
+#     - name: govet
+#       files: git ls-files -m
+#       glob: "*.go"
+#       run: go vet {files}
