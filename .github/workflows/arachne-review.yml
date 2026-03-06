@@ -3,8 +3,6 @@ name: Arachne Code Review
 on:
   pull_request:
     types: [opened, synchronize]
-  pull_request_review_comment:
-    types: [created]
 
 jobs:
   arachne-review:
@@ -16,127 +14,27 @@ jobs:
       checks: write
     
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Get PR diff
-        id: diff
-        run: |
-          git diff origin/${{ github.base_ref }}...HEAD > pr_diff.txt
-          echo "diff_size=$(wc -c < pr_diff.txt)" >> $GITHUB_OUTPUT
-          echo "Files changed:"
-          git diff --stat origin/${{ github.base_ref }}...HEAD
 
       - name: Run Arachne Review
         id: review
         env:
           ARCEE_API_KEY: ${{ secrets.ARCEE_API_KEY }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: |
-          if [ -z "$ARCEE_API_KEY" ]; then
-            echo "❌ ARCEE_API_KEY not set"
-            echo "status=failure" >> $GITHUB_OUTPUT
-            echo "review=API key missing" >> $GITHUB_OUTPUT
-            exit 1
-          fi
-
-          cat > review_prompt.txt << 'PROMPT_EOF'
-You are Arachne, a code reviewer. Review this git diff and provide structured feedback.
-
-Analyze for:
-1. **Bugs** - Logic errors, null pointer risks, off-by-one errors
-2. **Security** - Injection risks, unsafe eval, exposed secrets
-3. **Performance** - N+1 queries, unnecessary allocations
-4. **Maintainability** - Code smells, anti-patterns, missing tests
-
-For each issue: Severity (🔴 Critical | 🟡 Warning | 🟢 Suggestion), file/line, explanation, suggested fix.
-
-If no issues: "LGTM 👍 Arachne approves this code."
-
-End with exactly one of:
-STATUS: PASS
-STATUS: WARN  
-STATUS: FAIL
-
-DIFF:
-PROMPT_EOF
-
-          head -c 50000 pr_diff.txt >> review_prompt.txt
-
-          echo "🕸️ Arachne reviewing (trinity-mini)..."
-          
-          REVIEW_RESPONSE=$(curl -s -X POST https://api.arcee.ai/v1/chat/completions \
-            -H "Authorization: Bearer $ARCEE_API_KEY" \
-            -H "Content-Type: application/json" \
-            -d @- <> EOF
-          {
-            "model": "arcee/trinity-mini",
-            "messages": [
-              {"role": "system", "content": "You are Arachne, expert code reviewer. Be concise."},
-              {"role": "user", "content": $(cat review_prompt.txt | jq -Rs .)}
-            ],
-            "temperature": 0.2,
-            "max_tokens": 2000
-          }
-          EOF
-          )
-
-          REVIEW_TEXT=$(echo "$REVIEW_RESPONSE" | jq -r '.choices[0].message.content // empty')
-          
-          if [ -z "$REVIEW_TEXT" ] || [ "$REVIEW_TEXT" = "null" ]; then
-            echo "status=failure" >> $GITHUB_OUTPUT
-            echo "review=API error" >> $GITHUB_OUTPUT
-            exit 1
-          fi
-
-          if echo "$REVIEW_TEXT" | grep -q "STATUS: FAIL"; then
-            STATUS="failure"
-          elif echo "$REVIEW_TEXT" | grep -q "STATUS: WARN"; then
-            STATUS="warning"
-          else
-            STATUS="success"
-          fi
-
-          CLEAN_REVIEW=$(echo "$REVIEW_TEXT" | grep -v "^STATUS: ")
-
-          echo "status=$STATUS" >> $GITHUB_OUTPUT
-          echo "review<<REVIEW_EOF" >> $GITHUB_OUTPUT
-          echo "$CLEAN_REVIEW" >> $GITHUB_OUTPUT
-          echo "REVIEW_EOF" >> $GITHUB_OUTPUT
-
-      - name: Post PR Review Comment
-        if: always()
-        env:
           GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          REVIEW: ${{ steps.review.outputs.review }}
-          STATUS: ${{ steps.review.outputs.status }}
-        run: |
-          case "$STATUS" in
-            success) BADGE="✅" ;;
-            warning) BADGE="⚠️" ;;
-            *) BADGE="❌" ;;
-          esac
-
-          gh pr review "$PR_NUMBER" --comment --body "$BADGE **Arachne Review** (arcee/trinity-mini)
-
-$REVIEW
-
----
-*Status: ${STATUS^^} | $(date -u +%Y-%m-%dT%H:%M:%SZ)*"
+        run: .github/scripts/arachne-review.sh "$ARCEE_API_KEY" "${{ github.event.pull_request.number }}" "$GH_TOKEN" "${{ github.base_ref }}" "${{ github.event.pull_request.head.sha }}"
 
       - name: Set Check Status
         if: always()
         uses: actions/github-script@v7
+        env:
+          REVIEW_STATUS: ${{ steps.review.outputs.status }}
         with:
           script: |
-            const status = '${{ steps.review.outputs.status }}' || 'failure';
+            const status = process.env.REVIEW_STATUS || 'failure';
             const conclusion = status === 'success' ? 'success' : 
                               status === 'warning' ? 'neutral' : 'failure';
-            
             await github.rest.checks.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -147,12 +45,10 @@ $REVIEW
               output: {
                 title: conclusion === 'success' ? 'Arachne approves' : 
                        conclusion === 'neutral' ? 'Arachne has warnings' : 'Arachne found issues',
-                summary: 'Automated code review by Arachne (trinity-mini)'
+                summary: 'Review complete'
               }
             });
 
       - name: Fail on Critical Issues
         if: steps.review.outputs.status == 'failure'
-        run: |
-          echo "❌ Arachne found critical issues. Blocking merge."
-          exit 1
+        run: exit 1
