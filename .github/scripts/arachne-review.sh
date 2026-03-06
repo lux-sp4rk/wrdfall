@@ -1,5 +1,6 @@
 #!/bin/bash
 # Arachne Review Script - Called by GitHub Actions
+# Now with GDScript specialization for Word Loom
 
 set -euo pipefail
 
@@ -8,6 +9,9 @@ PR_NUMBER="${2:-}"
 GH_TOKEN="${3:-}"
 BASE_REF="${4:-main}"
 HEAD_SHA="${5:-}"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 if [ -z "$ARCEE_API_KEY" ]; then
   echo "status=failure" >> "$GITHUB_OUTPUT"
@@ -19,10 +23,30 @@ fi
 git fetch origin "$BASE_REF"
 git diff "origin/$BASE_REF...HEAD" > pr_diff.txt || git diff HEAD~1 > pr_diff.txt
 
-# Build prompt
+# Check if GDScript files are present
+GDSCRIPT_FILES=$(grep -E '^\+\+\+.*\.gd$' pr_diff.txt || true)
+HAS_GDSCRIPT=$([ -n "$GDSCRIPT_FILES" ] && echo "true" || echo "false")
+
+# Load GDScript reviewer prompt if available
+GDSCRIPT_PROMPT=""
+if [ "$HAS_GDSCRIPT" = "true" ] && [ -f "$REPO_ROOT/.agents/gd-script-review.md" ]; then
+  GDSCRIPT_PROMPT=$(cat "$REPO_ROOT/.agents/gd-script-review.md")
+fi
+
+# Build base prompt
 {
   echo "You are Arachne, a code reviewer. Review this git diff."
   echo ""
+
+  # Inject GDScript-specific guidance if applicable
+  if [ -n "$GDSCRIPT_PROMPT" ]; then
+    echo "## Specialization: GDScript Review"
+    echo "$GDSCRIPT_PROMPT"
+    echo ""
+    echo "---"
+    echo ""
+  fi
+
   echo "Analyze for bugs, security, performance, maintainability."
   echo "Severity: 🔴 Critical | 🟡 Warning | 🟢 Suggestion"
   echo "No issues? Reply: LGTM 👍"
@@ -39,12 +63,13 @@ git diff "origin/$BASE_REF...HEAD" > pr_diff.txt || git diff HEAD~1 > pr_diff.tx
 } > prompt.txt
 
 echo "🕸️ Sending to Arachne..."
+[ "$HAS_GDSCRIPT" = "true" ] && echo "📋 GDScript specialization active"
 echo "API Key length: ${#ARCEE_API_KEY}"
 
 JSON_PROMPT=$(jq -Rs . < prompt.txt)
 JSON_PAYLOAD=$(jq -n --arg p "$JSON_PROMPT" '{model: "arcee/trinity-mini", messages: [{role: "system", content: "You are Arachne, expert code reviewer."}, {role: "user", content: $p}], temperature: 0.2, max_tokens: 2000}')
 
-echo "Payload: $JSON_PAYLOAD"
+echo "Payload size: ${#JSON_PAYLOAD} bytes"
 
 REVIEW_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST https://api.arcee.ai/v1/chat/completions \
   -H "Authorization: Bearer $ARCEE_API_KEY" \
@@ -77,6 +102,14 @@ fi
 
 CLEAN_REVIEW=$(echo "$REVIEW_TEXT" | grep -v "^STATUS: ")
 
+# Build badge with specialization indicator
+BADGE="❌"
+[ "$STATUS" = "success" ] && BADGE="✅"
+[ "$STATUS" = "warning" ] && BADGE="⚠️"
+
+SPECIALIZATION=""
+[ "$HAS_GDSCRIPT" = "true" ] && SPECIALIZATION=" + GDScript"
+
 echo "status=$STATUS" >> "$GITHUB_OUTPUT"
 {
   echo "review<<REVIEW_EOF"
@@ -86,11 +119,7 @@ echo "status=$STATUS" >> "$GITHUB_OUTPUT"
 
 # Post comment
 export GH_TOKEN
-BADGE="❌"
-[ "$STATUS" = "success" ] && BADGE="✅"
-[ "$STATUS" = "warning" ] && BADGE="⚠️"
-
-gh pr review "$PR_NUMBER" --comment --body "$BADGE **Arachne Review** (arcee/trinity-mini)
+gh pr review "$PR_NUMBER" --comment --body "$BADGE **Arachne Review** (arcee/trinity-mini$SPECIALIZATION)
 
 $CLEAN_REVIEW
 
