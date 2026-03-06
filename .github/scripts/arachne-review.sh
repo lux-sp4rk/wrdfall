@@ -45,15 +45,16 @@ JSON_PAYLOAD=$(jq -n --arg p "$JSON_PROMPT" '{model: "arcee/trinity-mini", messa
 
 echo "Payload size: ${#JSON_PAYLOAD} bytes"
 
-REVIEW_RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X POST https://api.arcee.ai/v1/chat/completions \
+curl -s -o /tmp/arachne_response.json -w "%{http_code}" -X POST https://api.arcee.ai/v1/chat/completions \
   -H "Authorization: Bearer $ARCEE_API_KEY" \
   -H "Content-Type: application/json" \
-  -d "$JSON_PAYLOAD")
+  -d "$JSON_PAYLOAD" > /tmp/arachne_http_code.txt
 
-HTTP_CODE=$(echo "$REVIEW_RESPONSE" | grep -o "HTTP_CODE:[0-9]*" | cut -d: -f2)
-REVIEW_RESPONSE=$(echo "$REVIEW_RESPONSE" | sed '/HTTP_CODE:/d')
+HTTP_CODE=$(cat /tmp/arachne_http_code.txt)
+REVIEW_RESPONSE=$(cat /tmp/arachne_response.json)
 
 echo "HTTP Code: $HTTP_CODE"
+echo "Response size: $(wc -c < /tmp/arachne_response.json) bytes"
 echo "Raw response: $REVIEW_RESPONSE"
 
 REVIEW_TEXT=$(echo "$REVIEW_RESPONSE" | jq -r '.choices[0].message.content // empty')
