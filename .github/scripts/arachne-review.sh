@@ -1,6 +1,6 @@
 #!/bin/bash
 # Arachne Review Script - Called by GitHub Actions
-# Now with GDScript specialization for Word Loom
+# Now with GDScript specialization for Word Loom + Retry logic
 
 set -euo pipefail
 
@@ -12,6 +12,10 @@ HEAD_SHA="${5:-}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+# Retry configuration
+MAX_RETRIES=3
+RETRY_DELAY=2
 
 if [ -z "$ARCEE_API_KEY" ]; then
   echo "status=failure" >> "$GITHUB_OUTPUT"
@@ -71,24 +75,123 @@ JSON_PAYLOAD=$(jq -n --arg p "$JSON_PROMPT" '{model: "arcee/trinity-mini", messa
 
 echo "Payload size: ${#JSON_PAYLOAD} bytes"
 
-REVIEW_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST https://api.arcee.ai/v1/chat/completions \
-  -H "Authorization: Bearer $ARCEE_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d "$JSON_PAYLOAD")
+# Retry loop for API call
+ATTEMPT=0
+HTTP_CODE=""
+REVIEW_RESPONSE=""
+REVIEW_TEXT=""
 
-HTTP_CODE=$(echo "$REVIEW_RESPONSE" | tail -n1)
-REVIEW_RESPONSE=$(echo "$REVIEW_RESPONSE" | sed '$d')
+while [ $ATTEMPT -lt $MAX_RETRIES ]; do
+  ATTEMPT=$((ATTEMPT + 1))
+  echo "Attempt $ATTEMPT/$MAX_RETRIES..."
 
-echo "HTTP Code: $HTTP_CODE"
-echo "Raw response: $REVIEW_RESPONSE"
+  REVIEW_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST https://api.arcee.ai/v1/chat/completions \
+    -H "Authorization: Bearer $ARCEE_API_KEY" \
+    -H "Content-Type: application/json" \
+    -d "$JSON_PAYLOAD" 2>&1 || true)
 
-REVIEW_TEXT=$(echo "$REVIEW_RESPONSE" | jq -r '.choices[0].message.content // empty')
+  HTTP_CODE=$(echo "$REVIEW_RESPONSE" | tail -n1)
+  REVIEW_RESPONSE=$(echo "$REVIEW_RESPONSE" | sed '$d')
 
+  echo "HTTP Code: $HTTP_CODE"
+
+  # Check for rate limiting
+  if [ "$HTTP_CODE" = "429" ]; then
+    echo "⚠️ Rate limited (429)"
+    if [ $ATTEMPT -lt $MAX_RETRIES ]; then
+      DELAY=$((RETRY_DELAY * ATTEMPT))
+      echo "Waiting ${DELAY}s before retry..."
+      sleep $DELAY
+      continue
+    fi
+  fi
+
+  # Check for server errors (5xx)
+  if [ "$HTTP_CODE" -ge 500 ] 2>/dev/null; then
+    echo "⚠️ Server error ($HTTP_CODE)"
+    if [ $ATTEMPT -lt $MAX_RETRIES ]; then
+      DELAY=$((RETRY_DELAY * ATTEMPT))
+      echo "Waiting ${DELAY}s before retry..."
+      sleep $DELAY
+      continue
+    fi
+  fi
+
+  # Check for empty response despite success code
+  if [ -z "$REVIEW_RESPONSE" ] && [ "$HTTP_CODE" = "200" ]; then
+    echo "⚠️ Empty response (HTTP 200)"
+    if [ $ATTEMPT -lt $MAX_RETRIES ]; then
+      DELAY=$((RETRY_DELAY * ATTEMPT))
+      echo "Waiting ${DELAY}s before retry..."
+      sleep $DELAY
+      continue
+    fi
+  fi
+
+  # Extract review text
+  if [ -n "$REVIEW_RESPONSE" ]; then
+    REVIEW_TEXT=$(echo "$REVIEW_RESPONSE" | jq -r '.choices[0].message.content // empty' 2>/dev/null || true)
+    ERROR_MSG=$(echo "$REVIEW_RESPONSE" | jq -r '.error.message // empty' 2>/dev/null || true)
+
+    # Check for API error in response body
+    if [ -n "$ERROR_MSG" ] && [ "$ERROR_MSG" != "null" ]; then
+      echo "API Error: $ERROR_MSG"
+      if [ $ATTEMPT -lt $MAX_RETRIES ]; then
+        DELAY=$((RETRY_DELAY * ATTEMPT))
+        echo "Waiting ${DELAY}s before retry..."
+        sleep $DELAY
+        continue
+      fi
+    fi
+
+    # Success - we got review text
+    if [ -n "$REVIEW_TEXT" ] && [ "$REVIEW_TEXT" != "null" ]; then
+      echo "✅ Review received (${#REVIEW_TEXT} chars)"
+      break
+    fi
+  fi
+
+  # If we got here without continuing, check if we should retry
+  if [ $ATTEMPT -lt $MAX_RETRIES ]; then
+    DELAY=$((RETRY_DELAY * ATTEMPT))
+    echo "Waiting ${DELAY}s before retry..."
+    sleep $DELAY
+  fi
+done
+
+# Final check - did we get a valid review?
 if [ -z "$REVIEW_TEXT" ] || [ "$REVIEW_TEXT" = "null" ]; then
-  ERROR_MSG=$(echo "$REVIEW_RESPONSE" | jq -r '.error.message // "API error"')
-  echo "status=failure" >> "$GITHUB_OUTPUT"
-  echo "review=❌ $ERROR_MSG" >> "$GITHUB_OUTPUT"
-  exit 1
+  echo "❌ Failed to get review after $MAX_RETRIES attempts"
+  echo "Last HTTP code: $HTTP_CODE"
+  echo "Last response: $REVIEW_RESPONSE"
+
+  # Graceful degradation - don't fail the build, just warn
+  echo "status=warning" >> "$GITHUB_OUTPUT"
+  {
+    echo "review<<REVIEW_EOF"
+    echo "⚠️ Arachne review unavailable"
+    echo ""
+    echo "The code review service is temporarily unavailable (HTTP $HTTP_CODE)."
+    echo "This is not a code issue - please review manually or retry later."
+    echo ""
+    echo "Last response snippet:"
+    echo "\`\`\`"
+    echo "$REVIEW_RESPONSE" | head -c 500
+    echo "\`\`\`"
+    echo "REVIEW_EOF"
+  } >> "$GITHUB_OUTPUT"
+
+  # Post warning comment but don't fail
+  export GH_TOKEN
+  gh pr review "$PR_NUMBER" --comment --body "⚠️ **Arachne Review** (arcee/trinity-mini)
+
+Review service temporarily unavailable (HTTP $HTTP_CODE after $MAX_RETRIES retries).
+Please review manually.
+
+---
+*Status: warning | $(date -u +%Y-%m-%dT%H:%M:%SZ)*"
+
+  exit 0  # Don't fail the build
 fi
 
 # Parse status
