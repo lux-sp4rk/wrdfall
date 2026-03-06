@@ -3,8 +3,6 @@ name: Arachne Code Review
 on:
   pull_request:
     types: [opened, synchronize]
-  pull_request_review_comment:
-    types: [created]
 
 jobs:
   arachne-review:
@@ -19,16 +17,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for proper diff
+          fetch-depth: 0
 
       - name: Get PR diff
         id: diff
         run: |
-          # Get the diff between base and head
+          git fetch origin ${{ github.base_ref }} --depth=1
           git diff origin/${{ github.base_ref }}...HEAD > pr_diff.txt
-          echo "diff_size=$(wc -c < pr_diff.txt)" >> $GITHUB_OUTPUT
-          
-          # Show what we're reviewing
+          echo "diff_lines=$(wc -l < pr_diff.txt)" >> "$GITHUB_OUTPUT"
           echo "Files changed:"
           git diff --stat origin/${{ github.base_ref }}...HEAD
 
@@ -36,77 +32,52 @@ jobs:
         id: review
         env:
           ARCEE_API_KEY: ${{ secrets.ARCEE_API_KEY }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          # Check if API key is set
           if [ -z "$ARCEE_API_KEY" ]; then
-            echo "❌ ARCEE_API_KEY not set"
-            echo "status=failure" >> $GITHUB_OUTPUT
-            echo "review=API key missing - cannot perform automated review" >> $GITHUB_OUTPUT
+            echo "status=failure" >> "$GITHUB_OUTPUT"
+            echo "review=❌ ARCEE_API_KEY not configured" >> "$GITHUB_OUTPUT"
             exit 1
           fi
 
-          # Prepare the prompt
-          cat > review_prompt.txt << 'PROMPT_EOF'
-You are Arachne, a code reviewer. Review this git diff and provide structured feedback.
+          # Build prompt file
+          printf '%s\n' "You are Arachne, a code reviewer. Review this git diff." > prompt.txt
+          printf '%s\n' "" >> prompt.txt
+          printf '%s\n' "Analyze for bugs, security, performance, maintainability." >> prompt.txt
+          printf '%s\n' "For each issue: Severity (🔴|🟡|🟢), file/line, explanation, fix." >> prompt.txt
+          printf '%s\n' "No issues? Reply: LGTM 👍" >> prompt.txt
+          printf '%s\n' "" >> prompt.txt
+          printf '%s\n' "End with exactly one of:" >> prompt.txt
+          printf '%s\n' "STATUS: PASS" >> prompt.txt
+          printf '%s\n' "STATUS: WARN" >> prompt.txt
+          printf '%s\n' "STATUS: FAIL" >> prompt.txt
+          printf '%s\n' "" >> prompt.txt
+          printf '%s\n' "DIFF:" >> prompt.txt
+          printf '%s\n' '```diff' >> prompt.txt
+          head -c 40000 pr_diff.txt >> prompt.txt
+          printf '%s\n' '```' >> prompt.txt
 
-Analyze for:
-1. **Bugs** - Logic errors, null pointer risks, off-by-one errors
-2. **Security** - Injection risks, unsafe eval, exposed secrets, auth bypasses  
-3. **Performance** - N+1 queries, unnecessary allocations, blocking operations
-4. **Maintainability** - Code smells, anti-patterns, missing tests
-
-For each issue found, provide:
-- Severity: 🔴 Critical | 🟡 Warning | 🟢 Suggestion
-- File and line reference
-- Explanation
-- Suggested fix
-
-If no significant issues found, respond with: "LGTM 👍 Arachne approves this code."
-
-At the end, output exactly one of these status lines:
-STATUS: PASS
-STATUS: WARN  
-STATUS: FAIL
-
-DIFF TO REVIEW:
-PROMPT_EOF
-
-          # Append the actual diff (truncated if too large)
-          head -c 50000 pr_diff.txt >> review_prompt.txt
-
-          # Call Arcee API (trinity-mini)
-          echo "🕸️ Sending diff to Arachne (trinity-mini)..."
+          echo "🕸️ Sending to Arachne..."
+          
+          JSON_PROMPT=$(jq -Rs . < prompt.txt)
+          JSON_PAYLOAD=$(jq -n --arg p "$JSON_PROMPT" '{model: "arcee/trinity-mini", messages: [{role: "system", content: "You are Arachne, expert code reviewer."}, {role: "user", content: $p}], temperature: 0.2, max_tokens: 2000}')
           
           REVIEW_RESPONSE=$(curl -s -X POST https://api.arcee.ai/v1/chat/completions \
             -H "Authorization: Bearer $ARCEE_API_KEY" \
             -H "Content-Type: application/json" \
-            -d @- << CURL_EOF
-          {
-            "model": "arcee/trinity-mini",
-            "messages": [
-              {"role": "system", "content": "You are Arachne, an expert code reviewer. Be concise but thorough."},
-              {"role": "user", "content": $(cat review_prompt.txt | jq -Rs .)}
-            ],
-            "temperature": 0.2,
-            "max_tokens": 2000
-          }
-          CURL_EOF
-          )
+            -d "$JSON_PAYLOAD")
 
-          # Extract the review text
+          echo "Raw response: $REVIEW_RESPONSE"
+          
           REVIEW_TEXT=$(echo "$REVIEW_RESPONSE" | jq -r '.choices[0].message.content // empty')
           
           if [ -z "$REVIEW_TEXT" ] || [ "$REVIEW_TEXT" = "null" ]; then
-            echo "❌ Failed to get review from API"
-            echo "Response: $REVIEW_RESPONSE"
-            echo "status=failure" >> $GITHUB_OUTPUT
-            echo "review=API error - could not complete review" >> $GITHUB_OUTPUT
+            ERROR_MSG=$(echo "$REVIEW_RESPONSE" | jq -r '.error.message // "API error"')
+            echo "status=failure" >> "$GITHUB_OUTPUT"
+            echo "review=❌ $ERROR_MSG" >> "$GITHUB_OUTPUT"
             exit 1
           fi
 
-          # Determine status from review text
+          # Parse status
           if echo "$REVIEW_TEXT" | grep -q "STATUS: FAIL"; then
             STATUS="failure"
           elif echo "$REVIEW_TEXT" | grep -q "STATUS: WARN"; then
@@ -115,45 +86,40 @@ PROMPT_EOF
             STATUS="success"
           fi
 
-          # Clean up the review text (remove STATUS line for display)
           CLEAN_REVIEW=$(echo "$REVIEW_TEXT" | grep -v "^STATUS: ")
 
-          echo "status=$STATUS" >> $GITHUB_OUTPUT
-          echo "review<<REVIEW_EOF" >> $GITHUB_OUTPUT
-          echo "$CLEAN_REVIEW" >> $GITHUB_OUTPUT
-          echo "REVIEW_EOF" >> $GITHUB_OUTPUT
-
-          echo "Review complete: $STATUS"
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          printf '%s\n%s\n%s\n' "review<<REVIEW_EOF" "$CLEAN_REVIEW" "REVIEW_EOF" >> "$GITHUB_OUTPUT"
 
       - name: Post PR Review Comment
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          REVIEW: ${{ steps.review.outputs.review }}
-          STATUS: ${{ steps.review.outputs.status }}
+          REVIEW_STATUS: ${{ steps.review.outputs.status }}
+          REVIEW_BODY: ${{ steps.review.outputs.review }}
         run: |
-          # Format status badge
-          case "$STATUS" in
+          case "$REVIEW_STATUS" in
             success) BADGE="✅" ;;
             warning) BADGE="⚠️" ;;
             *) BADGE="❌" ;;
           esac
 
-          # Post review comment
           gh pr review "$PR_NUMBER" --comment --body "$BADGE **Arachne Review** (arcee/trinity-mini)
 
-$REVIEW
+$REVIEW_BODY
 
 ---
-*Status: ${STATUS^^} | Reviewed: $(date -u +%Y-%m-%dT%H:%M:%SZ)*"
+*Status: $REVIEW_STATUS | $(date -u +%Y-%m-%dT%H:%M:%SZ)*"
 
       - name: Set Check Status
         if: always()
         uses: actions/github-script@v7
+        env:
+          REVIEW_STATUS: ${{ steps.review.outputs.status }}
         with:
           script: |
-            const status = '${{ steps.review.outputs.status }}' || 'failure';
+            const status = process.env.REVIEW_STATUS || 'failure';
             const conclusion = status === 'success' ? 'success' : 
                               status === 'warning' ? 'neutral' : 'failure';
             
@@ -167,8 +133,7 @@ $REVIEW
               output: {
                 title: conclusion === 'success' ? 'Arachne approves' : 
                        conclusion === 'neutral' ? 'Arachne has warnings' : 'Arachne found issues',
-                summary: 'Automated code review by Arachne (trinity-mini)',
-                text: 'Review posted as PR comment. Check the conversation tab for detailed feedback.'
+                summary: 'Review complete'
               }
             });
 
