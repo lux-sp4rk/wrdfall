@@ -38,7 +38,7 @@ jobs:
             await github.rest.checks.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              name: 'Arachne Code Review',
+              name: 'Arachne Review Status',
               head_sha: context.payload.pull_request.head.sha,
               status: 'completed',
               conclusion: conclusion,
