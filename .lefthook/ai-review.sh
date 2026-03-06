@@ -67,7 +67,7 @@ if [ -z "${ARCEE_API_KEY:-}" ] && [ -z "${OPENAI_API_KEY:-}" ]; then
   echo "   Review queued for manual processing."
   echo ""
   echo "To complete the review, run:"
-  echo "   openclaw agent --message \"Review PR $PR_NUM: $(pwd)/${DIFF_FILE}\""
+  echo "   openclaw agent --agent main --message \"Review PR $PR_NUM: $(pwd)/${DIFF_FILE}\""
   rm -f "$LOCKFILE"
   exit 0
 fi
@@ -98,7 +98,7 @@ else
   MODEL="openai/gpt-4o-mini"
 fi
 
-REVIEW_OUTPUT=$(openclaw agent --local --message "$PROMPT" --thinking low 2>&1 || echo "Review failed")
+REVIEW_OUTPUT=$(openclaw agent --local --agent main --message "$PROMPT" --thinking low 2>&1 || echo "Review failed")
 
 if [ -n "$REVIEW_OUTPUT" ] && [ "$REVIEW_OUTPUT" != "Review failed" ]; then
   # Post to GitHub
