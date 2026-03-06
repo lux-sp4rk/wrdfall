@@ -72,10 +72,8 @@ function App() {
   async function startPrefetch() {
     setState(prev => ({ ...prev, prefetchStatus: 'loading', prefetchProgress: 0, error: null }));
 
-    // Show progress if it takes more than 1.5s (likely not cached)
-    const timer = setTimeout(() => {
-      setState(prev => ({ ...prev, showProgress: true }));
-    }, 1500);
+    // Progress bar is now only shown after user clicks Play (UX: invisible loading)
+    // Removed auto-show timer — showProgress remains false until handlePlayClick sets it
 
     try {
       prefetchManager.current = new PrefetchManager((progress) => {
@@ -83,7 +81,7 @@ function App() {
       });
 
       const blobs = await prefetchManager.current.start();
-      
+
       // Pass direct paths to GodotLauncher.
       // NOTE: 'wasm' is the Godot ENGINE BASE NAME (no extension).
       // GodotLauncher strips any '.wasm' suffix before calling engine.init(),
@@ -96,17 +94,17 @@ function App() {
 
       // Dictionary is already prefetched and decompressed; parse it for the cache
       console.log('[startPrefetch] blobs.dict:', typeof blobs.dict, blobs.dict?.length, 'bytes');
-      
+
       const dictWords = dictionaryManager.current.parseWords(blobs.dict);
       console.log('[startPrefetch] dictWords after parseWords:', {
         type: dictWords?.constructor?.name,
         size: dictWords?.size,
         isSet: dictWords instanceof Set,
       });
-      
+
       dictionaryManager.current.cache.set('en', dictWords);
       console.log('[startPrefetch] Set en in cache');
-      
+
       // Verify it was cached correctly
       const cachedCheck = dictionaryManager.current.cache.get('en');
       console.log('[startPrefetch] Verified cache.get(en):', {
@@ -114,11 +112,9 @@ function App() {
         size: cachedCheck?.size,
         isSet: cachedCheck instanceof Set,
       });
-      
-      clearTimeout(timer);
+
       setState(prev => ({ ...prev, prefetchStatus: 'ready' }));
     } catch (error) {
-      clearTimeout(timer);
       console.error('Pre-fetch failed:', error);
       setState(prev => ({
         ...prev,
