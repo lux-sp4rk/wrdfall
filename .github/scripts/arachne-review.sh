@@ -15,9 +15,9 @@ if [ -z "$ARCEE_API_KEY" ]; then
   exit 1
 fi
 
-# Get diff
-git fetch origin "$BASE_REF" --depth=1
-git diff "origin/$BASE_REF...HEAD" > pr_diff.txt
+# Get diff - fetch enough history for merge base
+git fetch origin "$BASE_REF"
+git diff "origin/$BASE_REF...HEAD" > pr_diff.txt || git diff HEAD~1 > pr_diff.txt
 
 # Build prompt
 {
