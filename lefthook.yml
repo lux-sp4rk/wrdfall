@@ -1,18 +1,6 @@
 # Lefthook configuration
 # See: https://lefthook.dev/configuration/
 
-# AI Code Review - Arachne reviews PRs on push
-pre-push:
-  commands:
-    ai-review:
-      run: bash .lefthook/ai-review.sh
-
-# Manual trigger: lefthook run review
-review:
-  commands:
-    manual-review:
-      run: bash .lefthook/ai-review.sh --manual
-
 # EXAMPLES (uncomment to use):
 #
 # pre-push:
