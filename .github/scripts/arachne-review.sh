@@ -15,9 +15,9 @@ if [ -z "$ARCEE_API_KEY" ]; then
   exit 1
 fi
 
-# Get diff
-git fetch origin "$BASE_REF" --depth=1
-git diff "origin/$BASE_REF...HEAD" > pr_diff.txt
+# Get diff - fetch enough history for merge base
+git fetch origin "$BASE_REF"
+git diff "origin/$BASE_REF...HEAD" > pr_diff.txt || git diff HEAD~1 > pr_diff.txt
 
 # Build prompt
 {
@@ -43,11 +43,18 @@ echo "🕸️ Sending to Arachne..."
 JSON_PROMPT=$(jq -Rs . < prompt.txt)
 JSON_PAYLOAD=$(jq -n --arg p "$JSON_PROMPT" '{model: "arcee/trinity-mini", messages: [{role: "system", content: "You are Arachne, expert code reviewer."}, {role: "user", content: $p}], temperature: 0.2, max_tokens: 2000}')
 
-REVIEW_RESPONSE=$(curl -s -X POST https://api.arcee.ai/v1/chat/completions \
+echo "Payload size: ${#JSON_PAYLOAD} bytes"
+
+curl -s -o /tmp/arachne_response.json -w "%{http_code}" -X POST https://api.arcee.ai/v1/chat/completions \
   -H "Authorization: Bearer $ARCEE_API_KEY" \
   -H "Content-Type: application/json" \
-  -d "$JSON_PAYLOAD")
+  -d "$JSON_PAYLOAD" > /tmp/arachne_http_code.txt
 
+HTTP_CODE=$(cat /tmp/arachne_http_code.txt)
+REVIEW_RESPONSE=$(cat /tmp/arachne_response.json)
+
+echo "HTTP Code: $HTTP_CODE"
+echo "Response size: $(wc -c < /tmp/arachne_response.json) bytes"
 echo "Raw response: $REVIEW_RESPONSE"
 
 REVIEW_TEXT=$(echo "$REVIEW_RESPONSE" | jq -r '.choices[0].message.content // empty')
