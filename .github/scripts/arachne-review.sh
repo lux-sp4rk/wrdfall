@@ -43,11 +43,17 @@ echo "🕸️ Sending to Arachne..."
 JSON_PROMPT=$(jq -Rs . < prompt.txt)
 JSON_PAYLOAD=$(jq -n --arg p "$JSON_PROMPT" '{model: "arcee/trinity-mini", messages: [{role: "system", content: "You are Arachne, expert code reviewer."}, {role: "user", content: $p}], temperature: 0.2, max_tokens: 2000}')
 
-REVIEW_RESPONSE=$(curl -s -X POST https://api.arcee.ai/v1/chat/completions \
+echo "Payload size: ${#JSON_PAYLOAD} bytes"
+
+REVIEW_RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X POST https://api.arcee.ai/v1/chat/completions \
   -H "Authorization: Bearer $ARCEE_API_KEY" \
   -H "Content-Type: application/json" \
   -d "$JSON_PAYLOAD")
 
+HTTP_CODE=$(echo "$REVIEW_RESPONSE" | grep -o "HTTP_CODE:[0-9]*" | cut -d: -f2)
+REVIEW_RESPONSE=$(echo "$REVIEW_RESPONSE" | sed '/HTTP_CODE:/d')
+
+echo "HTTP Code: $HTTP_CODE"
 echo "Raw response: $REVIEW_RESPONSE"
 
 REVIEW_TEXT=$(echo "$REVIEW_RESPONSE" | jq -r '.choices[0].message.content // empty')
