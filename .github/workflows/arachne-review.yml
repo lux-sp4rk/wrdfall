@@ -12,7 +12,7 @@ jobs:
       contents: read
       pull-requests: write
       checks: write
-    
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,17 +33,17 @@ jobs:
         with:
           script: |
             const status = process.env.REVIEW_STATUS || 'failure';
-            const conclusion = status === 'success' ? 'success' : 
+            const conclusion = status === 'success' ? 'success' :
                               status === 'warning' ? 'neutral' : 'failure';
             await github.rest.checks.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              name: 'Arachne Code Review',
+              name: 'Arachne Review Status',
               head_sha: context.payload.pull_request.head.sha,
               status: 'completed',
               conclusion: conclusion,
               output: {
-                title: conclusion === 'success' ? 'Arachne approves' : 
+                title: conclusion === 'success' ? 'Arachne approves' :
                        conclusion === 'neutral' ? 'Arachne has warnings' : 'Arachne found issues',
                 summary: 'Review complete'
               }
