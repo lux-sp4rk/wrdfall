@@ -71,7 +71,7 @@ echo "🕸️ Sending to Arachne..."
 echo "API Key length: ${#ARCEE_API_KEY}"
 
 JSON_PROMPT=$(jq -Rs . < prompt.txt)
-JSON_PAYLOAD=$(jq -n --arg p "$JSON_PROMPT" '{model: "arcee/trinity-mini", messages: [{role: "system", content: "You are Arachne, expert code reviewer."}, {role: "user", content: $p}], temperature: 0.2, max_tokens: 2000}')
+JSON_PAYLOAD=$(jq -n --arg p "$JSON_PROMPT" '{model: "trinity-mini", messages: [{role: "system", content: "You are Arachne, expert code reviewer."}, {role: "user", content: $p}], temperature: 0.2, max_tokens: 2000}')
 
 echo "Payload size: ${#JSON_PAYLOAD} bytes"
 
@@ -183,7 +183,7 @@ if [ -z "$REVIEW_TEXT" ] || [ "$REVIEW_TEXT" = "null" ]; then
 
   # Post warning comment but don't fail
   export GH_TOKEN
-  gh pr review "$PR_NUMBER" --comment --body "⚠️ **Arachne Review** (arcee/trinity-mini)
+  gh pr review "$PR_NUMBER" --comment --body "⚠️ **Arachne Review** (trinity-mini)
 
 Review service temporarily unavailable (HTTP $HTTP_CODE after $MAX_RETRIES retries).
 Please review manually.
@@ -222,7 +222,7 @@ echo "status=$STATUS" >> "$GITHUB_OUTPUT"
 
 # Post comment
 export GH_TOKEN
-gh pr review "$PR_NUMBER" --comment --body "$BADGE **Arachne Review** (arcee/trinity-mini$SPECIALIZATION)
+gh pr review "$PR_NUMBER" --comment --body "$BADGE **Arachne Review** (trinity-mini$SPECIALIZATION)
 
 $CLEAN_REVIEW
 
