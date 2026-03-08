@@ -4,6 +4,12 @@ set -e
 echo "🧹 Running asset cleanup..."
 rm -f dist/index*.{wasm,pck,js,png} dist/assets/index*.{js,css} 2>/dev/null || true
 
+# If Godot files are missing or we are in CI, rebuild them
+if [ ! -f "landing/public/index.wasm" ] || [ "$NETLIFY" = "true" ] || [ "$GITHUB_ACTIONS" = "true" ]; then
+  echo "🏗️  Rebuilding Godot exports from source..."
+  ./scripts/export-godot.sh
+fi
+
 echo "Verifying Godot files in landing/public/..."
 if [ ! -f "landing/public/index.wasm" ]; then
   echo "Error: landing/public/index.wasm not found"
