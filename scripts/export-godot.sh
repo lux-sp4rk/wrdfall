@@ -15,8 +15,8 @@ TEMPLATES_URL="https://github.com/godotengine/godot-builds/releases/download/${G
 # 3. Path
 if [ -f "./godot_bin" ]; then
     GODOT="./godot_bin"
-elif [ -f "/home/uli/bin/godot" ]; then
-    GODOT="/home/uli/bin/godot"
+elif [ -f "$HOME/bin/godot" ]; then
+    GODOT="$HOME/bin/godot"
 else
     GODOT="godot"
 fi
