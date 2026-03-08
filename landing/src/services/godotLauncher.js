@@ -86,9 +86,9 @@ export class GodotLauncher {
   }
 
   /**
-   * Start game with dictionary and settings
+   * Start game with dictionary, settings, and optional launch scene
    */
-  async start({ dictionary, settings }) {
+  async start({ dictionary, settings, launchScene = 'game' }) {
     // Validate inputs
     if (!dictionary || !dictionary.words) {
       throw new Error('dictionary with words is required');
@@ -123,6 +123,10 @@ export class GodotLauncher {
       };
 
       console.log(`⚙️ Settings injected: ${JSON.stringify(window.WORD_LOOM_SETTINGS)}`);
+
+      // Inject launch scene parameter for Boot.gd to read
+      window.WORD_LOOM_LAUNCH_SCENE = launchScene;
+      console.log(`🚀 Launch scene: ${launchScene}`);
 
       // Start Godot — must pass mainPack so the engine knows where to find the PCK.
       await this.engine.startGame({ mainPack: this.config.mainPack });
