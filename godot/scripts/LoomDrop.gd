@@ -49,6 +49,7 @@ var score: int = 0
 var dictionary: DictionaryService
 var lang_config: LanguageConfig
 var _bag_distribution: Array = []
+var _bag_remaining: Array = []  # Letters remaining in current bag (Scrabble-style)
 
 # Selection colors and icons now defined in ThemeConstants
 const COLOR_SELECTED: Color = ThemeConstants.COLOR_SELECTED
@@ -292,6 +293,12 @@ func _build_weighted_bag() -> void:
 		var count: int = lang_config.letter_weights[letter]
 		for i in range(count):
 			_bag_distribution.append(letter)
+	_refill_bag()
+
+
+func _refill_bag() -> void:
+	_bag_remaining = _bag_distribution.duplicate()
+	_bag_remaining.shuffle()
 
 
 func _initialize_grid() -> void:
@@ -483,7 +490,9 @@ func _find_seed_path(length: int, empty_rows: int) -> Array:
 
 
 func _random_letter() -> String:
-	return _bag_distribution[randi() % _bag_distribution.size()]
+	if _bag_remaining.is_empty():
+		_refill_bag()
+	return _bag_remaining.pop_back()
 
 
 func _smart_letter(col: int) -> String:

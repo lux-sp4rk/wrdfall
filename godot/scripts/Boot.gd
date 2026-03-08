@@ -1,10 +1,32 @@
 extends Node
 ## Boot scene: routes to LoomDrop on web (React Shell owns navigation),
 ## or to Home on desktop/editor builds.
+## On web, checks window.WORD_LOOM_LAUNCH_SCENE to route to Tutorial or LoomDrop.
 
 func _ready() -> void:
 	GameSettings.load_from_localstorage()
 	if OS.has_feature("web"):
-		get_tree().change_scene_to_file("res://scenes/LoomDrop.tscn")
+		var launch_scene: String = _get_launch_scene_from_js()
+		if launch_scene == "tutorial":
+			get_tree().change_scene_to_file("res://scenes/Tutorial.tscn")
+		else:
+			get_tree().change_scene_to_file("res://scenes/LoomDrop.tscn")
 	else:
 		get_tree().change_scene_to_file("res://scenes/Home.tscn")
+
+
+func _get_launch_scene_from_js() -> String:
+	"""Read launch scene from JavaScript-injected window.WORD_LOOM_LAUNCH_SCENE."""
+	if not OS.has_feature("web"):
+		return ""
+	
+	var js_bridge = JavaScriptBridge.get_interface("window")
+	if js_bridge == null:
+		return ""
+	
+	# Use eval to safely read the value
+	var result = JavaScriptBridge.eval("window.WORD_LOOM_LAUNCH_SCENE || ''")
+	if result == null or not (result is String):
+		return ""
+	
+	return result
