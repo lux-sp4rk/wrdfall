@@ -85,7 +85,7 @@ while [ $ATTEMPT -lt $MAX_RETRIES ]; do
   ATTEMPT=$((ATTEMPT + 1))
   echo "Attempt $ATTEMPT/$MAX_RETRIES..."
 
-  REVIEW_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST https://api.arcee.ai/v1/chat/completions \
+  REVIEW_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST https://api.arcee.ai/api/v1/chat/completions \
     -H "Authorization: Bearer $ARCEE_API_KEY" \
     -H "Content-Type: application/json" \
     -d "$JSON_PAYLOAD" 2>&1 || true)
