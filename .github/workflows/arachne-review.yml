@@ -10,4 +10,5 @@ jobs:
     secrets:
       ARCEE_API_KEY: ${{ secrets.ARCEE_API_KEY }}
     with:
-      specialization-path: '.agents/gd-script-review.md'
+      passes: 'logic,security,performance,judge'
+      max-files: 30
