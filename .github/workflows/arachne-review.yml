@@ -5,50 +5,9 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  arachne-review:
-    name: Arachne Review
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-      checks: write
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Run Arachne Review
-        id: review
-        env:
-          ARCEE_API_KEY: ${{ secrets.ARCEE_API_KEY }}
-          GH_TOKEN: ${{ github.token }}
-        run: .github/scripts/arachne-review.sh "$ARCEE_API_KEY" "${{ github.event.pull_request.number }}" "$GH_TOKEN" "${{ github.base_ref }}" "${{ github.event.pull_request.head.sha }}"
-
-      - name: Set Check Status
-        if: always()
-        uses: actions/github-script@v7
-        env:
-          REVIEW_STATUS: ${{ steps.review.outputs.status }}
-        with:
-          script: |
-            const status = process.env.REVIEW_STATUS || 'failure';
-            const conclusion = status === 'success' ? 'success' :
-                              status === 'warning' ? 'neutral' : 'failure';
-            await github.rest.checks.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              name: 'Arachne Review Status',
-              head_sha: context.payload.pull_request.head.sha,
-              status: 'completed',
-              conclusion: conclusion,
-              output: {
-                title: conclusion === 'success' ? 'Arachne approves' :
-                       conclusion === 'neutral' ? 'Arachne has warnings' : 'Arachne found issues',
-                summary: 'Review complete'
-              }
-            });
-
-      - name: Fail on Critical Issues
-        if: steps.review.outputs.status == 'failure'
-        run: exit 1
+  review:
+    uses: lux-sp4rk/dotfiles/gh-actions/.github/workflows/arachne-review.yml@main
+    secrets:
+      ARCEE_API_KEY: ${{ secrets.ARCEE_API_KEY }}
+    with:
+      specialization-path: '.agents/gd-script-review.md'
