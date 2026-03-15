@@ -10,6 +10,7 @@ import { HomeScreen } from './screens/HomeScreen.jsx';
 import { StatsScreen } from './screens/StatsScreen.jsx';
 import { SettingsScreen } from './screens/SettingsScreen.jsx';
 import { RulesScreen } from './screens/RulesScreen.jsx';
+import { TutorialPrompt } from './components/TutorialPrompt.jsx';
 import './App.css';
 
 // Initialize Supabase client
@@ -34,6 +35,8 @@ function App() {
     showProgress: false,
     currentScreen: 'home',
   }));
+
+  const [showTutorialPrompt, setShowTutorialPrompt] = useState(false);
 
   const landingRef = useRef(null);
   const storageManager = useRef(new StorageManager(supabase));
@@ -131,6 +134,39 @@ function App() {
     }
     if (state.prefetchStatus !== 'ready') return;
 
+    // Check if user has completed or skipped tutorial
+    const hasCompletedTutorial = localStorage.getItem('word-loom-tutorial-completed') === 'true';
+    const hasSkippedTutorial = localStorage.getItem('word-loom-tutorial-skipped') === 'true';
+
+    if (!hasCompletedTutorial && !hasSkippedTutorial) {
+      // First-time user: show tutorial prompt
+      setShowTutorialPrompt(true);
+      return;
+    }
+
+    // Returning user: launch game directly
+    await launchGame('game');
+  }
+
+  async function handleTutorialYes() {
+    setShowTutorialPrompt(false);
+    await launchGame('tutorial');
+  }
+
+  async function handleTutorialNo() {
+    setShowTutorialPrompt(false);
+    localStorage.setItem('word-loom-tutorial-skipped', 'true');
+    await launchGame('game');
+  }
+
+  async function handleStartTutorialFromRules() {
+    setState(prev => ({ ...prev, currentScreen: 'home' }));
+    // Small delay to let the home screen render before starting game
+    await new Promise(resolve => setTimeout(resolve, 100));
+    await launchGame('tutorial');
+  }
+
+  async function launchGame(launchScene) {
     setState(prev => ({ ...prev, transitioning: true }));
 
     // Set body background immediately to match game theme (eliminates black bars during transition)
@@ -155,15 +191,15 @@ function App() {
       const language = currentSettings.language || 'en';
       
       // Load dictionary (from cache or fetch if needed)
-      console.log(`[handlePlayClick] Loading ${language} dictionary...`);
+      console.log(`[launchGame] Loading ${language} dictionary...`);
       let words = dictionaryManager.current.cache.get(language);
       
       if (!words) {
-        console.log(`[handlePlayClick] ${language} dictionary not in cache, fetching...`);
+        console.log(`[launchGame] ${language} dictionary not in cache, fetching...`);
         words = await dictionaryManager.current.load(language);
       }
       
-      console.log(`[handlePlayClick] Retrieved ${language} words:`, {
+      console.log(`[launchGame] Retrieved ${language} words:`, {
         type: words?.constructor?.name,
         size: words?.size,
         isSet: words instanceof Set,
@@ -173,15 +209,16 @@ function App() {
 
       if (!words || words.size === 0) {
         const errMsg = `Dictionary failed to load: language=${language}, words=${typeof words}, size=${words?.size}`;
-        console.error('[handlePlayClick] VALIDATION FAILED:', errMsg);
+        console.error('[launchGame] VALIDATION FAILED:', errMsg);
         throw new Error(errMsg);
       }
 
-      console.log(`[handlePlayClick] ${language} dictionary validation PASSED, starting game...`);
+      console.log(`[launchGame] ${language} dictionary validation PASSED, starting ${launchScene}...`);
 
       await godotLauncher.current.start({
         dictionary: { language: language, words },
         settings: { theme: state.theme },
+        launchScene: launchScene,
       });
 
       window.saveHighScore = (score) => {
@@ -192,7 +229,7 @@ function App() {
         landingRef.current.style.display = 'none';
       }
     } catch (error) {
-      console.error('[handlePlayClick] Game start failed:', error);
+      console.error('[launchGame] Game start failed:', error);
       setState(prev => ({ ...prev, transitioning: false, error: error.message || 'Failed to start game' }));
 
       if (landingRef.current) {
@@ -231,8 +268,17 @@ function App() {
           theme={state.theme}
           language={getSettings().language}
           onBack={() => setState(prev => ({ ...prev, currentScreen: 'home' }))}
+          onStartTutorial={handleStartTutorialFromRules}
         />
       )}
+
+      <TutorialPrompt
+        isOpen={showTutorialPrompt}
+        onYes={handleTutorialYes}
+        onNo={handleTutorialNo}
+        language={getSettings().language}
+        theme={state.theme}
+      />
     </>
   )
 }

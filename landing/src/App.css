@@ -588,6 +588,98 @@ button:focus-visible {
   font-size: 16px;
 }
 
+/* ===== Tutorial Prompt ===== */
+
+.tutorial-prompt-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fade-in 200ms ease-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.tutorial-prompt-modal {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 340px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: center;
+  animation: scale-in 200ms ease-out;
+}
+
+@keyframes scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.tutorial-prompt-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.tutorial-prompt-message {
+  font-size: 16px;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.tutorial-prompt-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.tutorial-prompt-yes,
+.tutorial-prompt-no {
+  flex: 1;
+  height: 48px;
+  min-height: 48px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 150ms ease;
+  border: none;
+}
+
+.tutorial-prompt-yes {
+  background: var(--color-primary);
+  color: var(--text-on-primary);
+}
+
+.tutorial-prompt-yes:hover {
+  background: var(--color-primary-hover);
+}
+
+.tutorial-prompt-yes:active {
+  background: var(--color-primary-pressed);
+}
+
+.tutorial-prompt-no {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 2px solid var(--border-neutral);
+}
+
+.tutorial-prompt-no:hover {
+  background: var(--progress-bg);
+}
+
 /* ===== Rules screen ===== */
 
 .rules-card {
@@ -785,4 +877,114 @@ button:focus-visible {
   font-weight: 500;
   color: #F2F2F2;
   letter-spacing: 0.3px;
+}
+
+/* ============================================
+   Tutorial Prompt Modal
+   ============================================ */
+
+.tutorial-prompt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 200ms ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.tutorial-prompt-modal {
+  background-color: var(--bg-card);
+  border-radius: 16px;
+  padding: 32px 24px;
+  max-width: 320px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  animation: slideUp 300ms ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tutorial-prompt-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 16px 0;
+}
+
+.tutorial-prompt-message {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin: 0 0 24px 0;
+  line-height: 1.5;
+}
+
+.tutorial-prompt-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tutorial-prompt-yes {
+  background-color: var(--color-primary);
+  color: var(--text-on-primary);
+  border: none;
+  border-radius: 12px;
+  padding: 14px 24px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.tutorial-prompt-yes:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.tutorial-prompt-yes:active {
+  background-color: var(--color-primary-pressed);
+}
+
+.tutorial-prompt-no {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 2px solid var(--border-neutral);
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.tutorial-prompt-no:hover {
+  background-color: var(--border-neutral);
+  color: var(--text-primary);
+}
+
+/* Rules screen tutorial button */
+.rules-tutorial-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-neutral);
+  text-align: center;
 }

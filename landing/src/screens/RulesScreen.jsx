@@ -7,14 +7,16 @@ const UI_TEXT = {
   en: {
     back: '← Back',
     title: 'How to Play',
+    tryTutorial: 'Try Interactive Tutorial',
   },
   es: {
     back: '← Volver',
     title: 'Cómo Jugar',
+    tryTutorial: 'Probar Tutorial Interactivo',
   },
 }
 
-export function RulesScreen({ theme, language = 'en', onBack }) {
+export function RulesScreen({ theme, language = 'en', onBack, onStartTutorial }) {
   const rulesContent = language === 'es' ? rulesEs : rulesEn
   const ui = UI_TEXT[language] || UI_TEXT.en
 
@@ -22,7 +24,7 @@ export function RulesScreen({ theme, language = 'en', onBack }) {
     <div className={`landing-container theme-${theme}`}>
       <div className="main-card rules-card">
         <div className="screen-header">
-          <button className="back-button" onClick={onBack}>{ui.back}</button>
+          <button type="button" className="back-button" onClick={onBack}>{ui.back}</button>
           <h2 className="screen-title">{ui.title}</h2>
         </div>
 
@@ -49,6 +51,12 @@ export function RulesScreen({ theme, language = 'en', onBack }) {
             {rulesContent}
           </ReactMarkdown>
         </div>
+
+        {onStartTutorial && (
+          <button type="button" className="primary-button" onClick={onStartTutorial}>
+            {ui.tryTutorial}
+          </button>
+        )}
       </div>
     </div>
   )
