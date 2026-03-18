@@ -1,15 +1,24 @@
 name: Arachne Code Review
+# Calls the reusable Arachne review workflow from dotfiles
+# Bug Hunter D33 performs multi-pass code review on PRs
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'godot/**'
+      - 'landing/**'
+      - 'dist/**'
   workflow_dispatch:
 
 jobs:
-  review:
+  arachne-review:
+    name: Code Review
     uses: lux-sp4rk/dotfiles/gh-actions/.github/workflows/arachne-review.yml@main
     secrets:
       ARCEE_API_KEY: ${{ secrets.ARCEE_API_KEY }}
     with:
       passes: 'logic,security,performance,judge'
+      model: 'arcee/trinity-mini'
+      severity-threshold: 'warning'
       max-files: 30
