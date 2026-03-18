@@ -3,6 +3,7 @@ name: Arachne Code Review
 on:
   pull_request:
     types: [opened, synchronize]
+  workflow_dispatch:
 
 jobs:
   review:
