@@ -1,22 +1,24 @@
 # Lefthook configuration
 # See: https://lefthook.dev/configuration/
 
-# EXAMPLES (uncomment to use):
-#
-# pre-push:
-#   jobs:
-#     - name: packages audit
-#       tags:
-#         - frontend
-#         - security
-#       run: yarn audit
-#
-# pre-commit:
-#   parallel: true
-#   jobs:
-#     - run: yarn eslint {staged_files}
-#       glob: "*.{js,ts,jsx,tsx}"
-#     - name: govet
-#       files: git ls-files -m
-#       glob: "*.go"
-#       run: go vet {files}
+# Block direct pushes to main - enforce PR workflow
+pre-push:
+  jobs:
+    - name: block-main-push
+      run: |
+        # Read stdin for ref updates (remote_name local_ref local_sha remote_ref remote_sha)
+        while read local_ref local_sha remote_ref remote_sha; do
+          # Check if pushing to main branch
+          if [ "$remote_ref" = "refs/heads/main" ]; then
+            echo ""
+            echo "❌ ERROR: Direct push to 'main' branch is not allowed!"
+            echo ""
+            echo "   Please create a feature branch and open a pull request instead:"
+            echo ""
+            echo "   git checkout -b feature/your-feature-name"
+            echo "   git push -u origin feature/your-feature-name"
+            echo "   gh pr create --title \"Your PR title\" --body \"Your PR description\""
+            echo ""
+            exit 1
+          fi
+        done
