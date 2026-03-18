@@ -1014,10 +1014,6 @@ func _on_draw_more_pressed() -> void:
 	if game_over or is_paused:
 		return
 
-	if score < DRAW_MORE_COST:
-		word_label.text = lang_config.ui_strings["need_draw_more"] % DRAW_MORE_COST
-		return
-
 	# Find columns that have space (top row is empty)
 	var open_cols: Array = []
 	for col in range(COLS):
@@ -1028,13 +1024,7 @@ func _on_draw_more_pressed() -> void:
 		word_label.text = lang_config.ui_strings["draw_more_no_space"]
 		return
 
-	# Deduct cost
-	score -= DRAW_MORE_COST
 	StatsManager.record_powerup("draw")
-	_update_score_display()
-	_update_shake_button()
-	_update_swap_button()
-	_update_draw_more_button()
 
 	# Draw letters
 	_draw_more_letters(open_cols)
@@ -1056,7 +1046,7 @@ func _draw_more_letters(open_cols: Array) -> void:
 	await _apply_gravity_with_animation()
 
 	# Show feedback
-	word_label.text = lang_config.ui_strings["draw_more_success"] % [letters_to_draw, DRAW_MORE_COST]
+	word_label.text = lang_config.ui_strings["draw_more_success"] % letters_to_draw
 
 	# Check for win conditions
 	if _is_grid_empty():
@@ -1415,7 +1405,7 @@ func _update_swap_button() -> void:
 
 
 func _update_draw_more_button() -> void:
-	draw_more_button.disabled = not game_started or score < DRAW_MORE_COST or is_paused
+	draw_more_button.disabled = not game_started or is_paused
 
 
 func _setup_icon_button(btn: Button, icon_text: String, label_text: String) -> void:
