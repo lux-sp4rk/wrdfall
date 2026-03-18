@@ -40,3 +40,6 @@ landing/.env
 
 # Dependencies
 node_modules
+
+# Worktrees
+.worktrees/
