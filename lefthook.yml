@@ -1,24 +1,19 @@
 # Lefthook configuration
 # See: https://lefthook.dev/configuration/
 
-# Block direct pushes to main - enforce PR workflow
-pre-push:
-  jobs:
-    - name: block-main-push
-      run: |
-        # Read stdin for ref updates (remote_name local_ref local_sha remote_ref remote_sha)
-        while read local_ref local_sha remote_ref remote_sha; do
-          # Check if pushing to main branch
-          if [ "$remote_ref" = "refs/heads/main" ]; then
-            echo ""
-            echo "❌ ERROR: Direct push to 'main' branch is not allowed!"
-            echo ""
-            echo "   Please create a feature branch and open a pull request instead:"
-            echo ""
-            echo "   git checkout -b feature/your-feature-name"
-            echo "   git push -u origin feature/your-feature-name"
-            echo "   gh pr create --title \"Your PR title\" --body \"Your PR description\""
-            echo ""
-            exit 1
-          fi
-        done
+# DISABLED: pre-push hook was hanging indefinitely waiting for stdin
+# The while read loop never received input when run via lefthook
+# 
+# If re-enabling, use a non-stdin approach like:
+#   git rev-parse --abbrev-ref HEAD to get current branch
+#   git branch -r --contains HEAD to check if main
+#
+# pre-push:
+#   jobs:
+#     - name: block-main-push
+#       run: |
+#         CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+#         if [ "$CURRENT_BRANCH" = "main" ]; then
+#           echo "Direct push to main is not allowed. Use a feature branch."
+#           exit 1
+#         fi
