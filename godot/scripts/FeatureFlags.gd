@@ -15,7 +15,7 @@ var drop_ratchet_enabled: bool = false:
 			feature_flag_changed.emit("drop_ratchet_enabled", val)
 			save_flags()
 
-var draw_more_enabled: bool = false:
+var draw_more_enabled: bool = true:
 	set(val):
 		if draw_more_enabled != val:
 			draw_more_enabled = val
@@ -46,10 +46,10 @@ func load_flags() -> void:
 	
 	if err == OK:
 		drop_ratchet_enabled = config.get_value("flags", "drop_ratchet_enabled", false)
-		draw_more_enabled = config.get_value("flags", "draw_more_enabled", false)
+		draw_more_enabled = config.get_value("flags", "draw_more_enabled", true)
 	else:
 		drop_ratchet_enabled = false
-		draw_more_enabled = false
+		draw_more_enabled = true
 	
 	# Web localStorage override (React-driven changes)
 	if OS.has_feature("web"):

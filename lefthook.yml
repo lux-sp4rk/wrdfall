@@ -1,19 +1,12 @@
 # Lefthook configuration
 # See: https://lefthook.dev/configuration/
 
-# DISABLED: pre-push hook was hanging indefinitely waiting for stdin
-# The while read loop never received input when run via lefthook
-# 
-# If re-enabling, use a non-stdin approach like:
-#   git rev-parse --abbrev-ref HEAD to get current branch
-#   git branch -r --contains HEAD to check if main
-#
-# pre-push:
-#   jobs:
-#     - name: block-main-push
-#       run: |
-#         CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-#         if [ "$CURRENT_BRANCH" = "main" ]; then
-#           echo "Direct push to main is not allowed. Use a feature branch."
-#           exit 1
-#         fi
+pre-push:
+  jobs:
+    - name: block-main-push
+      run: |
+        CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+        if [ "$CURRENT_BRANCH" = "main" ]; then
+          echo "Direct push to main is not allowed. Use a feature branch."
+          exit 1
+        fi
