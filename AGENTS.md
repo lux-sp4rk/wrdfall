@@ -1,44 +1,47 @@
 # AGENTS.md — Word Loom Instructions
 
-## Project Context
-Word Loom is a strategic word puzzle game built with **Godot 4.6 (GDScript)** — strategic word puzzles meet Tetris.
-- **Target**: iPad, phone, browser (HTML5).
-- **Style**: High contrast, large tap targets, senior-first design.
-- **Game mode**: **Loom Drop** — Tetris-style falling letters on a 5×5 grid with word-swiping.
+## Project Intent
+Word Loom: Tetris-meets-Scrabble built with **Godot 4.6 (GDScript)**. Strategic word puzzles for iPad, mobile, and browser.
 
-## Project Structure
+## Stack & Tooling
+
+| Layer | Technology | Location |
+|-------|------------|----------|
+| Engine | Godot 4.6 | [godot/project.godot](godot/project.godot) |
+| Backend | Supabase | [supabase_schema.sql](supabase_schema.sql) |
+| Web | React + Vite | [landing/package.json](landing/package.json) |
+
+**Non-obvious:**
+- **PCK Footgun**: Re-export required for any `.gd` changes to be seen on web. [ARCHITECTURE.md:43](ARCHITECTURE.md:43)
+- **LFS Tracking**: Large binaries (`.wasm`, `.pck`) are in Git LFS.
+
+## Essential Commands
+
+```bash
+# Export Godot to landing/public/
+npm run build:godot
+
+# Full build (Godot + React)
+./build.sh
+
+# Run local web server
+npm run serve
 ```
-godot/
-  project.godot        # Godot 4.6 config (main scene: Home.tscn)
-  scenes/              # Game scenes (.tscn)
-  scripts/             # GDScript files (.gd)
-  data/                # Dictionaries and game data
-landing/
-  public/              # Canonical Godot web exports (index.wasm, index.pck, etc.)
-  src/                 # React landing page source
-dist/                  # Final production build (generated from landing/)
-docs/                  # Design docs and rules
-```
 
-## Key Workflows
-- **Sync**: Run `npm run sync` before starting work to update `main` and prune merged branches.
-- **Local Dev**: Open `godot/project.godot` in Godot 4.6 and press F5.
-- **Web Export**: Run `npm run build:godot`. This exports the Godot project to `landing/public/`.
-- **Full Build**: Run `./build.sh` to export Godot AND build the React landing page into `dist/`.
-- **Deployment**: Netlify deploys from `dist/`.
+## Git Workflow
+- **PR-first**: Never push to main.
+- **Commit Assets**: Re-exported `.wasm` and `.pck` files MUST be committed for deploys.
 
-## Web Deployment & LFS
-- **Canonical Exports**: `landing/public/` contains the canonical Godot binaries. These MUST be committed.
-- **Git LFS**: `.wasm` and `.pck` files are tracked via Git LFS.
-- **Automated CI**: GitHub Actions rebuild the Godot export on PRs for deploy previews, but they **do not** commit back to your branch to avoid history conflicts. You must commit your local exports for the final merge.
+## Key Patterns
 
-## Code Style (GDScript)
-- **Godot 4.6**: Use `signal.connect(callable)` and static typing.
-- **Nodes**: Use `@onready` and `%UniqueNames`.
-- **Naming**: `snake_case` for members, `PascalCase` for classes.
+| Pattern | Location |
+|---------|----------|
+| Core Logic | [godot/scripts/LoomDrop.gd:50-200](godot/scripts/LoomDrop.gd) |
+| Theme System | [godot/scripts/ThemeManager.gd](godot/scripts/ThemeManager.gd) |
+| Persistence | [godot/scripts/GameSettings.gd:40-60](godot/scripts/GameSettings.gd) |
+| Web Bridge | [godot/scripts/Boot.gd:15-30](godot/scripts/Boot.gd) |
 
-## Game Rules
-See `docs/game-rules.md` for scoring, multipliers, and mechanics.
-- **5×5 grid**, 8-directional selection, 3+ letter words.
-- **Combo streak**: 4+ letter words build multiplier.
-- **Drop ratchet**: Speed increases every 5 drops.
+## Quick References
+- **Rules/Scoring**: [docs/game-rules.md](docs/game-rules.md)
+- **Code Style**: [CODE_STYLE.md](CODE_STYLE.md)
+- **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md)
