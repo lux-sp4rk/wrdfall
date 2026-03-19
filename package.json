@@ -13,7 +13,7 @@
     "dev:landing": "cd landing && npm run dev",
     "build:godot": "./scripts/export-godot.sh",
     "sync": "./scripts/sync-repo.sh",
-    "prepare": "lefthook install"
+    "prepare": "./scripts/prepare.sh"
   },
   "workspaces": [
     "landing"
