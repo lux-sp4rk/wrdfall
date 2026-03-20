@@ -21,15 +21,28 @@ export function TutorialPrompt({ isOpen, onYes, onNo, language = 'en', theme = '
   const ui = UI_TEXT[language] || UI_TEXT.en
 
   return (
-    <div className="tutorial-prompt-overlay">
+    <div 
+      className="tutorial-prompt-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tutorial-title"
+    >
       <div className={`tutorial-prompt-modal theme-${theme}`}>
-        <h2 className="tutorial-prompt-title">{ui.title}</h2>
+        <h2 id="tutorial-title" className="tutorial-prompt-title">{ui.title}</h2>
         <p className="tutorial-prompt-message">{ui.message}</p>
         <div className="tutorial-prompt-buttons">
-          <button className="tutorial-prompt-yes" onClick={onYes}>
+          <button 
+            type="button"
+            className="tutorial-prompt-yes" 
+            onClick={onYes}
+          >
             {ui.yesButton}
           </button>
-          <button className="tutorial-prompt-no" onClick={onNo}>
+          <button 
+            type="button"
+            className="tutorial-prompt-no" 
+            onClick={onNo}
+          >
             {ui.noButton}
           </button>
         </div>

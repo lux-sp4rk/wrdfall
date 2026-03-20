@@ -7,11 +7,14 @@
  * - Anonymous device IDs for MVP
  */
 
+import { safeStorage, clampNumber } from './hardening.js';
+
 export class StorageManager {
   constructor(supabaseClient) {
     this.supabase = supabaseClient;
     this.localKey = 'word_loom_high_score';
     this.deviceIdKey = 'word_loom_device_id';
+    this.maxScore = 999999999; // Prevent overflow
   }
 
   /**
@@ -49,49 +52,82 @@ export class StorageManager {
    * Get high score from localStorage
    */
   getLocalHighScore() {
-    const raw = localStorage.getItem(this.localKey);
-    return raw ? parseInt(raw, 10) : null;
+    try {
+      const raw = localStorage.getItem(this.localKey);
+      if (!raw) return null;
+      const parsed = parseInt(raw, 10);
+      // Validate: must be a finite non-negative number
+      if (!Number.isFinite(parsed) || parsed < 0) {
+        console.warn('Invalid high score in localStorage:', raw);
+        return null;
+      }
+      return Math.min(parsed, this.maxScore);
+    } catch (err) {
+      console.warn('Failed to read high score:', err);
+      return null;
+    }
   }
 
   /**
    * Set high score in localStorage
    */
   setLocalHighScore(score) {
-    localStorage.setItem(this.localKey, score.toString());
+    const clamped = clampNumber(score, 0, this.maxScore, 0);
+    localStorage.setItem(this.localKey, clamped.toString());
   }
 
   /**
    * Fetch high score from Supabase
    */
   async fetchFromSupabase() {
-    const userId = this.getUserId();
-
-    const { data, error } = await this.supabase
-      .from('user_stats')
-      .select('high_score')
-      .eq('user_id', userId)
-      .maybeSingle();
-
-    if (error) {
-      console.warn('Supabase fetch failed:', error);
+    if (!this.supabase) {
+      console.warn('Supabase client not available');
       return null;
     }
-    if (!data) {
-      return null; // No record exists yet
+    
+    const userId = this.getUserId();
+    if (!userId) {
+      console.warn('No user ID available');
+      return null;
     }
 
-    return data.high_score;
+    try {
+      const { data, error } = await this.supabase
+        .from('user_stats')
+        .select('high_score')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.warn('Supabase fetch failed:', error);
+        return null;
+      }
+      if (!data) {
+        return null; // No record exists yet
+      }
+
+      // Validate and clamp the score
+      const score = clampNumber(data.high_score, 0, this.maxScore, 0);
+      return score;
+    } catch (err) {
+      console.warn('Supabase fetch error:', err);
+      return null;
+    }
   }
 
   /**
    * Background sync: update local if remote is higher
    */
   async syncFromSupabase() {
-    const remote = await this.fetchFromSupabase();
-    const local = this.getLocalHighScore();
+    try {
+      const remote = await this.fetchFromSupabase();
+      const local = this.getLocalHighScore();
 
-    if (remote !== null && (local === null || remote > local)) {
-      this.setLocalHighScore(remote);
+      if (remote !== null && (local === null || remote > local)) {
+        this.setLocalHighScore(remote);
+      }
+    } catch (err) {
+      console.warn('Sync from Supabase failed:', err);
     }
   }
 
@@ -99,33 +135,36 @@ export class StorageManager {
    * Save high score (called from Godot via JS bridge)
    */
   async saveHighScore(score) {
-    // Validate input
-    if (typeof score !== 'number' || !Number.isFinite(score) || score < 0) {
-      console.warn('Invalid score:', score);
+    // Validate input with hardening
+    const validScore = clampNumber(score, 0, this.maxScore, null);
+    if (validScore === null) {
+      console.warn('Invalid score rejected:', score);
       return;
     }
 
     const currentHigh = this.getLocalHighScore() || 0;
 
-    if (score <= currentHigh) {
+    if (validScore <= currentHigh) {
       return; // Not a new high score
     }
 
     // Update local immediately
-    this.setLocalHighScore(score);
+    this.setLocalHighScore(validScore);
 
     // Sync to Supabase (background, non-blocking)
-    try {
-      await this.supabase
-        .from('user_stats')
-        .upsert({
-          user_id: this.getUserId(),
-          high_score: score,
-          updated_at: new Date().toISOString(),
-        });
-    } catch (error) {
-      console.error('Failed to sync high score to Supabase:', error);
-      // Non-critical: local score is saved
+    if (this.supabase) {
+      try {
+        await this.supabase
+          .from('user_stats')
+          .upsert({
+            user_id: this.getUserId(),
+            high_score: validScore,
+            updated_at: new Date().toISOString(),
+          });
+      } catch (error) {
+        console.error('Failed to sync high score to Supabase:', error);
+        // Non-critical: local score is saved
+      }
     }
   }
 
@@ -133,11 +172,24 @@ export class StorageManager {
    * Get or create anonymous device ID
    */
   getUserId() {
-    let deviceId = localStorage.getItem(this.deviceIdKey);
-    if (!deviceId) {
-      deviceId = crypto.randomUUID();
-      localStorage.setItem(this.deviceIdKey, deviceId);
+    try {
+      let deviceId = localStorage.getItem(this.deviceIdKey);
+      if (!deviceId) {
+        // Validate crypto.randomUUID is available
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+          deviceId = crypto.randomUUID();
+          localStorage.setItem(this.deviceIdKey, deviceId);
+        } else {
+          // Fallback for older browsers
+          deviceId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+          localStorage.setItem(this.deviceIdKey, deviceId);
+        }
+      }
+      return deviceId;
+    } catch (err) {
+      console.error('Failed to get/create device ID:', err);
+      // Return a temporary ID that won't persist
+      return 'temp-' + Date.now();
     }
-    return deviceId;
   }
 }

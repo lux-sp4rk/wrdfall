@@ -23,6 +23,8 @@ describe('SettingsScreen', () => {
   it('calls onThemeChange and updates container class when theme is switched', () => {
     const onThemeChange = vi.fn()
     const { container } = render(<SettingsScreen onBack={vi.fn()} onThemeChange={onThemeChange} />)
+    // First ensure we're on Light, then switch to Dark
+    fireEvent.click(screen.getByLabelText('Light'))
     fireEvent.click(screen.getByLabelText('Dark'))
     expect(onThemeChange).toHaveBeenCalledWith('dark')
     expect(container.firstChild.className).toContain('theme-dark')

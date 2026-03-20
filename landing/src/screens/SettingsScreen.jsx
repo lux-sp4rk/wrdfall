@@ -32,10 +32,10 @@ export function SettingsScreen({ onBack, onThemeChange }) {
   return (
     <div className={`landing-container theme-${settings.theme}`}>
       <div className="main-card">
-        <div className="screen-header">
-          <button className="back-button" onClick={onBack}>← Back</button>
-          <h2 className="screen-title">Settings</h2>
-        </div>
+      <div className="screen-header">
+        <button type="button" className="back-button" onClick={onBack}>← Back</button>
+        <h2 className="screen-title">Settings</h2>
+      </div>
 
         {groups.map((group, i) => (
           <React.Fragment key={group.key}>

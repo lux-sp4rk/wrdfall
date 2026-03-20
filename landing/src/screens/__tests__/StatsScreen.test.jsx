@@ -34,9 +34,11 @@ beforeEach(() => {
 })
 
 describe('StatsScreen', () => {
-  it('shows loading state initially', () => {
+  it('shows loading state initially', async () => {
     render(<StatsScreen theme="light" onBack={vi.fn()} />)
-    expect(screen.getByText('Loading…')).toBeTruthy()
+    // Should show skeleton loading elements
+    const skeletonElements = document.querySelectorAll('.skeleton')
+    expect(skeletonElements.length).toBeGreaterThan(0)
   })
 
   it('renders records section after stats load', async () => {
