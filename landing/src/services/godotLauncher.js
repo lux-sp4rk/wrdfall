@@ -47,28 +47,37 @@ export class GodotLauncher {
       // Netlify SPA redirect returns index.html → CompileError: expected magic word 00 61 73 6d,
       // found 3c 21 44 4f (i.e. '<!DO' = start of <!DOCTYPE html>).
       // See: https://github.com/lux-sp4rk/word-loom/issues/141
-      const basePath = this.config.executable.replace(/\.wasm$/, '');
-      const pckPath = this.config.mainPack || `${basePath}.pck`;
+    const basePath = this.config.executable.replace(/\.wasm$/, '');
+    const pckPath = this.config.mainPack || `${basePath}.pck`;
 
-      // In Godot 4 JS API, canvas is passed in the config object — no setCanvas().
-      // Added ensureCrossOriginIsolationHeaders and fileSizes to match Godot export exactly.
-      this.engine = new Engine({
-        args: [],
-        canvas: this.canvas,
-        canvasResizePolicy: 2,
-        ensureCrossOriginIsolationHeaders: true,
-        executable: basePath,
-        mainPack: pckPath,
-        experimentalVK: false,
-        focusCanvas: true,
-        fileSizes: {
-          [`${basePath}.wasm`]: parseInt(import.meta.env.VITE_GODOT_WASM_SIZE || '35376909'),
-          [`${pckPath}`]: parseInt(import.meta.env.VITE_GODOT_PCK_SIZE || '52786592'),
-        },
-      });
+    // Handle Blob/ObjectURL for engine and mainPack
+    const executableUrl = this.config.executableBlob
+      ? URL.createObjectURL(this.config.executableBlob)
+      : `${basePath}.wasm`;
 
-      // Pass the base path (without .wasm) — Godot appends .wasm internally.
-      await this.engine.init(basePath);
+    const mainPackUrl = this.config.mainPackBlob
+      ? URL.createObjectURL(this.config.mainPackBlob)
+      : pckPath;
+
+    // In Godot 4 JS API, canvas is passed in the config object — no setCanvas().
+    // Added ensureCrossOriginIsolationHeaders and fileSizes to match Godot export exactly.
+    this.engine = new Engine({
+      args: [],
+      canvas: this.canvas,
+      canvasResizePolicy: 2,
+      ensureCrossOriginIsolationHeaders: true,
+      executable: executableUrl,
+      mainPack: mainPackUrl,
+      experimentalVK: false,
+      focusCanvas: true,
+      fileSizes: {
+        [executableUrl]: this.config.executableBlob?.size || parseInt(import.meta.env.VITE_GODOT_WASM_SIZE || '35376909'),
+        [mainPackUrl]: this.config.mainPackBlob?.size || parseInt(import.meta.env.VITE_GODOT_PCK_SIZE || '52786592'),
+      },
+    });
+
+    // Pass the executable URL — Godot uses this to fetch the WASM.
+    await this.engine.init(executableUrl);
 
       // CRITICAL: Add delay to allow Engine and JavaScriptBridge to fully initialize.
       // On deploy (especially Netlify), there's a race condition where Game.gd's Boot scene

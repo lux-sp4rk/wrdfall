@@ -76,8 +76,8 @@ function App() {
       const blobs = await prefetchManager.current.start();
 
       window.WORD_LOOM_BLOBS = {
-        wasm: import.meta.env.VITE_GODOT_WASM || 'index',
-        pck: import.meta.env.VITE_GODOT_PCK || 'index.pck'
+        executableBlob: blobs.wasmBlob,
+        mainPackBlob: blobs.pckBlob
       };
 
       const dictWords = dictionaryManager.current.parseWords(blobs.dict);
@@ -185,11 +185,13 @@ function App() {
       // CSS transition in HomeScreen handles the 500ms fade (opacity driven by state.transitioning)
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      const { wasm, pck } = window.WORD_LOOM_BLOBS || {};
+      const { executableBlob, mainPackBlob } = window.WORD_LOOM_BLOBS || {};
       
       godotLauncher.current = new GodotLauncher({
-        executable: wasm || 'index',
-        mainPack: pck || 'index.pck',
+        executable: import.meta.env.VITE_GODOT_WASM || 'index',
+        mainPack: import.meta.env.VITE_GODOT_PCK || 'index.pck',
+        executableBlob,
+        mainPackBlob,
         backgroundColor: THEME_BG[state.theme] || THEME_BG.dark,
       });
 
