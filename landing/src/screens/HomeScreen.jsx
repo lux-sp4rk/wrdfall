@@ -73,6 +73,12 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, 
            (state.prefetchStatus === 'loading' && state.showProgress) ? 'Loading…' : 'Play'}
         </button>
 
+        {state.transitioning && (
+          <p className="notification-cue" role="status" aria-live="polite">
+            Go do what you need to — we'll ping you when it's ready.
+          </p>
+        )}
+
         <button type="button" className="rules-button" onClick={onRulesClick}>How to Play</button>
 
         <div className="secondary-buttons">

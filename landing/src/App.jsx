@@ -45,6 +45,9 @@ function App() {
   const [showTutorialPrompt, setShowTutorialPrompt] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [errorDetails, setErrorDetails] = useState(null);
+  const [notificationPermission, setNotificationPermission] = useState(
+    typeof Notification !== 'undefined' ? Notification.permission : 'denied'
+  );
 
   const landingRef = useRef(null);
   const storageManager = useRef(new StorageManager(supabase));
@@ -135,6 +138,12 @@ function App() {
       return;
     }
     if (state.prefetchStatus !== 'ready') return;
+
+    // Request notification permission early (before the long game load)
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+      const perm = await Notification.requestPermission();
+      setNotificationPermission(perm);
+    }
 
     // Check if user has completed or skipped tutorial
     const hasCompletedTutorial = localStorage.getItem('word-loom-tutorial-completed') === 'true';
@@ -231,6 +240,20 @@ function App() {
         settings: { theme: state.theme },
         launchScene: launchScene,
       });
+
+      // Game is loaded and ready — fire browser notification
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        const notif = new Notification('Word Loom is ready! 🎮', {
+          body: 'Click here to start playing.',
+          icon: '/apple-touch-icon.png',
+          tag: 'word-loom-ready',
+          requireInteraction: false,
+        });
+        notif.onclick = () => {
+          window.focus();
+          notif.close();
+        };
+      }
 
       window.saveHighScore = (score) => {
         storageManager.current.saveHighScore(score);
