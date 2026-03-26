@@ -63,14 +63,14 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, 
 
         <button 
           type="button"
-          className={`play-button ${state.prefetchStatus === 'loading' && state.showProgress ? 'loading' : ''}`}
+          className={`play-button ${state.prefetchStatus === 'loading' ? 'loading' : ''}`}
           onClick={onPlayClick} 
           disabled={state.transitioning || state.prefetchStatus === 'error'}
           aria-label={state.transitioning ? 'Game starting' : (state.prefetchStatus === 'error' ? 'Game unavailable' : 'Play game')}
           aria-busy={state.transitioning}
         >
           {state.transitioning ? 'Starting…' :
-           (state.prefetchStatus === 'loading' && state.showProgress) ? 'Loading…' : 'Play'}
+           (state.prefetchStatus === 'loading') ? 'Loading…' : 'Play'}
         </button>
 
         {state.transitioning && (
