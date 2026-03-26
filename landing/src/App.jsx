@@ -170,12 +170,6 @@ function App() {
     await launchGame('game');
   }
 
-  async function handleStartTutorialFromRules() {
-    setState(prev => ({ ...prev, currentScreen: 'home' }));
-    // Small delay to let the home screen render before starting game
-    await new Promise(resolve => setTimeout(resolve, 100));
-    await launchGame('tutorial');
-  }
 
   async function launchGame(launchScene) {
     // Prevent double-launch with async lock
@@ -329,7 +323,6 @@ function App() {
           theme={state.theme}
           language={currentSettings.language}
           onBack={() => setState(prev => ({ ...prev, currentScreen: 'home' }))}
-          onStartTutorial={handleStartTutorialFromRules}
         />
       )}
 

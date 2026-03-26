@@ -7,16 +7,14 @@ const UI_TEXT = {
   en: {
     back: '← Back',
     title: 'How to Play',
-    tryTutorial: 'Try Interactive Tutorial',
   },
   es: {
     back: '← Volver',
     title: 'Cómo Jugar',
-    tryTutorial: 'Probar Tutorial Interactivo',
   },
 }
 
-export function RulesScreen({ theme, language = 'en', onBack, onStartTutorial }) {
+export function RulesScreen({ theme, language = 'en', onBack }) {
   const rulesContent = language === 'es' ? rulesEs : rulesEn
   const ui = UI_TEXT[language] || UI_TEXT.en
 
@@ -52,11 +50,6 @@ export function RulesScreen({ theme, language = 'en', onBack, onStartTutorial })
           </ReactMarkdown>
         </div>
 
-        {onStartTutorial && (
-          <button type="button" className="primary-button" onClick={onStartTutorial}>
-            {ui.tryTutorial}
-          </button>
-        )}
       </div>
     </div>
   )
