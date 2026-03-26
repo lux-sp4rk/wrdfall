@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { StorageManager } from './services/storage.js';
 import { DictionaryManager } from './services/dictionary.js';
@@ -11,6 +11,12 @@ import { StatsScreen } from './screens/StatsScreen.jsx';
 import { SettingsScreen } from './screens/SettingsScreen.jsx';
 import { RulesScreen } from './screens/RulesScreen.jsx';
 import { TutorialPrompt } from './components/TutorialPrompt.jsx';
+import { 
+  categorizeError, 
+  createNetworkMonitor, 
+  createAsyncLock,
+  getTextDirection 
+} from './services/hardening.js';
 import './App.css';
 
 // Initialize Supabase client
@@ -37,16 +43,74 @@ function App() {
   }));
 
   const [showTutorialPrompt, setShowTutorialPrompt] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
+  const [errorDetails, setErrorDetails] = useState(null);
+  const [notificationPermission, setNotificationPermission] = useState(
+    typeof Notification !== 'undefined' ? Notification.permission : 'denied'
+  );
 
   const landingRef = useRef(null);
   const storageManager = useRef(new StorageManager(supabase));
   const dictionaryManager = useRef(new DictionaryManager());
   const prefetchManager = useRef(null);
   const godotLauncher = useRef(null);
+  const launchLock = useRef(createAsyncLock());
+  const networkMonitor = useRef(null);
+
+  // Memoized functions to avoid dependency warnings
+  const loadHighScore = useCallback(async () => {
+    try {
+      const score = await storageManager.current.getHighScore();
+      setState(prev => ({ ...prev, highScore: score }));
+    } catch (error) {
+      // Non-critical: high score is optional
+      console.warn('Failed to load high score:', error);
+    }
+  }, []);
+
+  const startPrefetch = useCallback(async () => {
+    setState(prev => ({ ...prev, prefetchStatus: 'loading', prefetchProgress: 0, error: null }));
+
+    try {
+      prefetchManager.current = new PrefetchManager((progress) => {
+        setState(prev => ({ ...prev, prefetchProgress: progress }));
+      });
+
+      const blobs = await prefetchManager.current.start();
+
+      window.WORD_LOOM_BLOBS = {
+        executableBlob: blobs.wasmBlob,
+        mainPackBlob: blobs.pckBlob
+      };
+
+      const dictWords = dictionaryManager.current.parseWords(blobs.dict);
+      dictionaryManager.current.cache.set('en', dictWords);
+
+      setState(prev => ({ ...prev, prefetchStatus: 'ready' }));
+    } catch (error) {
+      console.error('Pre-fetch failed:', error);
+      const categorized = categorizeError(error);
+      setErrorDetails(categorized);
+      setState(prev => ({
+        ...prev,
+        prefetchStatus: 'error',
+        error: categorized.message,
+      }));
+    }
+  }, []);
 
   useEffect(() => {
     loadHighScore();
     startPrefetch();
+
+    // Set up network monitoring
+    networkMonitor.current = createNetworkMonitor((online) => {
+      setIsOnline(online);
+      // Auto-retry when coming back online
+      if (online && state.prefetchStatus === 'error') {
+        startPrefetch();
+      }
+    });
 
     window.wordLoomGoHome = () => {
       if (godotLauncher.current) {
@@ -60,72 +124,13 @@ function App() {
       setState(prev => ({ ...prev, transitioning: false }));
     };
 
-    return () => { delete window.wordLoomGoHome; };
-  }, []);
-
-  async function loadHighScore() {
-    try {
-      const score = await storageManager.current.getHighScore();
-      setState(prev => ({ ...prev, highScore: score }));
-    } catch (error) {
-      // Non-critical
-    }
-  }
-
-  async function startPrefetch() {
-    setState(prev => ({ ...prev, prefetchStatus: 'loading', prefetchProgress: 0, error: null }));
-
-    // Progress bar is now only shown after user clicks Play (UX: invisible loading)
-    // Removed auto-show timer — showProgress remains false until handlePlayClick sets it
-
-    try {
-      prefetchManager.current = new PrefetchManager((progress) => {
-        setState(prev => ({ ...prev, prefetchProgress: progress }));
-      });
-
-      const blobs = await prefetchManager.current.start();
-
-      // Pass direct paths to GodotLauncher.
-      // NOTE: 'wasm' is the Godot ENGINE BASE NAME (no extension).
-      // GodotLauncher strips any '.wasm' suffix before calling engine.init(),
-      // Godot internally appends '.wasm'. Passing 'index.wasm' would
-      // cause Godot to fetch 'index.wasm.wasm' → 404 → HTML → magic word error.
-      window.WORD_LOOM_BLOBS = {
-        wasm: import.meta.env.VITE_GODOT_WASM || 'index',
-        pck: import.meta.env.VITE_GODOT_PCK || 'index.pck'
-      };
-
-      // Dictionary is already prefetched and decompressed; parse it for the cache
-      console.log('[startPrefetch] blobs.dict:', typeof blobs.dict, blobs.dict?.length, 'bytes');
-
-      const dictWords = dictionaryManager.current.parseWords(blobs.dict);
-      console.log('[startPrefetch] dictWords after parseWords:', {
-        type: dictWords?.constructor?.name,
-        size: dictWords?.size,
-        isSet: dictWords instanceof Set,
-      });
-
-      dictionaryManager.current.cache.set('en', dictWords);
-      console.log('[startPrefetch] Set en in cache');
-
-      // Verify it was cached correctly
-      const cachedCheck = dictionaryManager.current.cache.get('en');
-      console.log('[startPrefetch] Verified cache.get(en):', {
-        type: cachedCheck?.constructor?.name,
-        size: cachedCheck?.size,
-        isSet: cachedCheck instanceof Set,
-      });
-
-      setState(prev => ({ ...prev, prefetchStatus: 'ready' }));
-    } catch (error) {
-      console.error('Pre-fetch failed:', error);
-      setState(prev => ({
-        ...prev,
-        prefetchStatus: 'error',
-        error: error.message || 'Failed to load game files',
-      }));
-    }
-  }
+    return () => { 
+      delete window.wordLoomGoHome;
+      if (networkMonitor.current) {
+        networkMonitor.current.destroy();
+      }
+    };
+  }, [loadHighScore, startPrefetch, state.prefetchStatus]);
 
   async function handlePlayClick() {
     if (state.prefetchStatus === 'loading') {
@@ -133,6 +138,12 @@ function App() {
       return;
     }
     if (state.prefetchStatus !== 'ready') return;
+
+    // Request notification permission early (before the long game load)
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+      const perm = await Notification.requestPermission();
+      setNotificationPermission(perm);
+    }
 
     // Check if user has completed or skipped tutorial
     const hasCompletedTutorial = localStorage.getItem('word-loom-tutorial-completed') === 'true';
@@ -159,15 +170,16 @@ function App() {
     await launchGame('game');
   }
 
-  async function handleStartTutorialFromRules() {
-    setState(prev => ({ ...prev, currentScreen: 'home' }));
-    // Small delay to let the home screen render before starting game
-    await new Promise(resolve => setTimeout(resolve, 100));
-    await launchGame('tutorial');
-  }
 
   async function launchGame(launchScene) {
-    setState(prev => ({ ...prev, transitioning: true }));
+    // Prevent double-launch with async lock
+    const acquired = await launchLock.current.acquire();
+    if (!acquired) {
+      console.warn('[launchGame] Launch already in progress, ignoring duplicate request');
+      return;
+    }
+
+    setState(prev => ({ ...prev, transitioning: true, error: null }));
 
     // Set body background immediately to match game theme (eliminates black bars during transition)
     document.body.style.backgroundColor = THEME_BG[state.theme] || THEME_BG.dark;
@@ -176,11 +188,13 @@ function App() {
       // CSS transition in HomeScreen handles the 500ms fade (opacity driven by state.transitioning)
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      const { wasm, pck } = window.WORD_LOOM_BLOBS || {};
+      const { executableBlob, mainPackBlob } = window.WORD_LOOM_BLOBS || {};
       
       godotLauncher.current = new GodotLauncher({
-        executable: wasm || 'index',
-        mainPack: pck || 'index.pck',
+        executable: import.meta.env.VITE_GODOT_WASM || 'index',
+        mainPack: import.meta.env.VITE_GODOT_PCK || 'index.pck',
+        executableBlob,
+        mainPackBlob,
         backgroundColor: THEME_BG[state.theme] || THEME_BG.dark,
       });
 
@@ -221,6 +235,20 @@ function App() {
         launchScene: launchScene,
       });
 
+      // Game is loaded and ready — fire browser notification
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        const notif = new Notification('Word Loom is ready! 🎮', {
+          body: 'Click here to start playing.',
+          icon: '/apple-touch-icon.png',
+          tag: 'word-loom-ready',
+          requireInteraction: false,
+        });
+        notif.onclick = () => {
+          window.focus();
+          notif.close();
+        };
+      }
+
       window.saveHighScore = (score) => {
         storageManager.current.saveHighScore(score);
       };
@@ -230,24 +258,48 @@ function App() {
       }
     } catch (error) {
       console.error('[launchGame] Game start failed:', error);
-      setState(prev => ({ ...prev, transitioning: false, error: error.message || 'Failed to start game' }));
+      const categorized = categorizeError(error);
+      setErrorDetails(categorized);
+      setState(prev => ({ 
+        ...prev, 
+        transitioning: false, 
+        error: categorized.message 
+      }));
 
       if (landingRef.current) {
         landingRef.current.style.display = 'flex';
       }
+    } finally {
+      launchLock.current.release();
     }
   }
 
+  const currentSettings = getSettings();
+  const textDirection = getTextDirection(currentSettings.language);
+
   return (
-    <>
+    <div dir={textDirection}>
+      {/* Offline indicator */}
+      {!isOnline && (
+        <div className="offline-indicator" role="alert" aria-live="polite">
+          ⚠️ You are offline. Some features may not work.
+        </div>
+      )}
+      
+      {/* Skip link for accessibility */}
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
+
       {state.currentScreen === 'home' && (
-        <div ref={landingRef}>
+        <div ref={landingRef} id="main-content">
           <HomeScreen
-            state={{ ...state, onRetry: startPrefetch }}
+            state={{ ...state, onRetry: startPrefetch, errorDetails }}
             onPlayClick={handlePlayClick}
             onStatsClick={() => setState(prev => ({ ...prev, currentScreen: 'stats' }))}
             onSettingsClick={() => setState(prev => ({ ...prev, currentScreen: 'settings' }))}
             onRulesClick={() => setState(prev => ({ ...prev, currentScreen: 'rules' }))}
+            isOnline={isOnline}
           />
         </div>
       )}
@@ -255,20 +307,22 @@ function App() {
         <StatsScreen
           theme={state.theme}
           onBack={() => setState(prev => ({ ...prev, currentScreen: 'home' }))}
+          language={currentSettings.language}
+          isOnline={isOnline}
         />
       )}
       {state.currentScreen === 'settings' && (
         <SettingsScreen
           onBack={() => setState(prev => ({ ...prev, currentScreen: 'home' }))}
           onThemeChange={(theme) => setState(prev => ({ ...prev, theme }))}
+          language={currentSettings.language}
         />
       )}
       {state.currentScreen === 'rules' && (
         <RulesScreen
           theme={state.theme}
-          language={getSettings().language}
+          language={currentSettings.language}
           onBack={() => setState(prev => ({ ...prev, currentScreen: 'home' }))}
-          onStartTutorial={handleStartTutorialFromRules}
         />
       )}
 
@@ -276,10 +330,10 @@ function App() {
         isOpen={showTutorialPrompt}
         onYes={handleTutorialYes}
         onNo={handleTutorialNo}
-        language={getSettings().language}
+        language={currentSettings.language}
         theme={state.theme}
       />
-    </>
+    </div>
   )
 }
 

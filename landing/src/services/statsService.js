@@ -35,11 +35,15 @@ export class StatsService {
     try {
       const { data, error } = await this.supabase
         .from('leaderboards')
-        .select('score, profiles(display_name)')
+        .select('user_id, score, profiles(display_name)')
         .order('score', { ascending: false })
         .limit(limit)
       if (error) throw error
-      return data ?? []
+      // Add rank to each entry
+      return (data ?? []).map((entry, index) => ({
+        ...entry,
+        rank: index + 1
+      }))
     } catch (err) {
       console.warn('Leaderboard fetch failed', err)
       return []

@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { StatsService } from '../services/statsService.js'
+import { formatDuration, sanitizeText, truncateText, formatNumber } from '../services/hardening.js'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseKey = import.meta.env.VITE_SUPABASE_KEY
@@ -9,25 +10,39 @@ const supabase = supabaseUrl && !supabaseUrl.includes('placeholder')
 
 const statsService = new StatsService(supabase)
 
-export function StatsScreen({ theme, onBack }) {
+export function StatsScreen({ theme, onBack, language = 'en', isOnline = true }) {
   const [stats, setStats] = useState(null)
   const [leaderboard, setLeaderboard] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [copied, setCopied] = useState(false)
   const [showReset, setShowReset] = useState(false)
   const chartRef = useRef(null)
 
-  useEffect(() => {
-    statsService.getStats().then(setStats)
-    statsService.getLeaderboard().then(setLeaderboard)
+  // Load stats with error handling
+  const loadStats = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const [statsData, leaderboardData] = await Promise.all([
+        statsService.getStats(),
+        statsService.getLeaderboard(20)
+      ])
+      setStats(statsData)
+      setLeaderboard(leaderboardData || [])
+    } catch (err) {
+      console.error('Failed to load stats:', err)
+      setError('Failed to load statistics. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => {
-    if (stats?.session_history && chartRef.current) {
-      drawChart(chartRef.current, stats.session_history, theme)
-    }
-  }, [stats, theme])
+    loadStats()
+  }, [loadStats])
 
-  function drawChart(canvas, history, currentTheme) {
+  const drawChart = useCallback((canvas, history, currentTheme) => {
     const ctx = canvas.getContext('2d')
     const { width, height } = canvas
     ctx.clearRect(0, 0, width, height)
@@ -47,7 +62,13 @@ export function StatsScreen({ theme, onBack }) {
       ctx.roundRect?.(x, y, barW, barH, 4) ?? ctx.rect(x, y, barW, barH)
       ctx.fill()
     })
-  }
+  }, [])
+
+  useEffect(() => {
+    if (stats?.session_history && chartRef.current) {
+      drawChart(chartRef.current, stats.session_history, theme)
+    }
+  }, [stats, theme, drawChart])
 
   async function handleShare() {
     if (!stats) return
@@ -62,80 +83,180 @@ export function StatsScreen({ theme, onBack }) {
 
   async function handleReset() {
     await statsService.resetStats()
-    setStats(await statsService.getStats())
+    await loadStats()
     setShowReset(false)
   }
 
-  if (!stats) {
+  // Loading skeleton state
+  if (loading) {
     return (
       <div className={`landing-container theme-${theme}`}>
-        <div className="main-card"><p className="tagline">Loading…</p></div>
+        <div className="main-card stats-card">
+          <div className="screen-header">
+            <button type="button" className="back-button" onClick={onBack}>← Back</button>
+            <h2 className="screen-title">Stats</h2>
+            <div className="header-actions skeleton skeleton-stat" style={{ width: '100px' }} />
+          </div>
+          
+          <div className="stats-section">
+            <h3 className="stats-section-title">Records</h3>
+            {[1, 2, 3].map(i => (
+              <div key={i} className="stat-row">
+                <div className="skeleton skeleton-text" style={{ width: '100px' }} />
+                <div className="skeleton skeleton-stat" />
+              </div>
+            ))}
+          </div>
+          
+          <div className="card-divider" />
+          
+          <div className="stats-section">
+            <h3 className="stats-section-title">History</h3>
+            <div className="skeleton" style={{ height: '120px', width: '100%' }} />
+          </div>
+        </div>
       </div>
     )
   }
+
+  // Error state
+  if (error) {
+    return (
+      <div className={`landing-container theme-${theme}`}>
+        <div className="main-card stats-card">
+          <div className="screen-header">
+            <button type="button" className="back-button" onClick={onBack}>← Back</button>
+            <h2 className="screen-title">Stats</h2>
+          </div>
+          
+          <div className="empty-state">
+            <div className="error-icon" aria-hidden="true">⚠️</div>
+            <h3 className="empty-state-title">Failed to Load</h3>
+            <p className="empty-state-message">{error}</p>
+            <button 
+              type="button"
+              className="retry-button" 
+              onClick={loadStats}
+              disabled={!isOnline}
+            >
+              {isOnline ? 'Try Again' : 'Offline'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Check if user has any stats
+  const hasStats = stats && (
+    stats.high_score > 0 || 
+    stats.total_words > 0 || 
+    stats.total_tiles > 0 ||
+    (stats.session_history?.length ?? 0) > 0
+  )
 
   return (
     <div className={`landing-container theme-${theme}`}>
       <div className="main-card stats-card">
         <div className="screen-header">
-          <button className="back-button" onClick={onBack}>← Back</button>
+          <button type="button" className="back-button" onClick={onBack}>← Back</button>
           <h2 className="screen-title">Stats</h2>
           <div className="header-actions">
-            <button className="icon-button" onClick={handleShare}>{copied ? '✓' : 'Share'}</button>
-            <button className="icon-button icon-button-danger" onClick={() => setShowReset(true)}>Reset</button>
+            {hasStats && (
+              <button type="button" className="icon-button" onClick={handleShare} disabled={!stats}>
+                {copied ? '✓' : 'Share'}
+              </button>
+            )}
+            <button type="button" className="icon-button icon-button-danger" onClick={() => setShowReset(true)}>Reset</button>
           </div>
         </div>
 
-        <div className="stats-section">
-          <h3 className="stats-section-title">Records</h3>
-          <StatRow label="High Score" value={(stats.high_score ?? 0).toLocaleString()} />
-          <StatRow label="Longest Word" value={stats.longest_word || '—'} />
-          <StatRow label="Max WPM" value={(stats.max_wpm ?? 0).toFixed(1)} />
-        </div>
-
-        <div className="card-divider" />
-
-        <div className="stats-section">
-          <h3 className="stats-section-title">Totals</h3>
-          <StatRow label="Words Found" value={(stats.total_words ?? 0).toLocaleString()} />
-          <StatRow label="Tiles Cleared" value={(stats.total_tiles ?? 0).toLocaleString()} />
-          <StatRow label="Time Played" value={statsService.formatTime(stats.total_time ?? 0)} />
-        </div>
-
-        <div className="card-divider" />
-
-        <div className="stats-section">
-          <h3 className="stats-section-title">History</h3>
-          {(stats.session_history?.length ?? 0) > 0
-            ? <canvas ref={chartRef} className="history-chart" width={400} height={120} />
-            : <p className="stats-empty">No games played yet</p>
-          }
-        </div>
-
-        {leaderboard.length > 0 && (
+        {!hasStats ? (
+          <div className="empty-state">
+            <div className="empty-state-icon" aria-hidden="true">📊</div>
+            <h3 className="empty-state-title">No Stats Yet</h3>
+            <p className="empty-state-message">
+              Play a game to see your statistics here!
+            </p>
+          </div>
+        ) : (
           <>
-            <div className="card-divider" />
             <div className="stats-section">
-              <h3 className="stats-section-title">Leaderboard</h3>
-              {leaderboard.map((entry, i) => (
-                <div key={i} className="leaderboard-row">
-                  <span className="lb-rank">{i + 1}.</span>
-                  <span className="lb-name">{entry.profiles?.display_name ?? 'Anonymous'}</span>
-                  <span className="lb-score">{(entry.score ?? 0).toLocaleString()}</span>
-                </div>
-              ))}
+              <h3 className="stats-section-title">Records</h3>
+              <StatRow label="High Score" value={formatNumber(stats.high_score ?? 0, language)} />
+              <StatRow 
+                label="Longest Word" 
+                value={stats.longest_word ? truncateText(sanitizeText(stats.longest_word), 15) : '—'} 
+              />
+              <StatRow label="Max WPM" value={(stats.max_wpm ?? 0).toFixed(1)} />
             </div>
+
+            <div className="card-divider" />
+
+            <div className="stats-section">
+              <h3 className="stats-section-title">Totals</h3>
+              <StatRow label="Words Found" value={formatNumber(stats.total_words ?? 0, language)} />
+              <StatRow label="Tiles Cleared" value={formatNumber(stats.total_tiles ?? 0, language)} />
+              <StatRow label="Time Played" value={formatDuration(stats.total_time ?? 0, language)} />
+            </div>
+
+            <div className="card-divider" />
+
+            <div className="stats-section">
+              <h3 className="stats-section-title">History</h3>
+              {(stats.session_history?.length ?? 0) > 0 ? (
+                <canvas ref={chartRef} className="history-chart" width={400} height={120} />
+              ) : (
+                <div className="empty-state" style={{ padding: '20px' }}>
+                  <p className="stats-empty">No games played yet</p>
+                </div>
+              )}
+            </div>
+
+            {leaderboard.length > 0 ? (
+              <>
+                <div className="card-divider" />
+                <div className="stats-section">
+                  <h3 className="stats-section-title">Leaderboard</h3>
+                  {leaderboard.map((entry) => (
+                    <div 
+                      key={entry.user_id || `${entry.score}-${Math.random()}`} 
+                      className="leaderboard-row"
+                    >
+                      <span className="lb-rank">{entry.rank || 0}.</span>
+                      <span 
+                        className="lb-name" 
+                        title={sanitizeText(entry.profiles?.display_name ?? 'Anonymous')}
+                      >
+                        {truncateText(sanitizeText(entry.profiles?.display_name ?? 'Anonymous'), 20)}
+                      </span>
+                      <span className="lb-score">{formatNumber(entry.score ?? 0, language)}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="card-divider" />
+                <div className="stats-section">
+                  <h3 className="stats-section-title">Leaderboard</h3>
+                  <div className="empty-state" style={{ padding: '20px' }}>
+                    <p className="stats-empty">No leaderboard data available</p>
+                  </div>
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
 
       {showReset && (
-        <div className="confirm-overlay">
+        <div className="confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="reset-title">
           <div className="confirm-dialog">
-            <p>Reset all stats? This cannot be undone.</p>
+            <p id="reset-title">Reset all stats? This cannot be undone.</p>
             <div className="confirm-actions">
-              <button className="secondary-button" onClick={() => setShowReset(false)}>Cancel</button>
-              <button className="play-button confirm-danger-button" onClick={handleReset}>Reset</button>
+              <button type="button" className="secondary-button" onClick={() => setShowReset(false)}>Cancel</button>
+              <button type="button" className="play-button confirm-danger-button" onClick={handleReset}>Reset</button>
             </div>
           </div>
         </div>

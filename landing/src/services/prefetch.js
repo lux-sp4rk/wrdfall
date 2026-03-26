@@ -49,8 +49,8 @@ export class PrefetchManager {
     }
 
     return {
-      wasm: results[0].value,
-      pck: results[1].value,
+      wasmBlob: results[0].value,
+      pckBlob: results[1].value,
       dict: results[2].value,
     };
   }

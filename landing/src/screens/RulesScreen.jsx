@@ -7,16 +7,14 @@ const UI_TEXT = {
   en: {
     back: '← Back',
     title: 'How to Play',
-    tryTutorial: 'Try Interactive Tutorial',
   },
   es: {
     back: '← Volver',
     title: 'Cómo Jugar',
-    tryTutorial: 'Probar Tutorial Interactivo',
   },
 }
 
-export function RulesScreen({ theme, language = 'en', onBack, onStartTutorial }) {
+export function RulesScreen({ theme, language = 'en', onBack }) {
   const rulesContent = language === 'es' ? rulesEs : rulesEn
   const ui = UI_TEXT[language] || UI_TEXT.en
 
@@ -34,10 +32,10 @@ export function RulesScreen({ theme, language = 'en', onBack, onStartTutorial })
               h1: ({ children }) => <h1 className="rules-h1">{children}</h1>,
               h2: ({ children }) => <h2 className="rules-h2">{children}</h2>,
               h3: ({ children }) => <h3 className="rules-h3">{children}</h3>,
-              p: ({ children }) => <p className="rules-p">{children}</p>,
+              p: ({ children }) => <p className="rules-p text-wrap">{children}</p>,
               ul: ({ children }) => <ul className="rules-ul">{children}</ul>,
               ol: ({ children }) => <ol className="rules-ol">{children}</ol>,
-              li: ({ children }) => <li className="rules-li">{children}</li>,
+              li: ({ children }) => <li className="rules-li text-wrap">{children}</li>,
               blockquote: ({ children }) => <blockquote className="rules-blockquote">{children}</blockquote>,
               table: ({ children }) => <table className="rules-table">{children}</table>,
               thead: ({ children }) => <thead className="rules-thead">{children}</thead>,
@@ -52,11 +50,6 @@ export function RulesScreen({ theme, language = 'en', onBack, onStartTutorial })
           </ReactMarkdown>
         </div>
 
-        {onStartTutorial && (
-          <button type="button" className="primary-button" onClick={onStartTutorial}>
-            {ui.tryTutorial}
-          </button>
-        )}
       </div>
     </div>
   )

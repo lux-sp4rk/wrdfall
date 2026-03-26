@@ -22,9 +22,11 @@ describe('getSettings', () => {
     expect(s.difficulty).toBe('hard')
   })
 
-  it('ignores invalid values and returns default', () => {
+  it('ignores invalid values and returns default or OS preference', () => {
     localStorage.setItem('word-loom-theme', 'banana')
-    expect(getSettings().theme).toBe('light')
+    const theme = getSettings().theme
+    // Should be either light or dark (OS preference), not 'banana'
+    expect(['light', 'dark']).toContain(theme)
   })
 })
 

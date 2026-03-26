@@ -1,6 +1,12 @@
 import React from 'react'
+import { truncateText, sanitizeText } from '../services/hardening.js'
 
-export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, onRulesClick }) {
+export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, onRulesClick, isOnline = true }) {
+  // Sanitize and truncate error messages to prevent UI breakage
+  const displayError = state.error ? sanitizeText(truncateText(state.error, 150)) : null
+  const errorType = state.errorDetails?.type || 'unknown'
+  const isRetryable = state.errorDetails?.retryable !== false
+
   return (
     <div className={`landing-container theme-${state.theme}`}
          style={{ opacity: state.transitioning ? 0 : 1, transition: 'opacity 500ms ease-out' }}>
@@ -16,41 +22,68 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, 
       {/* Main card */}
       <div className="main-card">
         <div className="title-section">
-          <h1 className="logo">Word Loom</h1>
-          <p className="tagline">Word-building meets Tetris</p>
+          <h1 className="logo text-wrap">Word Loom</h1>
+          <p className="tagline text-wrap">Word-building meets Tetris</p>
           {state.highScore > 0 && (
-            <p className="high-score-text">Best: {state.highScore.toLocaleString()}</p>
+            <p className="high-score-text" role="status" aria-live="polite">
+              Best: {state.highScore.toLocaleString()}
+            </p>
           )}
         </div>
 
-        {state.prefetchStatus === 'loading' && state.showProgress && (
-          <div className="progress-container">
-            <div className="progress-bar">
-              <div className="progress-fill" style={{ width: `${state.prefetchProgress}%` }} />
+        {displayError && (
+          <div className="error-container-enhanced" role="alert" aria-live="polite">
+            <div className="error-icon" aria-hidden="true">⚠️</div>
+            <h3 className="error-title">
+              {errorType === 'network' ? 'Connection Error' :
+               errorType === 'timeout' ? 'Request Timeout' :
+               errorType === 'not-found' ? 'Not Found' :
+               errorType === 'server' ? 'Server Error' :
+               'Something Went Wrong'}
+            </h3>
+            <p className="error-details">{displayError}</p>
+            <div className="error-actions">
+              {isRetryable && state.prefetchStatus === 'error' && (
+                <button 
+                  type="button"
+                  className="retry-button" 
+                  onClick={state.onRetry}
+                  disabled={!isOnline}
+                  aria-label="Retry loading game"
+                >
+                  {isOnline ? 'Try Again' : 'Offline'}
+                </button>
+              )}
+              {!isOnline && (
+                <span className="error-details">Check your internet connection and try again.</span>
+              )}
             </div>
-            <div className="progress-text">Loading… {state.prefetchProgress}%</div>
           </div>
         )}
 
-        {state.error && (
-          <div className="error-container">
-            <div className="error-message">{state.error}</div>
-            {state.prefetchStatus === 'error' && (
-              <button className="retry-button" onClick={state.onRetry}>Retry</button>
-            )}
-          </div>
-        )}
-
-        <button className="play-button" onClick={onPlayClick} disabled={state.transitioning || state.prefetchStatus === 'error'}>
+        <button 
+          type="button"
+          className={`play-button ${state.prefetchStatus === 'loading' && state.showProgress ? 'loading' : ''}`}
+          onClick={onPlayClick} 
+          disabled={state.transitioning || state.prefetchStatus === 'error'}
+          aria-label={state.transitioning ? 'Game starting' : (state.prefetchStatus === 'error' ? 'Game unavailable' : 'Play game')}
+          aria-busy={state.transitioning}
+        >
           {state.transitioning ? 'Starting…' :
            (state.prefetchStatus === 'loading' && state.showProgress) ? 'Loading…' : 'Play'}
         </button>
 
-        <button className="rules-button" onClick={onRulesClick}>How to Play</button>
+        {state.transitioning && (
+          <p className="notification-cue" role="status" aria-live="polite">
+            Go do what you need to — we'll ping you when it's ready.
+          </p>
+        )}
+
+        <button type="button" className="rules-button" onClick={onRulesClick}>How to Play</button>
 
         <div className="secondary-buttons">
-          <button className="secondary-button" onClick={onStatsClick}>Stats</button>
-          <button className="secondary-button" onClick={onSettingsClick}>Settings</button>
+          <button type="button" className="secondary-button" onClick={onStatsClick}>Stats</button>
+          <button type="button" className="secondary-button" onClick={onSettingsClick}>Settings</button>
         </div>
 
         <div className="card-divider" />
