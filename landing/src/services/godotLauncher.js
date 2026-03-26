@@ -32,7 +32,6 @@ export class GodotLauncher {
       this.canvas.style.position = 'absolute';
       this.canvas.style.top = '0';
       this.canvas.style.left = '0';
-      this.canvas.style.zIndex = '1';
       // Match letterbox bars to the theme background so they aren't black
       this.canvas.style.backgroundColor = this.config.backgroundColor || '#2B3D4F';
       document.body.appendChild(this.canvas);
@@ -46,34 +45,6 @@ export class GodotLauncher {
       const basePath = this.config.executable.replace(/\.wasm$/, '');
       const pckPath = this.config.mainPack || `${basePath}.pck`;
 
-      // Validate blobs before creating ObjectURLs - must be truthy AND have size property
-      const hasValidExecutableBlob = this.config.executableBlob && typeof this.config.executableBlob.size === 'number';
-      const hasValidMainPackBlob = this.config.mainPackBlob && typeof this.config.mainPackBlob.size === 'number';
-
-      // Handle Blob/ObjectURL for engine and mainPack
-      const executableUrl = hasValidExecutableBlob
-        ? URL.createObjectURL(this.config.executableBlob)
-        : `${basePath}.wasm`;
-
-      const mainPackUrl = hasValidMainPackBlob
-        ? URL.createObjectURL(this.config.mainPackBlob)
-        : pckPath;
-
-      // Build fileSizes with correct keys based on blob vs fallback usage
-      const fileSizes = {};
-      if (hasValidExecutableBlob) {
-        fileSizes[executableUrl] = this.config.executableBlob.size;
-      } else {
-        // For fallback path, use the basePath (without extension) as the key
-        // because Godot internally uses the executable base name for lookups
-        fileSizes[basePath] = parseInt(import.meta.env.VITE_GODOT_WASM_SIZE || '35376909');
-      }
-      if (hasValidMainPackBlob) {
-        fileSizes[mainPackUrl] = this.config.mainPackBlob.size;
-      } else {
-        fileSizes[pckPath] = parseInt(import.meta.env.VITE_GODOT_PCK_SIZE || '52786592');
-      }
-
       // In Godot 4 JS API, canvas is passed in the config object — no setCanvas().
       // Added ensureCrossOriginIsolationHeaders and fileSizes to match Godot export exactly.
       this.engine = new Engine({
@@ -81,21 +52,18 @@ export class GodotLauncher {
         canvas: this.canvas,
         canvasResizePolicy: 2,
         ensureCrossOriginIsolationHeaders: true,
-        executable: hasValidExecutableBlob ? executableUrl : basePath,
-        mainPack: mainPackUrl,
+        executable: basePath,
+        mainPack: pckPath,
         experimentalVK: false,
         focusCanvas: true,
-        fileSizes,
-        // Suppress Godot's native progress UI — feed progress to React via window instead.
-        // Return undefined so Godot doesn't render its default progress bar.
-        onProgress: (current, total) => {
-          if (window.onGodotProgress) window.onGodotProgress(current, total);
+        fileSizes: {
+          [`${basePath}.wasm`]: parseInt(import.meta.env.VITE_GODOT_WASM_SIZE || '35376909'),
+          [`${pckPath}`]: parseInt(import.meta.env.VITE_GODOT_PCK_SIZE || '52786592'),
         },
       });
 
-      // Pass the executable URL — Godot uses this to fetch the WASM.
-      // Use basePath (without extension) when using fallback, or blob URL when using blobs
-      await this.engine.init(hasValidExecutableBlob ? executableUrl : basePath);
+      // Pass the base path (without .wasm) — Godot appends .wasm internally.
+      await this.engine.init(basePath);
 
       // CRITICAL: Add delay to allow Engine and JavaScriptBridge to fully initialize.
       // On deploy (especially Netlify), there's a race condition where Game.gd's Boot scene
@@ -113,9 +81,9 @@ export class GodotLauncher {
   }
 
   /**
-   * Start game with dictionary, settings, and optional launch scene
+   * Start game with dictionary and settings
    */
-  async start({ dictionary, settings, launchScene = 'game' }) {
+  async start({ dictionary, settings }) {
     // Validate inputs
     if (!dictionary || !dictionary.words) {
       throw new Error('dictionary with words is required');
@@ -126,22 +94,13 @@ export class GodotLauncher {
     }
 
     try {
-      // Convert to Array and create fast lookup Set
-      const wordsArray = Array.from(dictionary.words);
-      const wordCount = wordsArray.length;
-      const wordSet = new Set(wordsArray.map(w => w.toLowerCase()));
-
-      // Inject dictionary with lookup function (Godot-friendly)
+      // Inject dictionary into window
       window.WORD_LOOM_DICTIONARY = {
         language: dictionary.language,
-        words: wordsArray,
-        // Godot can call this via JavaScriptBridge.eval()
-        hasWord: function(word) {
-          return wordSet.has(word.toLowerCase());
-        }
+        words: Array.from(dictionary.words),
       };
 
-      console.log(`📖 Injected ${wordCount} words into window.WORD_LOOM_DICTIONARY`);
+      console.log(`📖 Injected ${dictionary.words.length} words into window.WORD_LOOM_DICTIONARY`);
 
       // Inject settings
       window.WORD_LOOM_SETTINGS = {
@@ -151,12 +110,8 @@ export class GodotLauncher {
 
       console.log(`⚙️ Settings injected: ${JSON.stringify(window.WORD_LOOM_SETTINGS)}`);
 
-      // Inject launch scene parameter for Boot.gd to read
-      window.WORD_LOOM_LAUNCH_SCENE = launchScene;
-      console.log(`🚀 Launch scene: ${launchScene}`);
-
-      // Start Godot — mainPack was already set in Engine config during initialize().
-      await this.engine.startGame();
+      // Start Godot — must pass mainPack so the engine knows where to find the PCK.
+      await this.engine.startGame({ mainPack: this.config.mainPack });
     } catch (error) {
       console.error('Failed to start Godot game:', error);
       throw new Error(`Game start failed: ${error.message}`);
@@ -207,5 +162,4 @@ export class GodotLauncher {
   _delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
-
 }
