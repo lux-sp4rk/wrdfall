@@ -38,7 +38,6 @@ function App() {
     error: null,
     transitioning: false,
     theme: getTheme(),
-    showProgress: false,
     currentScreen: 'home',
   }));
 
@@ -134,7 +133,6 @@ function App() {
 
   async function handlePlayClick() {
     if (state.prefetchStatus === 'loading') {
-      setState(prev => ({ ...prev, showProgress: true }));
       return;
     }
     if (state.prefetchStatus !== 'ready') return;
