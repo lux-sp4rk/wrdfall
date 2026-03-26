@@ -54,7 +54,23 @@ function App() {
   const prefetchManager = useRef(null);
   const godotLauncher = useRef(null);
   const launchLock = useRef(createAsyncLock());
+  const prefetchTriggerRef = useRef(null); // 'play-click' | null
   const networkMonitor = useRef(null);
+
+  // Extracted launch sequence — called after prefetch finishes when triggered by play click
+  const proceedFromPrefetchReady = useCallback(async () => {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+      const perm = await Notification.requestPermission();
+      setNotificationPermission(perm);
+    }
+    const hasCompletedTutorial = localStorage.getItem('word-loom-tutorial-completed') === 'true';
+    const hasSkippedTutorial = localStorage.getItem('word-loom-tutorial-skipped') === 'true';
+    if (!hasCompletedTutorial && !hasSkippedTutorial) {
+      setShowTutorialPrompt(true);
+      return;
+    }
+    await launchGame('game');
+  }, []);
 
   // Memoized functions to avoid dependency warnings
   const loadHighScore = useCallback(async () => {
@@ -86,6 +102,9 @@ function App() {
       dictionaryManager.current.cache.set('en', dictWords);
 
       setState(prev => ({ ...prev, prefetchStatus: 'ready' }));
+      if (prefetchTriggerRef.current === 'play-click') {
+        proceedFromPrefetchReady();
+      }
     } catch (error) {
       console.error('Pre-fetch failed:', error);
       const categorized = categorizeError(error);
@@ -100,7 +119,6 @@ function App() {
 
   useEffect(() => {
     loadHighScore();
-    startPrefetch();
 
     // Set up network monitoring
     networkMonitor.current = createNetworkMonitor((online) => {
@@ -135,26 +153,14 @@ function App() {
     if (state.prefetchStatus === 'loading') {
       return;
     }
-    if (state.prefetchStatus !== 'ready') return;
-
-    // Request notification permission early (before the long game load)
-    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
-      const perm = await Notification.requestPermission();
-      setNotificationPermission(perm);
-    }
-
-    // Check if user has completed or skipped tutorial
-    const hasCompletedTutorial = localStorage.getItem('word-loom-tutorial-completed') === 'true';
-    const hasSkippedTutorial = localStorage.getItem('word-loom-tutorial-skipped') === 'true';
-
-    if (!hasCompletedTutorial && !hasSkippedTutorial) {
-      // First-time user: show tutorial prompt
-      setShowTutorialPrompt(true);
+    if (state.prefetchStatus === 'idle') {
+      // First click: start prefetching, auto-proceed when ready
+      prefetchTriggerRef.current = 'play-click';
+      startPrefetch();
       return;
     }
-
-    // Returning user: launch game directly
-    await launchGame('game');
+    // prefetchStatus === 'ready': proceed with launch
+    await proceedFromPrefetchReady();
   }
 
   async function handleTutorialYes() {
