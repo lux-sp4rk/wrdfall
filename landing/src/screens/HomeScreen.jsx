@@ -31,8 +31,6 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, 
           )}
         </div>
 
-        )}
-
         {displayError && (
           <div className="error-container-enhanced" role="alert" aria-live="polite">
             <div className="error-icon" aria-hidden="true">⚠️</div>
