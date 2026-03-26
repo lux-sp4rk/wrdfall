@@ -194,6 +194,47 @@
   box-shadow: none;
 }
 
+/* Loading spinner for play button */
+.play-button.loading {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.play-button.loading::before {
+  content: '';
+  width: 24px;
+  height: 24px;
+  border: 3px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: play-button-spin 0.8s linear infinite;
+  opacity: 0.8;
+}
+
+@keyframes play-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Notification cue — shown while Godot is loading */
+.notification-cue {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--text-muted);
+  text-align: center;
+  font-style: italic;
+  animation: cue-fade-in 300ms ease-out;
+}
+
+@keyframes cue-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 
 /* ===== Mobile Responsiveness ===== */
 

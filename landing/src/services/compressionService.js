@@ -13,6 +13,7 @@ export class CompressionService {
   constructor() {
     this.decompressed = new Map(); // cache for decompressed data
     this.pako = null; // lazy-loaded pako for gzip
+    this.pakoLoadFailed = false; // track loading failures
   }
 
   /**
@@ -20,23 +21,19 @@ export class CompressionService {
    */
   async loadPako() {
     if (this.pako) return this.pako;
+    if (this.pakoLoadFailed) {
+      throw new Error('pako loading previously failed, not retrying');
+    }
     
     try {
-      const response = await fetch('https://cdn.jsdelivr.net/npm/pako@2/dist/pako.min.js');
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/pako@2/dist/pako.min.js';
-      document.head.appendChild(script);
-      
-      return new Promise((resolve, reject) => {
-        script.onload = () => {
-          this.pako = window.pako;
-          resolve(this.pako);
-        };
-        script.onerror = reject;
-      });
+      const pako = await import('pako');
+      this.pako = pako.default || pako;
+      return this.pako;
     } catch (error) {
-      console.error('Failed to load pako:', error);
-      throw error;
+      this.pakoLoadFailed = true;
+      const message = error?.message || String(error);
+      console.error(`Failed to load pako: ${message}`);
+      throw new Error(`Failed to load pako: ${message}`);
     }
   }
 
@@ -81,7 +78,8 @@ export class CompressionService {
         this.decompressed.set(cacheKey, text);
         return text;
       } catch (error) {
-        console.warn(`Failed to load ${language}${ext}: ${error.message}`);
+        const message = error?.message || String(error);
+        console.warn(`Failed to load ${language}${ext}: ${message}`);
         continue;
       }
     }
@@ -97,7 +95,8 @@ export class CompressionService {
     try {
       return pako.inflate(data);
     } catch (error) {
-      throw new Error(`Gzip decompression failed: ${error.message}`);
+      const message = error?.message || String(error);
+      throw new Error(`Gzip decompression failed: ${message}`);
     }
   }
 
@@ -137,7 +136,8 @@ export class CompressionService {
 
       return result;
     } catch (error) {
-      throw new Error(`Brotli decompression not supported in this browser: ${error.message}`);
+      const message = error?.message || String(error);
+      throw new Error(`Brotli decompression not supported in this browser: ${message}`);
     }
   }
 }

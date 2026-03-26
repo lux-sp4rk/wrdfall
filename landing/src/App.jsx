@@ -45,6 +45,9 @@ function App() {
   const [showTutorialPrompt, setShowTutorialPrompt] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [errorDetails, setErrorDetails] = useState(null);
+  const [notificationPermission, setNotificationPermission] = useState(
+    typeof Notification !== 'undefined' ? Notification.permission : 'denied'
+  );
 
   const landingRef = useRef(null);
   const storageManager = useRef(new StorageManager(supabase));
@@ -76,8 +79,8 @@ function App() {
       const blobs = await prefetchManager.current.start();
 
       window.WORD_LOOM_BLOBS = {
-        wasm: import.meta.env.VITE_GODOT_WASM || 'index',
-        pck: import.meta.env.VITE_GODOT_PCK || 'index.pck'
+        executableBlob: blobs.wasmBlob,
+        mainPackBlob: blobs.pckBlob
       };
 
       const dictWords = dictionaryManager.current.parseWords(blobs.dict);
@@ -136,6 +139,12 @@ function App() {
     }
     if (state.prefetchStatus !== 'ready') return;
 
+    // Request notification permission early (before the long game load)
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+      const perm = await Notification.requestPermission();
+      setNotificationPermission(perm);
+    }
+
     // Check if user has completed or skipped tutorial
     const hasCompletedTutorial = localStorage.getItem('word-loom-tutorial-completed') === 'true';
     const hasSkippedTutorial = localStorage.getItem('word-loom-tutorial-skipped') === 'true';
@@ -161,12 +170,6 @@ function App() {
     await launchGame('game');
   }
 
-  async function handleStartTutorialFromRules() {
-    setState(prev => ({ ...prev, currentScreen: 'home' }));
-    // Small delay to let the home screen render before starting game
-    await new Promise(resolve => setTimeout(resolve, 100));
-    await launchGame('tutorial');
-  }
 
   async function launchGame(launchScene) {
     // Prevent double-launch with async lock
@@ -185,11 +188,13 @@ function App() {
       // CSS transition in HomeScreen handles the 500ms fade (opacity driven by state.transitioning)
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      const { wasm, pck } = window.WORD_LOOM_BLOBS || {};
+      const { executableBlob, mainPackBlob } = window.WORD_LOOM_BLOBS || {};
       
       godotLauncher.current = new GodotLauncher({
-        executable: wasm || 'index',
-        mainPack: pck || 'index.pck',
+        executable: import.meta.env.VITE_GODOT_WASM || 'index',
+        mainPack: import.meta.env.VITE_GODOT_PCK || 'index.pck',
+        executableBlob,
+        mainPackBlob,
         backgroundColor: THEME_BG[state.theme] || THEME_BG.dark,
       });
 
@@ -229,6 +234,20 @@ function App() {
         settings: { theme: state.theme },
         launchScene: launchScene,
       });
+
+      // Game is loaded and ready — fire browser notification
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        const notif = new Notification('Word Loom is ready! 🎮', {
+          body: 'Click here to start playing.',
+          icon: '/apple-touch-icon.png',
+          tag: 'word-loom-ready',
+          requireInteraction: false,
+        });
+        notif.onclick = () => {
+          window.focus();
+          notif.close();
+        };
+      }
 
       window.saveHighScore = (score) => {
         storageManager.current.saveHighScore(score);
@@ -304,7 +323,6 @@ function App() {
           theme={state.theme}
           language={currentSettings.language}
           onBack={() => setState(prev => ({ ...prev, currentScreen: 'home' }))}
-          onStartTutorial={handleStartTutorialFromRules}
         />
       )}
 

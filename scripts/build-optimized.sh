@@ -52,6 +52,24 @@ echo ""
 
 # Summary
 echo "✅ Optimized build complete!"
+
+# Step 6: Post-processing (WASM-OPT and Brotli)
+echo "⚡ Step 6: Post-processing artifacts..."
+WASM_FILE="landing/public/index.wasm"
+PCK_FILE="landing/public/index.pck"
+
+if [ -f "$WASM_FILE" ]; then
+    echo "  Running wasm-opt -Oz on $(basename $WASM_FILE)..."
+    wasm-opt -Oz "$WASM_FILE" -o "$WASM_FILE"
+    echo "  Compressing $(basename $WASM_FILE) with brotli..."
+    brotli -9 -f "$WASM_FILE" -o "${WASM_FILE}.br"
+fi
+
+if [ -f "$PCK_FILE" ]; then
+    echo "  Compressing $(basename $PCK_FILE) with brotli..."
+    brotli -9 -f "$PCK_FILE" -o "${PCK_FILE}.br"
+fi
+
 echo ""
 echo "📊 Build artifacts:"
 echo "  Main build: dist/index.html"

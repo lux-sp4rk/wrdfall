@@ -36,7 +36,6 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, 
             <div className="progress-bar">
               <div className="progress-fill" style={{ width: `${state.prefetchProgress}%` }} />
             </div>
-            <div className="progress-text">Loading… {state.prefetchProgress}%</div>
           </div>
         )}
 
@@ -72,7 +71,7 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, 
 
         <button 
           type="button"
-          className="play-button" 
+          className={`play-button ${state.prefetchStatus === 'loading' && state.showProgress ? 'loading' : ''}`}
           onClick={onPlayClick} 
           disabled={state.transitioning || state.prefetchStatus === 'error'}
           aria-label={state.transitioning ? 'Game starting' : (state.prefetchStatus === 'error' ? 'Game unavailable' : 'Play game')}
@@ -81,6 +80,12 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, 
           {state.transitioning ? 'Starting…' :
            (state.prefetchStatus === 'loading' && state.showProgress) ? 'Loading…' : 'Play'}
         </button>
+
+        {state.transitioning && (
+          <p className="notification-cue" role="status" aria-live="polite">
+            Go do what you need to — we'll ping you when it's ready.
+          </p>
+        )}
 
         <button type="button" className="rules-button" onClick={onRulesClick}>How to Play</button>
 
