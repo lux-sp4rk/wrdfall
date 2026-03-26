@@ -46,14 +46,33 @@ export class GodotLauncher {
       const basePath = this.config.executable.replace(/\.wasm$/, '');
       const pckPath = this.config.mainPack || `${basePath}.pck`;
 
+      // Validate blobs before creating ObjectURLs - must be truthy AND have size property
+      const hasValidExecutableBlob = this.config.executableBlob && typeof this.config.executableBlob.size === 'number';
+      const hasValidMainPackBlob = this.config.mainPackBlob && typeof this.config.mainPackBlob.size === 'number';
+
       // Handle Blob/ObjectURL for engine and mainPack
-      const executableUrl = this.config.executableBlob
+      const executableUrl = hasValidExecutableBlob
         ? URL.createObjectURL(this.config.executableBlob)
         : `${basePath}.wasm`;
 
-      const mainPackUrl = this.config.mainPackBlob
+      const mainPackUrl = hasValidMainPackBlob
         ? URL.createObjectURL(this.config.mainPackBlob)
         : pckPath;
+
+      // Build fileSizes with correct keys based on blob vs fallback usage
+      const fileSizes = {};
+      if (hasValidExecutableBlob) {
+        fileSizes[executableUrl] = this.config.executableBlob.size;
+      } else {
+        // For fallback path, use the basePath (without extension) as the key
+        // because Godot internally uses the executable base name for lookups
+        fileSizes[basePath] = parseInt(import.meta.env.VITE_GODOT_WASM_SIZE || '35376909');
+      }
+      if (hasValidMainPackBlob) {
+        fileSizes[mainPackUrl] = this.config.mainPackBlob.size;
+      } else {
+        fileSizes[pckPath] = parseInt(import.meta.env.VITE_GODOT_PCK_SIZE || '52786592');
+      }
 
       // In Godot 4 JS API, canvas is passed in the config object — no setCanvas().
       // Added ensureCrossOriginIsolationHeaders and fileSizes to match Godot export exactly.
@@ -62,14 +81,11 @@ export class GodotLauncher {
         canvas: this.canvas,
         canvasResizePolicy: 2,
         ensureCrossOriginIsolationHeaders: true,
-        executable: executableUrl,
+        executable: hasValidExecutableBlob ? executableUrl : basePath,
         mainPack: mainPackUrl,
         experimentalVK: false,
         focusCanvas: true,
-        fileSizes: {
-          [executableUrl]: this.config.executableBlob?.size || parseInt(import.meta.env.VITE_GODOT_WASM_SIZE || '35376909'),
-          [mainPackUrl]: this.config.mainPackBlob?.size || parseInt(import.meta.env.VITE_GODOT_PCK_SIZE || '52786592'),
-        },
+        fileSizes,
         // Suppress Godot's native progress UI — feed progress to React via window instead.
         // Return undefined so Godot doesn't render its default progress bar.
         onProgress: (current, total) => {
@@ -78,7 +94,8 @@ export class GodotLauncher {
       });
 
       // Pass the executable URL — Godot uses this to fetch the WASM.
-      await this.engine.init(executableUrl);
+      // Use basePath (without extension) when using fallback, or blob URL when using blobs
+      await this.engine.init(hasValidExecutableBlob ? executableUrl : basePath);
 
       // CRITICAL: Add delay to allow Engine and JavaScriptBridge to fully initialize.
       // On deploy (especially Netlify), there's a race condition where Game.gd's Boot scene
