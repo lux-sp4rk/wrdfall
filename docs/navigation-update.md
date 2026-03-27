@@ -1,4 +1,4 @@
-# Status Report: Word Loom Navigation & Settings
+# Status Report: Wordfall Navigation & Settings
 
 ## Changes
 - **New Home Screen (`scenes/Home.tscn`):** Created a main entry point with "Play" and "Settings" buttons.

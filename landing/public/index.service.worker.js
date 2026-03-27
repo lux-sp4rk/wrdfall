@@ -6,7 +6,7 @@
 /** @type {string} */
 const CACHE_VERSION = '1774036565|3050589';
 /** @type {string} */
-const CACHE_PREFIX = 'Word Loom-sw-cache-';
+const CACHE_PREFIX = 'Word Fall-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
 /** @type {string} */
 const OFFLINE_URL = 'index.offline.html';

@@ -83,7 +83,7 @@ func set_has_completed_tutorial(completed: bool) -> void:
 	if OS.has_feature("web"):
 		var js = JavaScriptBridge.get_interface("localStorage")
 		if js != null:
-			js.setItem("word-loom-tutorial-completed", "true" if completed else "false")
+			js.setItem("wordfall-tutorial-completed", "true" if completed else "false")
 
 func load_from_localstorage() -> void:
 	"""Read language and difficulty from localStorage (set by React SettingsScreen).
@@ -93,12 +93,12 @@ func load_from_localstorage() -> void:
 	var js = JavaScriptBridge.get_interface("localStorage")
 	if js == null:
 		return
-	var lang = js.getItem("word-loom-language")
+	var lang = js.getItem("wordfall-language")
 	if lang == "en" or lang == "es":
 		current_language = lang
-	var diff = js.getItem("word-loom-difficulty")
+	var diff = js.getItem("wordfall-difficulty")
 	if diff == "normal" or diff == "hard":
 		difficulty = diff
-	var tutorial_completed = js.getItem("word-loom-tutorial-completed")
+	var tutorial_completed = js.getItem("wordfall-tutorial-completed")
 	if tutorial_completed == "true":
 		has_completed_tutorial = true

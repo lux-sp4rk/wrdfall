@@ -209,29 +209,15 @@ function App() {
       const language = currentSettings.language || 'en';
       
       // Load dictionary (from cache or fetch if needed)
-      console.log(`[launchGame] Loading ${language} dictionary...`);
       let words = dictionaryManager.current.cache.get(language);
       
       if (!words) {
-        console.log(`[launchGame] ${language} dictionary not in cache, fetching...`);
         words = await dictionaryManager.current.load(language);
       }
-      
-      console.log(`[launchGame] Retrieved ${language} words:`, {
-        type: words?.constructor?.name,
-        size: words?.size,
-        isSet: words instanceof Set,
-        isTruthy: !!words,
-        keys: Array.from(words || []).slice(0, 5), // first 5 words
-      });
 
       if (!words || words.size === 0) {
-        const errMsg = `Dictionary failed to load: language=${language}, words=${typeof words}, size=${words?.size}`;
-        console.error('[launchGame] VALIDATION FAILED:', errMsg);
-        throw new Error(errMsg);
+        throw new Error(`Dictionary failed to load: language=${language}`);
       }
-
-      console.log(`[launchGame] ${language} dictionary validation PASSED, starting ${launchScene}...`);
 
       await godotLauncher.current.start({
         dictionary: { language: language, words },
@@ -241,7 +227,7 @@ function App() {
 
       // Game is loaded and ready — fire browser notification
       if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-        const notif = new Notification('Word Loom is ready! 🎮', {
+        const notif = new Notification('Word Fall is ready! 🎮', {
           body: 'Click here to start playing.',
           icon: '/apple-touch-icon.png',
           tag: 'word-loom-ready',

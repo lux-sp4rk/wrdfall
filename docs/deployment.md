@@ -1,4 +1,4 @@
-# Deployment Guide - Word Loom
+# Deployment Guide - Wordfall
 
 ## Simple Setup
 
@@ -188,7 +188,7 @@ INSERT INTO profiles (id, high_score) VALUES ('not-my-id', 100);
 
 ## Hybrid Loader Architecture
 
-Word Loom uses a **hybrid loader** for fast initial render:
+Wordfall uses a **hybrid loader** for fast initial render:
 
 ### How It Works
 
@@ -237,7 +237,7 @@ npm run deploy:prod
 
 This will:
 1. Build landing page (`landing/dist` → `dist/`)
-2. Verify Godot export exists (`dist/word-loom.wasm`, etc.)
+2. Verify Godot export exists (`dist/wordfall.wasm`, etc.)
 3. Commit changes
 4. Push to GitHub (Netlify auto-deploys)
 
@@ -248,9 +248,9 @@ dist/
 ├── index.html            # Landing page (from Vite build)
 ├── assets/               # Landing page CSS/JS
 ├── game/
-│   ├── word-loom.wasm    # Godot engine
-│   ├── word-loom.pck     # Godot data (no dictionaries)
-│   ├── word-loom.js      # Godot loader
+│   ├── wordfall.wasm    # Godot engine
+│   ├── wordfall.pck     # Godot data (no dictionaries)
+│   ├── wordfall.js      # Godot loader
 │   └── dictionaries/
 │       ├── en.txt        # English (2.6 MB → 1 MB gzipped)
 │       └── es.txt        # Spanish (6.8 MB → 2.7 MB gzipped)

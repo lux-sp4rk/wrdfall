@@ -187,7 +187,7 @@ func save_stats() -> void:
 				"total_time": total_time_played,
 				"session_history": session_history
 			}
-			js.setItem("word-loom-stats", JSON.stringify(blob))
+			js.setItem("wordfall-stats", JSON.stringify(blob))
 
 func load_stats() -> void:
 	"""Load stats from disk/IndexedDB"""

@@ -35,11 +35,11 @@ The React landing page currently has hardcoded light theme styling that doesn't 
 
 1. **First Visit (no saved theme)**
    - React detects OS dark mode preference via `window.matchMedia('(prefers-color-scheme: dark)')`
-   - Writes default theme to `localStorage.setItem('word-loom-theme', 'light' or 'dark')`
+   - Writes default theme to `localStorage.setItem('wordfall-theme', 'light' or 'dark')`
    - Applies theme to React UI immediately
 
 2. **Subsequent Visits**
-   - React reads `localStorage.getItem('word-loom-theme')`
+   - React reads `localStorage.getItem('wordfall-theme')`
    - Applies theme immediately (no flash)
    - Godot launches, reads same localStorage value
 
@@ -103,7 +103,7 @@ User opens app
   ↓
 React mounts
   ↓
-theme.js checks localStorage.getItem('word-loom-theme')
+theme.js checks localStorage.getItem('wordfall-theme')
   ↓
 Not found → detectSystemTheme()
   ↓
@@ -111,7 +111,7 @@ window.matchMedia('(prefers-color-scheme: dark)').matches
   ↓
 Set theme = 'dark' (or 'light')
   ↓
-localStorage.setItem('word-loom-theme', theme)
+localStorage.setItem('wordfall-theme', theme)
   ↓
 Apply CSS class to React (.theme-dark)
   ↓
@@ -130,7 +130,7 @@ Apply theme in Godot
 ```
 React mounts
   ↓
-localStorage.getItem('word-loom-theme') → 'dark'
+localStorage.getItem('wordfall-theme') → 'dark'
   ↓
 Apply .theme-dark immediately (no flash)
   ↓
@@ -242,14 +242,14 @@ localStorage → OS preference → 'light' (hardcoded default)
 - OS dark mode OFF
 - Open app → verify React shows light theme immediately
 - Click Play → verify Godot continues with light theme (no flash)
-- Check localStorage: `word-loom-theme` = 'light'
+- Check localStorage: `wordfall-theme` = 'light'
 
 **2. First Visit (Dark Mode System)**
 - Clear localStorage
 - OS dark mode ON
 - Open app → verify React shows dark theme immediately
 - Click Play → verify Godot continues with dark theme
-- Check localStorage: `word-loom-theme` = 'dark'
+- Check localStorage: `wordfall-theme` = 'dark'
 
 **3. Theme Change in Godot**
 - Start with light theme
@@ -276,7 +276,7 @@ localStorage → OS preference → 'light' (hardcoded default)
 ## Implementation Notes
 
 - Colors can be adjusted post-implementation if needed
-- localStorage key: `'word-loom-theme'` (keep consistent)
+- localStorage key: `'wordfall-theme'` (keep consistent)
 - Theme values: `'light'` or `'dark'` (lowercase, no other values)
 - JavaScriptBridge: Use `JavaScriptBridge.get_interface("localStorage")` to safely access localStorage (follows pattern from Dictionary.gd)
 

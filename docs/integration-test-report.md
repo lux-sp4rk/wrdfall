@@ -26,9 +26,9 @@
 **Problem:** Path mismatch between code and build output.
 
 **Code References:**
-- `/game/word-loom.js`
-- `/game/word-loom.pck`
-- `/game/word-loom.wasm`
+- `/game/wordfall.js`
+- `/game/wordfall.pck`
+- `/game/wordfall.wasm`
 - `/game/dictionaries/en.txt`
 
 **Actual File Locations:**
@@ -52,7 +52,7 @@ Once the path issue is resolved, perform the following tests:
 
 ### 1. Local Server Test
 ```bash
-cd /Users/ulizzle/Work/word-loom
+cd /Users/ulizzle/Work/wordfall
 npm run serve
 # Opens http://localhost:8000
 ```
@@ -66,7 +66,7 @@ npm run serve
 
 **Verify:**
 - [ ] Page renders instantly (< 500ms)
-- [ ] "Word Loom" logo visible
+- [ ] "Wordfall" logo visible
 - [ ] "Word-building meets Tetris" tagline visible
 - [ ] Play button visible (disabled initially)
 - [ ] Language selector visible (English/Español)
@@ -87,8 +87,8 @@ npm run serve
 - [ ] Play button becomes enabled when complete
 
 **Console Checks:**
-- [ ] No 404 errors for `/game/word-loom.wasm`
-- [ ] No 404 errors for `/game/word-loom.pck`
+- [ ] No 404 errors for `/game/wordfall.wasm`
+- [ ] No 404 errors for `/game/wordfall.pck`
 - [ ] No 404 errors for `/game/dictionaries/en.txt`
 - [ ] Console logs show successful pre-fetch
 
@@ -140,7 +140,7 @@ npm run serve
 - [ ] Clicking Retry re-attempts pre-fetch
 
 #### Test 6b: Partial Load Failure
-**Setup:** Block `/game/word-loom.wasm` in DevTools Network tab
+**Setup:** Block `/game/wordfall.wasm` in DevTools Network tab
 
 **Verify:**
 - [ ] Pre-fetch fails with specific error
@@ -237,7 +237,7 @@ None identified
 
 **Date Tested:** 2026-02-16
 **Tester:** Automated verification + awaiting manual testing
-**Build Output:** `/Users/ulizzle/Work/word-loom/dist/`
+**Build Output:** `/Users/ulizzle/Work/wordfall/dist/`
 **Server Command:** `npm run serve` (http://localhost:8000)
 
 ---
@@ -250,9 +250,9 @@ dist/
 ├── assets/
 │   ├── index-KSggXksG.js      # React bundle (325KB)
 │   └── index-sbH5u2ae.css     # Styles (3.5KB)
-├── index.wasm                  # Godot Wasm (36MB) ⚠️ Should be /game/word-loom.wasm
-├── index.pck                   # Godot PCK (58MB) ⚠️ Should be /game/word-loom.pck
-├── index.js                    # Godot JS (316KB) ⚠️ Should be /game/word-loom.js
+├── index.wasm                  # Godot Wasm (36MB) ⚠️ Should be /game/wordfall.wasm
+├── index.pck                   # Godot PCK (58MB) ⚠️ Should be /game/wordfall.pck
+├── index.js                    # Godot JS (316KB) ⚠️ Should be /game/wordfall.js
 └── dictionaries/
     ├── en.txt                  # English (2.6MB) ⚠️ Should be /game/dictionaries/en.txt
     └── es.txt                  # Spanish (6.8MB) ⚠️ Should be /game/dictionaries/es.txt

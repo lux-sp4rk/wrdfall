@@ -4,7 +4,7 @@
 
 **Goal:** React Shell becomes the full navigation layer (Home, Stats, Settings); Godot boots directly into the game, with heavy assets (~88MB WASM + PCK) prefetched silently in the background so the Play button feels instant.
 
-**Architecture:** State-based routing in `App.jsx` (no React Router) drives three screens. Existing `PrefetchManager` + `GodotLauncher` infrastructure is preserved untouched. Stats flow through Supabase (authenticated) and `localStorage('word-loom-stats')` (guest). Godot adds a `Boot.gd` scene to skip `Home.tscn` on web builds.
+**Architecture:** State-based routing in `App.jsx` (no React Router) drives three screens. Existing `PrefetchManager` + `GodotLauncher` infrastructure is preserved untouched. Stats flow through Supabase (authenticated) and `localStorage('wordfall-stats')` (guest). Godot adds a `Boot.gd` scene to skip `Home.tscn` on web builds.
 
 **Tech Stack:** React 18, Vite, Supabase JS v2, Vitest + React Testing Library (new), GDScript
 
@@ -22,7 +22,7 @@
 **Step 1: Install Vitest + React Testing Library**
 
 ```bash
-cd /home/uli/Projects/word-loom/landing
+cd /home/uli/Projects/wordfall/landing
 npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom
 ```
 
@@ -71,7 +71,7 @@ In `landing/package.json` `"scripts"`:
 **Step 5: Verify setup**
 
 ```bash
-cd /home/uli/Projects/word-loom/landing && npm test
+cd /home/uli/Projects/wordfall/landing && npm test
 ```
 Expected output: `No test files found`
 
@@ -173,9 +173,9 @@ describe('getSettings', () => {
   })
 
   it('reads saved values', () => {
-    localStorage.setItem('word-loom-theme', 'dark')
-    localStorage.setItem('word-loom-language', 'es')
-    localStorage.setItem('word-loom-difficulty', 'hard')
+    localStorage.setItem('wordfall-theme', 'dark')
+    localStorage.setItem('wordfall-language', 'es')
+    localStorage.setItem('wordfall-difficulty', 'hard')
     const s = getSettings()
     expect(s.theme).toBe('dark')
     expect(s.language).toBe('es')
@@ -183,7 +183,7 @@ describe('getSettings', () => {
   })
 
   it('ignores invalid values and returns default', () => {
-    localStorage.setItem('word-loom-theme', 'banana')
+    localStorage.setItem('wordfall-theme', 'banana')
     expect(getSettings().theme).toBe('light')
   })
 })
@@ -191,16 +191,16 @@ describe('getSettings', () => {
 describe('saveSettings', () => {
   it('writes all three keys', () => {
     saveSettings({ theme: 'dark', language: 'es', difficulty: 'hard' })
-    expect(localStorage.getItem('word-loom-theme')).toBe('dark')
-    expect(localStorage.getItem('word-loom-language')).toBe('es')
-    expect(localStorage.getItem('word-loom-difficulty')).toBe('hard')
+    expect(localStorage.getItem('wordfall-theme')).toBe('dark')
+    expect(localStorage.getItem('wordfall-language')).toBe('es')
+    expect(localStorage.getItem('wordfall-difficulty')).toBe('hard')
   })
 
   it('partial update does not clobber other keys', () => {
     saveSettings({ theme: 'dark', language: 'en', difficulty: 'normal' })
     saveSettings({ theme: 'light' })
-    expect(localStorage.getItem('word-loom-theme')).toBe('light')
-    expect(localStorage.getItem('word-loom-language')).toBe('en')
+    expect(localStorage.getItem('wordfall-theme')).toBe('light')
+    expect(localStorage.getItem('wordfall-language')).toBe('en')
   })
 })
 ```
@@ -208,7 +208,7 @@ describe('saveSettings', () => {
 **Step 2: Run to verify failure**
 
 ```bash
-cd /home/uli/Projects/word-loom/landing && npm test
+cd /home/uli/Projects/wordfall/landing && npm test
 ```
 Expected: FAIL — `Cannot find module '../settings.js'`
 
@@ -218,9 +218,9 @@ Create `landing/src/services/settings.js`:
 
 ```js
 const KEYS = {
-  theme: 'word-loom-theme',
-  language: 'word-loom-language',
-  difficulty: 'word-loom-difficulty',
+  theme: 'wordfall-theme',
+  language: 'wordfall-language',
+  difficulty: 'wordfall-difficulty',
 }
 
 export const DEFAULTS = {
@@ -256,7 +256,7 @@ export function saveSettings(partial) {
 **Step 4: Run tests to verify pass**
 
 ```bash
-cd /home/uli/Projects/word-loom/landing && npm test
+cd /home/uli/Projects/wordfall/landing && npm test
 ```
 Expected: All tests PASS
 
@@ -298,7 +298,7 @@ describe('StatsService.getStats', () => {
   })
 
   it('reads guest stats from localStorage', async () => {
-    localStorage.setItem('word-loom-stats', JSON.stringify({
+    localStorage.setItem('wordfall-stats', JSON.stringify({
       high_score: 1234,
       longest_word: 'QUARTZ',
       total_words: 42,
@@ -312,7 +312,7 @@ describe('StatsService.getStats', () => {
   })
 
   it('merges EMPTY_STATS defaults for missing keys', async () => {
-    localStorage.setItem('word-loom-stats', JSON.stringify({ high_score: 500 }))
+    localStorage.setItem('wordfall-stats', JSON.stringify({ high_score: 500 }))
     const s = new StatsService(null)
     const stats = await s.getStats()
     expect(stats.high_score).toBe(500)
@@ -340,7 +340,7 @@ describe('StatsService.getShareText', () => {
 **Step 2: Run to verify failure**
 
 ```bash
-cd /home/uli/Projects/word-loom/landing && npm test
+cd /home/uli/Projects/wordfall/landing && npm test
 ```
 Expected: FAIL — `Cannot find module '../statsService.js'`
 
@@ -349,7 +349,7 @@ Expected: FAIL — `Cannot find module '../statsService.js'`
 Create `landing/src/services/statsService.js`:
 
 ```js
-const LOCAL_STATS_KEY = 'word-loom-stats'
+const LOCAL_STATS_KEY = 'wordfall-stats'
 
 export const EMPTY_STATS = {
   high_score: 0,
@@ -403,7 +403,7 @@ export class StatsService {
 
   getShareText(stats) {
     return [
-      'Word Loom Stats',
+      'Wordfall Stats',
       '━━━━━━━━━━━━━━━',
       `High Score: ${stats.high_score}`,
       `Longest Word: ${stats.longest_word || '—'}`,
@@ -459,7 +459,7 @@ export class StatsService {
 **Step 4: Run tests to verify pass**
 
 ```bash
-cd /home/uli/Projects/word-loom/landing && npm test
+cd /home/uli/Projects/wordfall/landing && npm test
 ```
 Expected: All tests PASS (6 tests)
 
@@ -492,7 +492,7 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick }
     <div className={`landing-container theme-${state.theme}`} style={{ opacity: state.transitioning ? 0 : 1, transition: 'opacity 500ms ease-out' }}>
       <div className="landing-content">
         <div className="hero">
-          <h1 className="logo">Word Loom</h1>
+          <h1 className="logo">Wordfall</h1>
           <p className="tagline">Word-building meets Tetris</p>
         </div>
 
@@ -614,7 +614,7 @@ return (
 **Step 4: Verify app builds and navigates**
 
 ```bash
-cd /home/uli/Projects/word-loom/landing && npm run dev
+cd /home/uli/Projects/wordfall/landing && npm run dev
 ```
 
 Open browser. Verify:
@@ -679,7 +679,7 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick }
       {/* Main card */}
       <div className="main-card">
         <div className="title-section">
-          <h1 className="logo">Word Loom</h1>
+          <h1 className="logo">Wordfall</h1>
           <p className="tagline">Word-building meets Tetris</p>
           {state.highScore > 0 && (
             <p className="high-score-text">Best: {state.highScore.toLocaleString()}</p>
@@ -868,7 +868,7 @@ Append to the bottom of `landing/src/App.css`:
 **Step 4: Visual verification**
 
 ```bash
-cd /home/uli/Projects/word-loom/landing && npm run dev
+cd /home/uli/Projects/wordfall/landing && npm run dev
 ```
 
 Check against `godot/scenes/Home.tscn` values. Verify:
@@ -878,7 +878,7 @@ Check against `godot/scenes/Home.tscn` values. Verify:
 - [ ] Play button is large and orange (~110px tall)
 - [ ] Stats + Settings row same width (sage green, ~85px tall)
 - [ ] Divider + copyright at card bottom
-- [ ] Toggle `localStorage.setItem('word-loom-theme','dark')` + refresh → dark mode correct
+- [ ] Toggle `localStorage.setItem('wordfall-theme','dark')` + refresh → dark mode correct
 
 **Step 5: Commit**
 
@@ -1058,7 +1058,7 @@ Append to `landing/src/App.css`:
 **Step 3: Visual verification**
 
 ```bash
-cd /home/uli/Projects/word-loom/landing && npm run dev
+cd /home/uli/Projects/wordfall/landing && npm run dev
 ```
 
 Verify:
@@ -1372,7 +1372,7 @@ Append to `landing/src/App.css`:
 **Step 3: Visual verification**
 
 ```bash
-cd /home/uli/Projects/word-loom/landing && npm run dev
+cd /home/uli/Projects/wordfall/landing && npm run dev
 ```
 
 Verify:
@@ -1531,7 +1531,7 @@ At the end of `save_stats()`, before the closing `}`, add:
 				"total_time": total_time_played,
 				"session_history": session_history
 			}
-			js.setItem("word-loom-stats", JSON.stringify(blob))
+			js.setItem("wordfall-stats", JSON.stringify(blob))
 ```
 
 **Step 5: Commit**
@@ -1548,7 +1548,7 @@ git commit -m "feat: StatsManager syncs rich stats to Supabase + localStorage br
 **Files:**
 - Modify: `godot/scripts/GameSettings.gd`
 
-React's SettingsScreen writes `word-loom-language` and `word-loom-difficulty`. Godot reads them at boot so the game uses the correct language and difficulty.
+React's SettingsScreen writes `wordfall-language` and `wordfall-difficulty`. Godot reads them at boot so the game uses the correct language and difficulty.
 
 **Step 1: Add load_from_localstorage to GameSettings.gd**
 
@@ -1566,10 +1566,10 @@ func load_from_localstorage() -> void:
 	var js = JavaScriptBridge.get_interface("localStorage")
 	if js == null:
 		return
-	var lang = js.getItem("word-loom-language")
+	var lang = js.getItem("wordfall-language")
 	if lang == "en" or lang == "es":
 		current_language = lang
-	var diff = js.getItem("word-loom-difficulty")
+	var diff = js.getItem("wordfall-difficulty")
 	if diff == "normal" or diff == "hard":
 		difficulty = diff
 ```
@@ -1601,7 +1601,7 @@ Manual test checklist. Run against `netlify dev` or a preview deploy.
 - [ ] React fades out in ~500ms → Godot canvas appears → game starts with no blank screen
 - [ ] No white flash during transition
 - [ ] Game uses correct theme (set dark in Settings → game should have dark background)
-- [ ] After game ends: open DevTools → Application → localStorage → verify `word-loom-stats` JSON is present and contains correct values
+- [ ] After game ends: open DevTools → Application → localStorage → verify `wordfall-stats` JSON is present and contains correct values
 
 **Stats screen (after playing a game):**
 - [ ] Navigate to Stats → correct high score displayed

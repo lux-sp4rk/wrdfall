@@ -41,20 +41,20 @@
 ## Production Testing (Netlify)
 
 ### Performance
-- [ ] Visit https://word-loom-lux.netlify.app
+- [ ] Visit https://wordfall-lux.netlify.app
 - [ ] Open DevTools > Network tab
 - [ ] Hard refresh (Cmd+Shift+R)
 - [ ] Landing page TTFR < 1s
 - [ ] Run Lighthouse audit: Performance score > 90
 
 ### Compression
-- [ ] Network tab: Check word-loom.wasm
+- [ ] Network tab: Check wordfall.wasm
 - [ ] Response Headers: `Content-Encoding: br` (Brotli)
 - [ ] Network tab: Check dictionaries/en.txt
 - [ ] Response Headers: `Content-Encoding: gzip`
 
 ### Caching
-- [ ] Network tab: Check word-loom.wasm
+- [ ] Network tab: Check wordfall.wasm
 - [ ] Response Headers: `Cache-Control: public, max-age=31536000, immutable`
 - [ ] Refresh page
 - [ ] Wasm loads from cache (disk cache)

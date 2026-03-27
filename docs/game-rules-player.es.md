@@ -1,6 +1,6 @@
-# Cómo Jugar Word Loom
+# Cómo Jugar Wordfall
 
-Word Loom es un rompecabezas de palabras relajante con un giro: ¡las letras caen como lluvia y debes formar palabras antes de que el tablero se llene!
+Wordfall es un rompecabezas de palabras relajante con un giro: ¡las letras caen como lluvia y debes formar palabras antes de que el tablero se llene!
 
 ## Lo Básico
 

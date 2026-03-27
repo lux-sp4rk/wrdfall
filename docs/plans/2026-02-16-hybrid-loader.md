@@ -26,7 +26,7 @@ Create `package.json`:
 
 ```json
 {
-  "name": "word-loom",
+  "name": "wordfall",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -61,7 +61,7 @@ Create `landing/package.json`:
 
 ```json
 {
-  "name": "word-loom-landing",
+  "name": "wordfall-landing",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -116,8 +116,8 @@ Create `landing/index.html`:
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="description" content="Word Loom - Word-building meets Tetris" />
-    <title>Word Loom</title>
+    <meta name="description" content="Wordfall - Word-building meets Tetris" />
+    <title>Wordfall</title>
     <style>
       /* Critical CSS - inline for instant render */
       * {
@@ -597,7 +597,7 @@ export class PrefetchManager {
    */
   async fetchGodotWasm() {
     return this._fetchWithProgress(
-      '/game/word-loom.wasm',
+      '/game/wordfall.wasm',
       'wasm'
     );
   }
@@ -607,7 +607,7 @@ export class PrefetchManager {
    */
   async fetchGodotPck() {
     return this._fetchWithProgress(
-      '/game/word-loom.pck',
+      '/game/wordfall.pck',
       'pck'
     );
   }
@@ -786,7 +786,7 @@ export class GodotLauncher {
   async _loadEngineScript() {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = '/game/word-loom.js';
+      script.src = '/game/wordfall.js';
       script.onload = () => {
         if (window.Engine) {
           resolve(window.Engine);
@@ -921,8 +921,8 @@ function App() {
 
     // Initialize Godot
     const launcher = new GodotLauncher({
-      executable: '/game/word-loom',
-      mainPack: '/game/word-loom.pck',
+      executable: '/game/wordfall',
+      mainPack: '/game/wordfall.pck',
     });
 
     await launcher.initialize();
@@ -967,7 +967,7 @@ function App() {
       <div className="container">
         {/* Hero */}
         <div className="hero">
-          <h1 className="logo">Word Loom</h1>
+          <h1 className="logo">Wordfall</h1>
           <p className="tagline">Word-building meets Tetris</p>
         </div>
 
@@ -1522,7 +1522,7 @@ Create or update `build.sh`:
 ```bash
 #!/bin/bash
 
-# Build script for Word Loom (Netlify)
+# Build script for Wordfall (Netlify)
 
 set -e  # Exit on error
 
@@ -1548,7 +1548,7 @@ fi
 
 echo "Build complete!"
 echo "Landing page: dist/index.html"
-echo "Godot engine: dist/word-loom.wasm, dist/word-loom.pck"
+echo "Godot engine: dist/wordfall.wasm, dist/wordfall.pck"
 echo "Dictionaries: dist/dictionaries/*.txt"
 ```
 
@@ -1641,20 +1641,20 @@ Create `docs/testing/hybrid-loader-checklist.md`:
 ## Production Testing (Netlify)
 
 ### Performance
-- [ ] Visit https://word-loom-lux.netlify.app
+- [ ] Visit https://wordfall-lux.netlify.app
 - [ ] Open DevTools > Network tab
 - [ ] Hard refresh (Cmd+Shift+R)
 - [ ] Landing page TTFR < 1s
 - [ ] Run Lighthouse audit: Performance score > 90
 
 ### Compression
-- [ ] Network tab: Check word-loom.wasm
+- [ ] Network tab: Check wordfall.wasm
 - [ ] Response Headers: `Content-Encoding: br` (Brotli)
 - [ ] Network tab: Check dictionaries/en.txt
 - [ ] Response Headers: `Content-Encoding: gzip`
 
 ### Caching
-- [ ] Network tab: Check word-loom.wasm
+- [ ] Network tab: Check wordfall.wasm
 - [ ] Response Headers: `Cache-Control: public, max-age=31536000, immutable`
 - [ ] Refresh page
 - [ ] Wasm loads from cache (disk cache)
@@ -1742,7 +1742,7 @@ Append to `docs/deployment.md`:
 
 ## Hybrid Loader Architecture
 
-Word Loom uses a **hybrid loader** for fast initial render:
+Wordfall uses a **hybrid loader** for fast initial render:
 
 ### How It Works
 
@@ -1791,7 +1791,7 @@ npm run deploy:prod
 
 This will:
 1. Build landing page (`landing/dist` → `dist/`)
-2. Verify Godot export exists (`dist/word-loom.wasm`, etc.)
+2. Verify Godot export exists (`dist/wordfall.wasm`, etc.)
 3. Commit changes
 4. Push to GitHub (Netlify auto-deploys)
 
@@ -1802,9 +1802,9 @@ dist/
 ├── index.html            # Landing page (from Vite build)
 ├── assets/               # Landing page CSS/JS
 ├── game/
-│   ├── word-loom.wasm    # Godot engine
-│   ├── word-loom.pck     # Godot data (no dictionaries)
-│   ├── word-loom.js      # Godot loader
+│   ├── wordfall.wasm    # Godot engine
+│   ├── wordfall.pck     # Godot data (no dictionaries)
+│   ├── wordfall.js      # Godot loader
 │   └── dictionaries/
 │       ├── en.txt        # English (2.6 MB → 1 MB gzipped)
 │       └── es.txt        # Spanish (6.8 MB → 2.7 MB gzipped)
@@ -1861,7 +1861,7 @@ ls -la dist/
 Expected files:
 - `index.html` (landing page)
 - `assets/` (CSS/JS)
-- `word-loom.wasm`, `word-loom.pck`, `word-loom.js` (Godot)
+- `wordfall.wasm`, `wordfall.pck`, `wordfall.js` (Godot)
 - `dictionaries/en.txt`, `dictionaries/es.txt`
 
 **Step 3: Test local server**
@@ -1910,7 +1910,7 @@ Wait for Netlify deploy, then test production URL.
 **Step 1: Run Lighthouse audit**
 
 ```bash
-npx lighthouse https://word-loom-lux.netlify.app --view
+npx lighthouse https://wordfall-lux.netlify.app --view
 ```
 
 **Step 2: Record metrics**
@@ -1921,7 +1921,7 @@ Create `docs/performance/hybrid-loader-baseline.md`:
 # Hybrid Loader Performance Baseline
 
 **Date**: 2026-02-16
-**URL**: https://word-loom-lux.netlify.app
+**URL**: https://wordfall-lux.netlify.app
 
 ## Lighthouse Scores
 
@@ -1947,8 +1947,8 @@ Create `docs/performance/hybrid-loader-baseline.md`:
 | index.html | ___ KB | ___ KB |
 | main.js | ___ KB | ___ KB |
 | main.css | ___ KB | ___ KB |
-| word-loom.wasm | 37 MB | ___ MB |
-| word-loom.pck | ___ MB | ___ MB |
+| wordfall.wasm | 37 MB | ___ MB |
+| wordfall.pck | ___ MB | ___ MB |
 | en.txt | 2.6 MB | ___ MB |
 | es.txt | 6.8 MB | ___ MB |
 
@@ -2030,7 +2030,7 @@ git push --force origin main
 
 **Cause**: Godot files not found or CORS issues
 
-**Fix**: Verify `dist/word-loom.wasm`, `dist/word-loom.pck`, `dist/word-loom.js` exist
+**Fix**: Verify `dist/wordfall.wasm`, `dist/wordfall.pck`, `dist/wordfall.js` exist
 
 ### Dictionary not loading in Godot
 

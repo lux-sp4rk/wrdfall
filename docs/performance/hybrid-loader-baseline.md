@@ -1,7 +1,7 @@
 # Hybrid Loader Performance Baseline
 
 **Date**: 2026-02-16
-**URL**: https://word-loom-lux.netlify.app
+**URL**: https://wordfall-lux.netlify.app
 
 ## Lighthouse Scores
 
@@ -27,8 +27,8 @@
 | index.html | ___ KB | ___ KB |
 | main.js | ___ KB | ___ KB |
 | main.css | ___ KB | ___ KB |
-| word-loom.wasm | 37 MB | ___ MB |
-| word-loom.pck | ___ MB | ___ MB |
+| wordfall.wasm | 37 MB | ___ MB |
+| wordfall.pck | ___ MB | ___ MB |
 | en.txt | 2.6 MB | ___ MB |
 | es.txt | 6.8 MB | ___ MB |
 

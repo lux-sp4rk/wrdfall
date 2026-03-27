@@ -84,7 +84,7 @@ func _load_from_localstorage() -> String:
 		push_warning("localStorage interface not available")
 		return ""
 
-	var theme = js_interface.getItem("word-loom-theme")
+	var theme = js_interface.getItem("wordfall-theme")
 	if theme == null or theme == "":
 		return ""
 
@@ -105,7 +105,7 @@ func _sync_to_localstorage(theme_name: String) -> void:
 		push_warning("localStorage interface not available, cannot sync theme")
 		return
 
-	js_interface.setItem("word-loom-theme", theme_name)
+	js_interface.setItem("wordfall-theme", theme_name)
 	print("ThemeManager: Synced theme to localStorage: ", theme_name)
 
 func get_color(key: String) -> Color:

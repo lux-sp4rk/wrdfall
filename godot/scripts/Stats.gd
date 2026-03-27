@@ -213,7 +213,7 @@ func _on_reset_confirmed() -> void:
 
 func _on_share_pressed() -> void:
 	"""Copy stats summary to clipboard"""
-	var stats_text: String = "Word Loom Stats\n"
+	var stats_text: String = "Wordfall Stats\n"
 	stats_text += "━━━━━━━━━━━━━━━\n"
 	stats_text += "High Score: %d\n" % StatsManager.high_score
 	stats_text += "Longest Word: %s\n" % (StatsManager.longest_word if StatsManager.longest_word else "—")

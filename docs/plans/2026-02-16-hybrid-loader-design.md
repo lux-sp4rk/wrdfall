@@ -1,14 +1,14 @@
 # Hybrid Loader Strategy Design
 
 **Date**: 2026-02-16
-**Issue**: [#122 - Optimize Initial Load Time & First Render](https://github.com/lux-sp4rk/word-loom/issues/122)
+**Issue**: [#122 - Optimize Initial Load Time & First Render](https://github.com/lux-sp4rk/wordfall/issues/122)
 **Goal**: Reduce Time to First Render (TTFR) to < 3 seconds, improve perceived performance, boost retention
 
 ---
 
 ## Problem Statement
 
-The current web build (`word-loom-lux.netlify.app`) experiences significant initial load delays:
+The current web build (`wordfall-lux.netlify.app`) experiences significant initial load delays:
 - **Total payload**: 87.8 MB (37.69 MB Wasm + 50.11 MB PCK)
 - **Dictionary files**: 9.4 MB embedded in PCK (2.6 MB English + 6.8 MB Spanish)
 - **User experience**: Long blank screen, no feedback during load
@@ -32,7 +32,7 @@ Implement a **hybrid loader architecture** with:
 ### High-Level Flow
 
 ```
-User visits word-loom.netlify.app
+User visits wordfall.netlify.app
     ↓
 [Vite + React Landing Page] (< 1s)
     ├─ Inline critical CSS
@@ -59,7 +59,7 @@ Game starts
 ### File Structure
 
 ```
-word-loom/
+wordfall/
 ├── landing/                 # NEW: Vite + React landing page
 │   ├── package.json
 │   ├── vite.config.js
@@ -81,9 +81,9 @@ word-loom/
 │       └── styles/
 │           └── app.css
 ├── dist/                    # Godot HTML5 export (existing)
-│   ├── word-loom.wasm       # 37 MB
-│   ├── word-loom.pck        # Reduced (no dictionaries)
-│   ├── word-loom.js
+│   ├── wordfall.wasm       # 37 MB
+│   ├── wordfall.pck        # Reduced (no dictionaries)
+│   ├── wordfall.js
 │   └── dictionaries/        # NEW: Extracted dictionaries
 │       ├── en.txt           # 2.6 MB (→ ~1 MB gzipped)
 │       └── es.txt           # 6.8 MB (→ ~2.7 MB gzipped)
@@ -167,7 +167,7 @@ class PrefetchManager {
   }
 
   async fetchGodotWasm() {
-    const response = await fetch('/game/word-loom.wasm');
+    const response = await fetch('/game/wordfall.wasm');
     const reader = response.body.getReader();
     const contentLength = +response.headers.get('Content-Length');
 
@@ -407,8 +407,8 @@ async function handlePlayClick() {
 
   // 3. Initialize Godot
   const launcher = new GodotLauncher(canvas, {
-    executable: '/game/word-loom',
-    mainPack: '/game/word-loom.pck'
+    executable: '/game/wordfall',
+    mainPack: '/game/wordfall.pck'
   });
 
   await launcher.initialize();
@@ -668,7 +668,7 @@ npm run deploy:prod
 
 ```bash
 # Lighthouse audit
-npx lighthouse https://word-loom-lux.netlify.app --view
+npx lighthouse https://wordfall-lux.netlify.app --view
 
 # WebPageTest (real device)
 # https://www.webpagetest.org/

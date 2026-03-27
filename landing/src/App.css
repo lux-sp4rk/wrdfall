@@ -1,11 +1,42 @@
 /* ============================================
-   Word Loom Landing Page Styles
+   Word Fall Landing Page Styles
    Mobile-first, senior-friendly design
    ============================================ */
 
 /* ============================================
    Theme Variables
    ============================================ */
+
+/* ============================================
+   Typography System
+   ============================================ */
+
+:root {
+  /* Font families */
+  --font-display: 'Outfit', sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Type scale - Major Third (1.25 ratio) */
+  --text-xs: 0.75rem;      /* 12px - captions, legal */
+  --text-sm: 0.875rem;     /* 14px - secondary UI */
+  --text-base: 1rem;       /* 16px - body text */
+  --text-lg: 1.25rem;      /* 20px - subheadings */
+  --text-xl: 1.563rem;     /* 25px - headings */
+  --text-2xl: 1.953rem;    /* 31px - large headings */
+  --text-3xl: 2.441rem;    /* 39px - hero text */
+  --text-4xl: 3.052rem;    /* 49px - display */
+
+  /* Line heights */
+  --leading-tight: 1.1;    /* display/headings */
+  --leading-snug: 1.25;    /* subheadings */
+  --leading-normal: 1.5;   /* body text */
+  --leading-relaxed: 1.7;  /* long-form reading */
+
+  /* Easing curves - natural deceleration */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
 
 /* Light Theme (default) */
 .theme-light {
@@ -51,6 +82,14 @@
 
 /* ===== Layout ===== */
 
+/* ===== Base Typography ===== */
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+}
+
 .landing-container {
   display: flex;
   justify-content: center;
@@ -63,23 +102,124 @@
   overflow-y: auto; /* Allow scrolling if content overflows on small screens */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  animation: page-fade-in 400ms var(--ease-out-quart) forwards;
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0.9;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* ===== Hero Section ===== */
 
 .logo {
-  font-size: 48px;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  font-weight: 800;
   color: var(--color-primary);
-  margin: 0 0 12px 0;
-  letter-spacing: -0.5px;
+  margin: 0 0 16px 0;
+  letter-spacing: 0.02em;
+  line-height: var(--leading-tight);
+  opacity: 0;
+  animation: logo-entrance 800ms var(--ease-out-quart) forwards;
+  animation-delay: 200ms;
+}
+
+@keyframes logo-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Word Fall - falling letter rhythm */
+.logo-word {
+  display: inline-block;
+}
+
+.logo-fall {
+  display: inline-block;
+}
+
+/* Individual letter offsets for "falling" effect */
+.logo-fall .letter-f {
+  transform: translateY(0);
+  display: inline-block;
+  animation: letter-fall-1 600ms var(--ease-out-quart) forwards;
+  animation-delay: 400ms;
+  opacity: 0;
+}
+.logo-fall .letter-a {
+  transform: translateY(2px);
+  display: inline-block;
+  animation: letter-fall-2 600ms var(--ease-out-quart) forwards;
+  animation-delay: 500ms;
+  opacity: 0;
+}
+.logo-fall .letter-l {
+  transform: translateY(4px);
+  display: inline-block;
+  animation: letter-fall-3 600ms var(--ease-out-quart) forwards;
+  animation-delay: 600ms;
+  opacity: 0;
+}
+.logo-fall .letter-l2 {
+  transform: translateY(3px);
+  display: inline-block;
+  animation: letter-fall-4 600ms var(--ease-out-quart) forwards;
+  animation-delay: 700ms;
+  opacity: 0;
+}
+
+@keyframes letter-fall-1 {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes letter-fall-2 {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(2px); }
+}
+
+@keyframes letter-fall-3 {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(4px); }
+}
+
+@keyframes letter-fall-4 {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(3px); }
 }
 
 .tagline {
-  font-size: 20px;
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
   color: var(--text-secondary);
   margin: 0;
   font-weight: 400;
+  line-height: var(--leading-snug);
+  opacity: 0;
+  animation: fade-in-up 600ms var(--ease-out-quart) forwards;
+  animation-delay: 500ms;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ===== Loading Progress ===== */
@@ -168,11 +308,31 @@
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  transition: all 150ms ease;
+  transition: transform 150ms var(--ease-out-quart), box-shadow 150ms var(--ease-out-quart);
   box-shadow: 0 4px 12px var(--shadow);
   width: 100%;
   height: 110px;
   min-height: 110px;
+  position: relative;
+  overflow: hidden;
+}
+
+.play-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s var(--ease-out-quart), height 0.6s var(--ease-out-quart);
+}
+
+.play-button:active::after {
+  width: 300px;
+  height: 300px;
 }
 
 .play-button:hover:not(:disabled) {
@@ -282,6 +442,20 @@ button:focus-visible {
   gap: 32px;
   position: relative;
   z-index: 1;
+  opacity: 0;
+  animation: card-entrance 700ms var(--ease-out-quart) forwards;
+  animation-delay: 100ms;
+}
+
+@keyframes card-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* ===== Title section ===== */
@@ -290,15 +464,21 @@ button:focus-visible {
   text-align: center;
 }
 
-/* Override .logo to be larger (matches Godot's 104px Title) */
+/* Word Fall logo in main card - larger with falling rhythm */
 .main-card .logo {
-  font-size: clamp(48px, 10vw, 80px);
+  font-family: var(--font-display);
+  font-size: clamp(var(--text-3xl), 10vw, var(--text-4xl));
+  font-weight: 800;
   text-align: center;
+  letter-spacing: 0.02em;
+  line-height: var(--leading-tight);
 }
 
 .main-card .tagline {
-  font-size: clamp(16px, 3vw, 22px);
+  font-family: var(--font-body);
+  font-size: clamp(var(--text-base), 3vw, var(--text-xl));
   text-align: center;
+  line-height: var(--leading-snug);
 }
 
 .high-score-text {
@@ -325,7 +505,27 @@ button:focus-visible {
   min-height: 56px;
   border-radius: 10px;
   cursor: pointer;
-  transition: all 150ms ease;
+  transition: transform 150ms var(--ease-out-quart), background-color 200ms var(--ease-out-quart);
+  position: relative;
+  overflow: hidden;
+}
+
+.rules-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.5s var(--ease-out-quart), height 0.5s var(--ease-out-quart);
+}
+
+.rules-button:active::after {
+  width: 200px;
+  height: 200px;
 }
 
 .rules-button:hover {
@@ -355,8 +555,28 @@ button:focus-visible {
   border: none;
   border-radius: 14px;
   cursor: pointer;
-  transition: all 150ms ease;
+  transition: transform 150ms var(--ease-out-quart), filter 200ms var(--ease-out-quart), box-shadow 150ms var(--ease-out-quart);
   box-shadow: 0 3px 8px var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.secondary-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.5s var(--ease-out-quart), height 0.5s var(--ease-out-quart);
+}
+
+.secondary-button:active::after {
+  width: 200px;
+  height: 200px;
 }
 
 .secondary-button:hover {
@@ -403,10 +623,58 @@ button:focus-visible {
   border-radius: 6px;
 }
 
-.tile-1 { background: var(--color-secondary); opacity: 0.08; top: 100px; left: 50px; transform: rotate(10deg); }
-.tile-2 { background: var(--color-primary);   opacity: 0.08; top: 200px; right: 50px; transform: rotate(-15deg); }
-.tile-3 { background: var(--color-secondary); opacity: 0.08; bottom: 160px; left: 80px; transform: rotate(20deg); }
-.tile-4 { background: var(--color-primary);   opacity: 0.08; bottom: 100px; right: 60px; transform: rotate(-10deg); }
+.tile-1 { 
+  background: var(--color-secondary); 
+  opacity: 0.08; 
+  top: 100px; 
+  left: 50px;
+  animation: gentle-float-1 8s ease-in-out infinite;
+  animation-delay: 0s;
+}
+.tile-2 { 
+  background: var(--color-primary);   
+  opacity: 0.08; 
+  top: 200px; 
+  right: 50px;
+  animation: gentle-float-2 10s ease-in-out infinite;
+  animation-delay: 2s;
+}
+.tile-3 { 
+  background: var(--color-secondary); 
+  opacity: 0.08; 
+  bottom: 160px; 
+  left: 80px;
+  animation: gentle-float-3 9s ease-in-out infinite;
+  animation-delay: 1s;
+}
+.tile-4 { 
+  background: var(--color-primary);   
+  opacity: 0.08; 
+  bottom: 100px; 
+  right: 60px;
+  animation: gentle-float-4 7s ease-in-out infinite;
+  animation-delay: 3s;
+}
+
+@keyframes gentle-float-1 {
+  0%, 100% { transform: translateY(0) rotate(10deg); }
+  50% { transform: translateY(-15px) rotate(10deg); }
+}
+
+@keyframes gentle-float-2 {
+  0%, 100% { transform: translateY(0) rotate(-15deg); }
+  50% { transform: translateY(-15px) rotate(-15deg); }
+}
+
+@keyframes gentle-float-3 {
+  0%, 100% { transform: translateY(0) rotate(20deg); }
+  50% { transform: translateY(-15px) rotate(20deg); }
+}
+
+@keyframes gentle-float-4 {
+  0%, 100% { transform: translateY(0) rotate(-10deg); }
+  50% { transform: translateY(-15px) rotate(-10deg); }
+}
 
 /* ===== Mobile card adjustments ===== */
 
@@ -442,8 +710,18 @@ button:focus-visible {
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  padding: 8px 0;
+  padding: 8px 12px;
   min-height: 44px;
+  border-radius: 8px;
+  transition: background-color 150ms var(--ease-out-quart), transform 150ms var(--ease-out-quart);
+}
+
+.back-button:hover {
+  background: var(--bg-primary);
+}
+
+.back-button:active {
+  transform: scale(0.98);
 }
 
 .screen-title {
@@ -491,7 +769,12 @@ button:focus-visible {
   font-size: 16px;
   font-weight: 600;
   color: var(--text-primary);
-  transition: all 150ms ease;
+  transition: border-color 150ms var(--ease-out-quart), background-color 150ms var(--ease-out-quart), color 150ms var(--ease-out-quart);
+}
+
+.radio-option:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .radio-option.selected {
@@ -587,11 +870,25 @@ button:focus-visible {
   border-radius: 8px;
   cursor: pointer;
   min-height: 48px;
+  transition: border-color 150ms var(--ease-out-quart), background-color 150ms var(--ease-out-quart), color 150ms var(--ease-out-quart);
+}
+
+.icon-button:hover {
+  background: var(--bg-primary);
+  border-color: var(--color-secondary);
+}
+
+.icon-button:active {
+  transform: scale(0.98);
 }
 
 .icon-button-danger {
   color: var(--color-error);
   border-color: var(--color-error);
+}
+
+.icon-button-danger:hover {
+  background: var(--bg-error);
 }
 
 .confirm-overlay {
@@ -627,6 +924,15 @@ button:focus-visible {
   height: 52px;
   min-height: 52px;
   font-size: 16px;
+}
+
+.confirm-danger-button:hover {
+  filter: brightness(1.1);
+}
+
+.confirm-danger-button:active {
+  filter: brightness(0.95);
+  transform: scale(0.98);
 }
 
 /* ===== Tutorial Prompt ===== */
@@ -731,10 +1037,17 @@ button:focus-visible {
 
 .rules-content {
   overflow-y: auto;
-  padding-right: 8px;
+  padding-right: 16px;
   margin-right: -8px;
   flex: 1;
   min-height: 0;
+  /* Optimal reading width for comfortable reading */
+  max-width: 65ch;
+  /* Center the content */
+  margin-inline: auto;
+  /* Typography */
+  font-family: var(--font-body);
+  line-height: var(--leading-relaxed);
   /* Custom scrollbar */
   scrollbar-width: thin;
   scrollbar-color: var(--color-secondary) transparent;
@@ -1088,12 +1401,33 @@ button:focus-visible {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  
+
+  /* Ensure elements with entrance animations are visible */
+  .logo,
+  .tagline,
+  .main-card,
+  .letter-f,
+  .letter-a,
+  .letter-l,
+  .letter-l2 {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  /* Disable tile floating */
+  .tile-1,
+  .tile-2,
+  .tile-3,
+  .tile-4 {
+    animation: none !important;
+  }
+
   .tutorial-prompt-overlay,
   .confirm-overlay {
     animation: none !important;
   }
-  
+
   .tutorial-prompt-modal,
   .confirm-dialog {
     animation: none !important;
@@ -1115,6 +1449,7 @@ button:focus-visible {
 [dir="rtl"] .back-button {
   margin-left: 0;
   margin-right: auto;
+  padding: 8px 12px;
 }
 
 [dir="rtl"] .stat-row {

@@ -1,7 +1,7 @@
 # Issue #5 verification (offline word validation + rule checking)
 
 ## Pre-req
-- Open the Godot project at `word-loom/godot/project.godot`.
+- Open the Godot project at `wordfall/godot/project.godot`.
 
 ## Manual checks
 

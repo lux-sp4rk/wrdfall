@@ -37,8 +37,8 @@ func save_flags() -> void:
 	if OS.has_feature("web"):
 		var js = JavaScriptBridge.get_interface("localStorage")
 		if js:
-			js.setItem("word-loom-drop-ratchet-enabled", "true" if drop_ratchet_enabled else "false")
-			js.setItem("word-loom-draw-more-enabled", "true" if draw_more_enabled else "false")
+			js.setItem("wordfall-drop-ratchet-enabled", "true" if drop_ratchet_enabled else "false")
+			js.setItem("wordfall-draw-more-enabled", "true" if draw_more_enabled else "false")
 
 func load_flags() -> void:
 	var config := ConfigFile.new()
@@ -55,9 +55,9 @@ func load_flags() -> void:
 	if OS.has_feature("web"):
 		var js = JavaScriptBridge.get_interface("localStorage")
 		if js:
-			var val = js.getItem("word-loom-drop-ratchet-enabled")
+			var val = js.getItem("wordfall-drop-ratchet-enabled")
 			if val != null:
 				drop_ratchet_enabled = (val == "true")
-			var draw_val = js.getItem("word-loom-draw-more-enabled")
+			var draw_val = js.getItem("wordfall-draw-more-enabled")
 			if draw_val != null:
 				draw_more_enabled = (draw_val == "true")

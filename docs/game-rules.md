@@ -1,6 +1,6 @@
-# Word Loom: Game Rules
+# Wordfall: Game Rules
 
-Word Loom is a strategic word puzzle game where word-building meets Tetris. The primary game mode is **Loom Drop** — a Tetris-style falling-letter puzzle where you swipe to form words on a 5x5 grid.
+Wordfall is a strategic word puzzle game where word-building meets Tetris. The primary game mode is **Loom Drop** — a Tetris-style falling-letter puzzle where you swipe to form words on a 5x5 grid.
 
 ## How to Play
 
@@ -156,7 +156,7 @@ Letters are not purely random. The drop system uses three strategies to keep boa
 
 ## Languages
 
-Word Loom supports English and Spanish, switchable in the Settings screen.
+Wordfall supports English and Spanish, switchable in the Settings screen.
 
 - **English:** SOWPODS dictionary (~270k words)
 - **Spanish:** FISE 2017 dictionary (~639k words), includes the letter &#xD1;

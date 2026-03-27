@@ -174,7 +174,7 @@ This bakes all accumulated GDScript fixes into `dist/index.pck`:
 **Step 1: Export from Godot headless**
 
 ```bash
-cd /home/uli/Projects/word-loom/godot && /home/uli/bin/godot --headless --export-release "Web" ../dist/index.html 2>&1
+cd /home/uli/Projects/wordfall/godot && /home/uli/bin/godot --headless --export-release "Web" ../dist/index.html 2>&1
 ```
 
 Expected output ends with something like:
@@ -188,7 +188,7 @@ The command exits 0. If it errors, check that `export_presets.cfg` has the "Web"
 **Step 2: Verify PCK was updated**
 
 ```bash
-ls -lh /home/uli/Projects/word-loom/dist/index.pck
+ls -lh /home/uli/Projects/wordfall/dist/index.pck
 ```
 
 The timestamp should be recent (just now).
@@ -196,7 +196,7 @@ The timestamp should be recent (just now).
 **Step 3: Verify file size is reasonable**
 
 ```bash
-stat -c%s /home/uli/Projects/word-loom/dist/index.pck
+stat -c%s /home/uli/Projects/wordfall/dist/index.pck
 ```
 
 Expected: ~50–60 MB (not a tiny LFS pointer file).
@@ -204,7 +204,7 @@ Expected: ~50–60 MB (not a tiny LFS pointer file).
 **Step 4: Quick local test**
 
 ```bash
-cd /home/uli/Projects/word-loom && python3 -m http.server -d dist/ 8000
+cd /home/uli/Projects/wordfall && python3 -m http.server -d dist/ 8000
 ```
 
 Open http://localhost:8000 in browser:
@@ -218,7 +218,7 @@ Stop server with Ctrl+C.
 **Step 5: Commit the new PCK**
 
 ```bash
-cd /home/uli/Projects/word-loom
+cd /home/uli/Projects/wordfall
 git add dist/index.pck dist/index.html dist/index.js dist/index.wasm
 git commit -m "build: rebuild PCK — web nav routing + hide sidebar Settings/Stats on web"
 ```

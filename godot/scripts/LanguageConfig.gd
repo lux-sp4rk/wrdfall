@@ -1,7 +1,7 @@
 extends RefCounted
 class_name LanguageConfig
 
-# Per-language configuration for Word Loom.
+# Per-language configuration for Wordfall.
 # Holds letter weights, bigrams, seed words, and UI strings.
 
 var code: String

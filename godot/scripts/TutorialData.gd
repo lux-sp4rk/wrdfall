@@ -214,7 +214,7 @@ static func get_phase_settings(phase_id: String) -> Dictionary:
 static func get_phase_title(phase_id: String, lang_code: String = "en") -> String:
 	var titles: Dictionary = {
 		"en": {
-			PHASE_INTRO: "Welcome to Word Loom",
+			PHASE_INTRO: "Welcome to Wordfall",
 			PHASE_SELECTION: "Find Words",
 			PHASE_SCORING: "Scoring",
 			PHASE_GRAVITY: "Gravity",
@@ -222,7 +222,7 @@ static func get_phase_title(phase_id: String, lang_code: String = "en") -> Strin
 			PHASE_COMPLETE: "You're Ready!"
 		},
 		"es": {
-			PHASE_INTRO: "Bienvenido a Word Loom",
+			PHASE_INTRO: "Bienvenido a Wordfall",
 			PHASE_SELECTION: "Encuentra Palabras",
 			PHASE_SCORING: "Puntuación",
 			PHASE_GRAVITY: "Gravedad",

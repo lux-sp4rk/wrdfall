@@ -1,10 +1,10 @@
-# Word Loom Architecture
+# Wordfall Architecture
 
 > **A calm, strategic word puzzle game** — Letters fall, words rise. Built with Godot 4.6 (GDScript).
 
 ## Overview
 
-Word Loom is a Tetris-meets-Scrabble word puzzle game where players swipe adjacent tiles on a 5×5 grid to form words. The game targets iPad, phone, and browser (HTML5) with a senior-first design philosophy: high contrast, large tap targets, and calm pacing.
+Wordfall is a Tetris-meets-Scrabble word puzzle game where players swipe adjacent tiles on a 5×5 grid to form words. The game targets iPad, phone, and browser (HTML5) with a senior-first design philosophy: high contrast, large tap targets, and calm pacing.
 
 **Core Game Mode: Loom Drop**
 - Letters fall onto a 5×5 grid at timed intervals
@@ -26,7 +26,7 @@ Word Loom is a Tetris-meets-Scrabble word puzzle game where players swipe adjace
 ## Directory Structure
 
 ```
-word-loom/
+wordfall/
 ├── godot/                      # Main Godot project
 │   ├── project.godot          # Godot config (main scene: Boot.tscn)
 │   ├── scenes/                # .tscn scene files
@@ -214,7 +214,7 @@ Godot communicates with the React shell via:
 ```gdscript
 # Reading from JavaScript
 var launch_scene = JavaScriptBridge.eval("window.WORD_LOOM_LAUNCH_SCENE || ''")
-var theme = JavaScriptBridge.get_interface("localStorage").getItem("word-loom-theme")
+var theme = JavaScriptBridge.get_interface("localStorage").getItem("wordfall-theme")
 
 # Writing to JavaScript
 JavaScriptBridge.get_interface("localStorage").setItem("key", "value")
@@ -226,7 +226,7 @@ JavaScriptBridge.get_interface("localStorage").setItem("key", "value")
 
 | Section | Key Settings |
 |---------|-------------|
-| Application | Name: "Word Loom", Main Scene: `Boot.tscn` |
+| Application | Name: "Wordfall", Main Scene: `Boot.tscn` |
 | Display | 720×1280 viewport, canvas_items stretch, portrait orientation |
 | Rendering | GL Compatibility (required for HTML5) |
 | Autoload | 7 singletons loaded in order |

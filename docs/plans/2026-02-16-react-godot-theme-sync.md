@@ -27,7 +27,7 @@
  * - Sync with Godot via shared localStorage key
  */
 
-const THEME_KEY = 'word-loom-theme';
+const THEME_KEY = 'wordfall-theme';
 const THEME_LIGHT = 'light';
 const THEME_DARK = 'dark';
 
@@ -92,9 +92,9 @@ Manual verification checklist:
 - Open browser DevTools
 - Run `localStorage.clear()`
 - Import and call `getTheme()` - should detect system preference
-- Check `localStorage.getItem('word-loom-theme')` - should match system
+- Check `localStorage.getItem('wordfall-theme')` - should match system
 - Call `getTheme()` again - should read from localStorage
-- Set invalid value: `localStorage.setItem('word-loom-theme', 'invalid')`
+- Set invalid value: `localStorage.setItem('wordfall-theme', 'invalid')`
 - Call `getTheme()` - should return 'light' and overwrite with system theme
 
 **Step 3: Commit**
@@ -518,7 +518,7 @@ Open `http://localhost:8000` in browser with OS light mode:
 **Step 4: Test localStorage persistence**
 
 - Keep OS dark mode on
-- Check localStorage: `localStorage.getItem('word-loom-theme')` → should be 'dark'
+- Check localStorage: `localStorage.getItem('wordfall-theme')` → should be 'dark'
 - Refresh page → should stay dark theme
 - Turn off OS dark mode
 - Refresh page → should still be dark (localStorage wins)
@@ -553,7 +553,7 @@ func _load_from_localstorage() -> String:
 		push_warning("localStorage interface not available")
 		return ""
 
-	var theme = js_interface.getItem("word-loom-theme")
+	var theme = js_interface.getItem("wordfall-theme")
 	if theme == null or theme == "":
 		return ""
 
@@ -600,7 +600,7 @@ func _sync_to_localstorage(theme_name: String) -> void:
 		push_warning("localStorage interface not available, cannot sync theme")
 		return
 
-	js_interface.setItem("word-loom-theme", theme_name)
+	js_interface.setItem("wordfall-theme", theme_name)
 	print("ThemeManager: Synced theme to localStorage: ", theme_name)
 ```
 
@@ -688,14 +688,14 @@ npm run serve
 2. Play game
 3. In Godot game, open Settings
 4. Change theme to Dark
-5. Check localStorage in DevTools: `localStorage.getItem('word-loom-theme')` → 'dark'
+5. Check localStorage in DevTools: `localStorage.getItem('wordfall-theme')` → 'dark'
 6. Refresh page (exit and restart)
 7. Verify React landing page now shows dark theme
 8. Verify Godot continues with dark theme
 
 **Step 6: Test Scenario 4 - Invalid localStorage value**
 
-1. Set invalid value: `localStorage.setItem('word-loom-theme', 'invalid')`
+1. Set invalid value: `localStorage.setItem('wordfall-theme', 'invalid')`
 2. Refresh page
 3. Verify React shows light theme (fallback)
 4. Verify localStorage corrected to 'light' or OS preference
@@ -778,6 +778,6 @@ git commit -m "docs: add theme sync test results"
 ## Notes
 
 - If colors don't match exactly, adjust CSS variables in `App.css` to fine-tune
-- localStorage key `'word-loom-theme'` must stay consistent between React and Godot
+- localStorage key `'wordfall-theme'` must stay consistent between React and Godot
 - JavaScriptBridge only works in web builds (desktop uses ConfigFile only)
 - OS preference detection only runs on first visit (then localStorage persists)

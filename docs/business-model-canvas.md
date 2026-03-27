@@ -1,8 +1,8 @@
-# Business Model Canvas: Word Loom
+# Business Model Canvas: Wordfall
 
 **Date:** 2026-02-11
 **Version:** 1.0
-**Project:** Word Loom (Seniors-First Word Puzzle)
+**Project:** Wordfall (Seniors-First Word Puzzle)
 
 ---
 
@@ -66,4 +66,4 @@
 ---
 
 ## Strategic Angle: "The Digital Hearth"
-Positioning Word Loom not just as a game, but as a piece of **furniture** for the digital life of a senior—reliable, sturdy, and respectful.
+Positioning Wordfall not just as a game, but as a piece of **furniture** for the digital life of a senior—reliable, sturdy, and respectful.

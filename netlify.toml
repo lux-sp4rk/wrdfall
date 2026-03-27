@@ -4,7 +4,7 @@
 
 [build.environment]
   # LFS removed — Godot binaries are committed directly in landing/public/
-  # See: https://github.com/lux-sp4rk/word-loom/issues/171
+  # See: https://github.com/lux-sp4rk/wordfall/issues/171
 
 # Redirect all routes to index.html (SPA routing)
 [[redirects]]

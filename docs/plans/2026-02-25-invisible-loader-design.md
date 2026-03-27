@@ -1,7 +1,7 @@
 # Design: Invisible Loader — React Shell Unification
 
 **Date**: 2026-02-25
-**Issue**: [#143 — Refactor: 'Invisible Loader' Strategy](https://github.com/lux-sp4rk/word-loom/issues/143)
+**Issue**: [#143 — Refactor: 'Invisible Loader' Strategy](https://github.com/lux-sp4rk/wordfall/issues/143)
 **Goal**: Eliminate the visual disconnect between the loading state and the game. The React Shell becomes the full navigation layer; Godot only runs the game.
 
 ---
@@ -51,7 +51,7 @@ Visually identical to Godot's `Home.tscn`:
 - **Decorative tiles**: 4 subtle letter-tile panels at corners (same opacity/rotation as tscn)
 - **Card**: centered `PanelContainer` equivalent — white/dark bg, `border-radius: 24px`, drop shadow
 - **Font**: Inter (self-hosted from `godot/assets/fonts/Inter/`)
-- **Title**: "Word Loom" — large, terracotta `#E07857`
+- **Title**: "Wordfall" — large, terracotta `#E07857`
 - **Tagline**: "Word-building meets Tetris" — teal `#7A9D8C`
 - **High Score**: shown if > 0 (reads from Supabase / localStorage)
 - **Play button**: terracotta, full card-width, 110px height
@@ -116,7 +116,7 @@ Leaderboard
 
 ### Guest Users
 
-For unauthenticated users, all data comes from `localStorage('word-loom-stats')` (a JSON blob written by Godot after each game). The leaderboard section is hidden for guests.
+For unauthenticated users, all data comes from `localStorage('wordfall-stats')` (a JSON blob written by Godot after each game). The leaderboard section is hidden for guests.
 
 ---
 
@@ -126,9 +126,9 @@ Reads/writes localStorage keys that Godot already monitors:
 
 | Setting | localStorage key | Values |
 |---|---|---|
-| Theme | `word-loom-theme` | `light` / `dark` |
-| Language | `word-loom-language` | `en` / `es` |
-| Difficulty | `word-loom-difficulty` | `normal` / `hard` |
+| Theme | `wordfall-theme` | `light` / `dark` |
+| Language | `wordfall-language` | `en` / `es` |
+| Difficulty | `wordfall-difficulty` | `normal` / `hard` |
 
 Theme is already synced via `ThemeManager.gd`. Language and difficulty get the same treatment.
 
@@ -230,7 +230,7 @@ var data = {
 if OS.has_feature("web"):
     var js = JavaScriptBridge.get_interface("localStorage")
     if js:
-        js.setItem("word-loom-stats", JSON.stringify({
+        js.setItem("wordfall-stats", JSON.stringify({
             "high_score": high_score,
             "longest_word": longest_word,
             "max_wpm": max_wpm,
@@ -257,7 +257,7 @@ React Settings → localStorage ────────────────
 Godot game ends → StatsManager.end_session()
     → push_stats_to_supabase()      ──→ Supabase profiles + sessions
     → push_session_to_supabase()    ──→ Supabase sessions
-    → save_stats() localStorage     ──→ localStorage('word-loom-stats')
+    → save_stats() localStorage     ──→ localStorage('wordfall-stats')
                                          (guest fallback)
 
 React Stats page → Supabase profiles  (records + totals)

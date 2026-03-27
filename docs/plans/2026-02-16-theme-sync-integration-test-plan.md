@@ -19,7 +19,7 @@ User Action → React Theme Service → localStorage → Godot ThemeManager
 **Key Components:**
 - **React:** `landing/src/services/theme.js`, `landing/src/App.jsx`, CSS variables in `landing/src/App.css`
 - **Godot:** `godot/scripts/ThemeManager.gd` with localStorage sync
-- **Storage:** `localStorage['word-loom-theme']` key (values: `"light"` | `"dark"`)
+- **Storage:** `localStorage['wordfall-theme']` key (values: `"light"` | `"dark"`)
 
 ## Prerequisites
 
@@ -29,7 +29,7 @@ Before testing, ensure:
    ```bash
    # In Godot Editor:
    # Project > Export > Web > Export Project
-   # Target: /Users/ulizzle/Work/word-loom/dist/
+   # Target: /Users/ulizzle/Work/wordfall/dist/
    ```
 
 2. **React Build** - Production build deployed
@@ -40,7 +40,7 @@ Before testing, ensure:
 
 3. **Local Server** - Serve the built application
    ```bash
-   cd /Users/ulizzle/Work/word-loom
+   cd /Users/ulizzle/Work/wordfall
    python3 -m http.server -d dist/ 8000
    ```
 
@@ -67,7 +67,7 @@ Before testing, ensure:
 
 | Component | Expected State |
 |-----------|---------------|
-| localStorage | `localStorage.getItem('word-loom-theme') === null` initially |
+| localStorage | `localStorage.getItem('wordfall-theme') === null` initially |
 | React UI | Light theme (cream background, terracotta buttons) |
 | Godot Game | Light theme after engine loads |
 | CSS Variables | `--bg-primary: #F5F2E8` (check via DevTools) |
@@ -81,7 +81,7 @@ Before testing, ensure:
 **Technical Verification:**
 ```javascript
 // In DevTools Console:
-localStorage.getItem('word-loom-theme'); // Should be null initially
+localStorage.getItem('wordfall-theme'); // Should be null initially
 
 // After page load:
 getComputedStyle(document.querySelector('.landing-container')).getPropertyValue('--bg-primary').trim();
@@ -110,7 +110,7 @@ document.querySelector('#root').className; // Should include theme-related class
 
 | Component | Expected State |
 |-----------|---------------|
-| localStorage | `localStorage.getItem('word-loom-theme') === null` initially |
+| localStorage | `localStorage.getItem('wordfall-theme') === null` initially |
 | React UI | Dark theme (dark teal background, muted accents) |
 | Godot Game | Dark theme after engine loads |
 | CSS Variables | `--bg-primary: #2B3D4F` (check via DevTools) |
@@ -124,7 +124,7 @@ document.querySelector('#root').className; // Should include theme-related class
 **Technical Verification:**
 ```javascript
 // In DevTools Console:
-localStorage.getItem('word-loom-theme'); // Should be null initially
+localStorage.getItem('wordfall-theme'); // Should be null initially
 
 // After page load:
 getComputedStyle(document.querySelector('.landing-container')).getPropertyValue('--bg-primary').trim();
@@ -154,7 +154,7 @@ window.matchMedia('(prefers-color-scheme: dark)').matches; // Should be true
 
 **Expected Results:**
 - [ ] React UI immediately switches to dark theme
-- [ ] localStorage updated: `localStorage.getItem('word-loom-theme') === 'dark'`
+- [ ] localStorage updated: `localStorage.getItem('wordfall-theme') === 'dark'`
 - [ ] CSS variables updated to dark theme values
 - [ ] No page reload or flicker
 - [ ] Godot log: `ThemeManager: Synced theme to localStorage: dark`
@@ -167,7 +167,7 @@ window.addEventListener('storage', (e) => {
 });
 
 // After changing theme in Godot:
-localStorage.getItem('word-loom-theme'); // Should be 'dark'
+localStorage.getItem('wordfall-theme'); // Should be 'dark'
 
 getComputedStyle(document.querySelector('.landing-container')).getPropertyValue('--bg-primary').trim();
 // Expected: "rgb(43, 61, 79)"
@@ -179,7 +179,7 @@ getComputedStyle(document.querySelector('.landing-container')).getPropertyValue(
 
 **Expected Results:**
 - [ ] React UI immediately switches to light theme
-- [ ] localStorage updated: `localStorage.getItem('word-loom-theme') === 'light'`
+- [ ] localStorage updated: `localStorage.getItem('wordfall-theme') === 'light'`
 - [ ] CSS variables updated to light theme values
 - [ ] Godot log: `ThemeManager: Synced theme to localStorage: light`
 
@@ -193,7 +193,7 @@ getComputedStyle(document.querySelector('.landing-container')).getPropertyValue(
 1. Clear localStorage
 2. Set invalid theme value:
    ```javascript
-   localStorage.setItem('word-loom-theme', 'invalid-value');
+   localStorage.setItem('wordfall-theme', 'invalid-value');
    ```
 3. Reload page
 
@@ -214,12 +214,12 @@ getComputedStyle(document.querySelector('.landing-container')).getPropertyValue(
 **Technical Verification:**
 ```javascript
 // Set invalid value:
-localStorage.setItem('word-loom-theme', 'neon-purple');
+localStorage.setItem('wordfall-theme', 'neon-purple');
 
 // Reload page (Cmd+R / Ctrl+R)
 
 // After page load:
-localStorage.getItem('word-loom-theme');
+localStorage.getItem('wordfall-theme');
 // Should be 'light' or 'dark' (OS preference), NOT 'neon-purple'
 
 // Check for console warnings:
@@ -227,10 +227,10 @@ localStorage.getItem('word-loom-theme');
 ```
 
 **Additional Edge Cases to Test:**
-- Empty string: `localStorage.setItem('word-loom-theme', '');`
-- Null string: `localStorage.setItem('word-loom-theme', 'null');`
-- Number: `localStorage.setItem('word-loom-theme', '1');`
-- Object: `localStorage.setItem('word-loom-theme', '[object Object]');`
+- Empty string: `localStorage.setItem('wordfall-theme', '');`
+- Null string: `localStorage.setItem('wordfall-theme', 'null');`
+- Number: `localStorage.setItem('wordfall-theme', '1');`
+- Object: `localStorage.setItem('wordfall-theme', '[object Object]');`
 
 ---
 
@@ -239,7 +239,7 @@ localStorage.getItem('word-loom-theme');
 **Objective:** Verify seamless theme transition when Godot game loads — the primary UX goal of this feature.
 
 **Setup:**
-1. Set a known theme in localStorage: `localStorage.setItem('word-loom-theme', 'dark');`
+1. Set a known theme in localStorage: `localStorage.setItem('wordfall-theme', 'dark');`
 2. Reload page
 3. Watch closely as the page loads
 
@@ -273,7 +273,7 @@ localStorage.getItem('word-loom-theme');
 **Technical Verification:**
 ```javascript
 // Before clicking Play, confirm React theme:
-localStorage.getItem('word-loom-theme'); // 'dark'
+localStorage.getItem('wordfall-theme'); // 'dark'
 getComputedStyle(document.querySelector('.landing-container')).getPropertyValue('--bg-primary').trim();
 // Expected: rgb(43, 61, 79) or #2B3D4F
 
@@ -332,7 +332,7 @@ performance.getEntriesByType('paint').find(p => p.name === 'first-contentful-pai
 // Godot writes to localStorage asynchronously after a user interaction.
 // Instead, verify the theme value is updated within a few seconds:
 // 1. Open DevTools > Application > localStorage
-// 2. Watch 'word-loom-theme' value while changing theme in Godot Settings
+// 2. Watch 'wordfall-theme' value while changing theme in Godot Settings
 // 3. Value should update within 1 second of changing in Settings
 ```
 
@@ -340,7 +340,7 @@ performance.getEntriesByType('paint').find(p => p.name === 'first-contentful-pai
 ```javascript
 // Verify localStorage isn't blocked:
 console.time('localStorage-read');
-localStorage.getItem('word-loom-theme');
+localStorage.getItem('wordfall-theme');
 console.timeEnd('localStorage-read');
 // Expected: < 1ms
 ```
@@ -424,7 +424,7 @@ document.querySelector('canvas#canvas');
 ### Check Current State
 ```javascript
 // Current theme in localStorage
-localStorage.getItem('word-loom-theme');
+localStorage.getItem('wordfall-theme');
 
 // Current CSS variable values
 const styles = getComputedStyle(document.querySelector('.landing-container'));
@@ -465,15 +465,15 @@ observer.observe(document.querySelector('.landing-container'), { attributes: tru
 ### Force Theme States
 ```javascript
 // Force light theme:
-localStorage.setItem('word-loom-theme', 'light');
+localStorage.setItem('wordfall-theme', 'light');
 location.reload();
 
 // Force dark theme:
-localStorage.setItem('word-loom-theme', 'dark');
+localStorage.setItem('wordfall-theme', 'dark');
 location.reload();
 
 // Clear theme (use OS preference):
-localStorage.removeItem('word-loom-theme');
+localStorage.removeItem('wordfall-theme');
 location.reload();
 ```
 
@@ -481,7 +481,7 @@ location.reload();
 ```javascript
 // Simulate cross-tab update (for testing):
 window.dispatchEvent(new StorageEvent('storage', {
-  key: 'word-loom-theme',
+  key: 'wordfall-theme',
   oldValue: 'light',
   newValue: 'dark',
   url: window.location.href,
@@ -581,21 +581,21 @@ If integration testing fails:
 ## Appendix: File Locations
 
 **React:**
-- `/Users/ulizzle/Work/word-loom/landing/src/services/theme.js`
-- `/Users/ulizzle/Work/word-loom/landing/src/App.jsx`
-- `/Users/ulizzle/Work/word-loom/landing/src/App.css`
+- `/Users/ulizzle/Work/wordfall/landing/src/services/theme.js`
+- `/Users/ulizzle/Work/wordfall/landing/src/App.jsx`
+- `/Users/ulizzle/Work/wordfall/landing/src/App.css`
 
 **Godot:**
-- `/Users/ulizzle/Work/word-loom/godot/scripts/ThemeManager.gd`
-- `/Users/ulizzle/Work/word-loom/godot/scenes/Settings.tscn`
-- `/Users/ulizzle/Work/word-loom/godot/scripts/Settings.gd`
+- `/Users/ulizzle/Work/wordfall/godot/scripts/ThemeManager.gd`
+- `/Users/ulizzle/Work/wordfall/godot/scenes/Settings.tscn`
+- `/Users/ulizzle/Work/wordfall/godot/scripts/Settings.gd`
 
 **Build Output:**
-- `/Users/ulizzle/Work/word-loom/dist/` (HTML5 export + React build)
+- `/Users/ulizzle/Work/wordfall/dist/` (HTML5 export + React build)
 
 **Documentation:**
-- `/Users/ulizzle/Work/word-loom/docs/plans/2026-02-16-theme-sync-implementation.md`
-- `/Users/ulizzle/Work/word-loom/docs/plans/2026-02-16-theme-sync-integration-test-plan.md`
+- `/Users/ulizzle/Work/wordfall/docs/plans/2026-02-16-theme-sync-implementation.md`
+- `/Users/ulizzle/Work/wordfall/docs/plans/2026-02-16-theme-sync-integration-test-plan.md`
 
 ---
 

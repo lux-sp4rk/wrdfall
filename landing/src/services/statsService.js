@@ -56,7 +56,7 @@ export class StatsService {
 
   getShareText(stats) {
     return [
-      'Word Loom Stats',
+      'Word Fall Stats',
       '━━━━━━━━━━━━━━━',
       `High Score: ${stats.high_score}`,
       `Longest Word: ${stats.longest_word || '—'}`,

@@ -63,14 +63,14 @@ quit_button.release_focus()
 ### Test Cases
 
 #### Test 1: Win Condition Zoom Check
-1. Open Word Loom on iPad in Safari
+1. Open Wordfall on iPad in Safari
 2. Play until you win (clear all letters or no valid words remain)
 3. Observe the Game Over modal appearing
 4. **Expected**: No zoom occurs, viewport remains at 1.0x scale
 5. **Expected**: Modal is fully visible and properly scaled
 
 #### Test 2: Lose Condition Zoom Check
-1. Open Word Loom on iPad in Safari
+1. Open Wordfall on iPad in Safari
 2. Play until the grid fills (top row has no space for new letters)
 3. Observe the Game Over modal appearing
 4. **Expected**: No zoom occurs, viewport remains at 1.0x scale
@@ -137,6 +137,6 @@ After verification passes:
 4. **Test**: Re-test on live deployment URL with iPad
 
 ## References
-- Issue: https://github.com/lux-sp4rk/word-loom/issues/60
+- Issue: https://github.com/lux-sp4rk/wordfall/issues/60
 - Godot HTML5 Export Docs: https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_web.html
 - iOS Safari Viewport Behavior: https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariWebContent/UsingtheViewport/UsingtheViewport.html

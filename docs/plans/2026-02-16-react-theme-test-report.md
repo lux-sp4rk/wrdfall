@@ -48,7 +48,7 @@ computing gzip size...
 
 **Current Implementation:**
 - Theme is detected automatically from OS preference on first visit
-- Stored in localStorage with key `'word-loom-theme'`
+- Stored in localStorage with key `'wordfall-theme'`
 - CSS uses `.theme-light` and `.theme-dark` class selectors
 - NO toggle button UI (that's a future feature)
 
@@ -144,11 +144,11 @@ computing gzip size...
 6. Refresh the page
 7. Verify dark mode persists
 8. Open browser DevTools > Application > Local Storage
-9. Verify `word-loom-theme` key exists with value 'light' or 'dark'
+9. Verify `wordfall-theme` key exists with value 'light' or 'dark'
 
 **Expected Results:**
 - [ ] Theme persists across page refreshes
-- [ ] localStorage contains `word-loom-theme: 'light'` or `word-loom-theme: 'dark'`
+- [ ] localStorage contains `wordfall-theme: 'light'` or `wordfall-theme: 'dark'`
 - [ ] No console errors
 - [ ] Fallback works if localStorage is cleared (detects OS preference)
 
@@ -173,7 +173,7 @@ computing gzip size...
 ### Test 5: Invalid Value Handling
 **How to test:**
 1. Open browser DevTools > Console
-2. Run: `localStorage.setItem('word-loom-theme', 'invalid-value')`
+2. Run: `localStorage.setItem('wordfall-theme', 'invalid-value')`
 3. Refresh page
 4. Verify fallback behavior
 
@@ -200,7 +200,7 @@ computing gzip size...
 **How to test:**
 1. Open browser in private/incognito mode (some browsers block localStorage)
 2. Open browser console
-3. Try to manually set theme: `localStorage.setItem('word-loom-theme', 'dark')`
+3. Try to manually set theme: `localStorage.setItem('wordfall-theme', 'dark')`
 4. If blocked, verify page still loads with system preference
 5. Check console for warnings (not errors)
 
@@ -224,10 +224,10 @@ computing gzip size...
 ## Implementation Notes
 
 ### Theme Service (`landing/src/services/theme.js`)
-**File location:** `/Users/ulizzle/Work/word-loom/landing/src/services/theme.js`
+**File location:** `/Users/ulizzle/Work/wordfall/landing/src/services/theme.js`
 
 **Constants:**
-- `THEME_KEY = 'word-loom-theme'` - localStorage key (shared with Godot)
+- `THEME_KEY = 'wordfall-theme'` - localStorage key (shared with Godot)
 - `THEME_LIGHT = 'light'`
 - `THEME_DARK = 'dark'`
 
@@ -242,7 +242,7 @@ computing gzip size...
 - Graceful fallback to system theme
 
 ### App Integration (`landing/src/App.jsx`)
-**File location:** `/Users/ulizzle/Work/word-loom/landing/src/App.jsx`
+**File location:** `/Users/ulizzle/Work/wordfall/landing/src/App.jsx`
 
 **On mount (useEffect):**
 1. Loads high score from storage
@@ -258,7 +258,7 @@ computing gzip size...
 - When launching game, passes theme in settings: `settings: { theme: state.theme }`
 
 ### CSS Variables (`landing/src/App.css`)
-**File location:** `/Users/ulizzle/Work/word-loom/landing/src/App.css`
+**File location:** `/Users/ulizzle/Work/wordfall/landing/src/App.css`
 
 **Structure:**
 - `.theme-light { ... }` - Light mode variables (lines 11-29)
@@ -317,9 +317,9 @@ computing gzip size...
 1. **Manual Testing:** Perform Tests 1-7 in a browser environment
 2. **Cross-Browser Testing:** Test on Chrome, Firefox, Safari, Edge
 3. **Mobile Testing:** Test on iOS and Android devices
-4. **localStorage Testing:** Verify `word-loom-theme` key is correctly set
+4. **localStorage Testing:** Verify `wordfall-theme` key is correctly set
 5. **Production Deploy:** Push to Netlify and verify live
-6. **Task 5:** Add localStorage sync to Godot ThemeManager (read `word-loom-theme` key)
+6. **Task 5:** Add localStorage sync to Godot ThemeManager (read `wordfall-theme` key)
 7. **Future:** Add theme toggle button UI to allow manual theme switching
 
 ## Conclusion
@@ -331,7 +331,7 @@ computing gzip size...
 
 The React landing page automatic theme detection is complete and built successfully. Implementation includes:
 - Automatic OS preference detection using `window.matchMedia`
-- Persistence via localStorage key `word-loom-theme`
+- Persistence via localStorage key `wordfall-theme`
 - CSS class-based theming (`.theme-light` / `.theme-dark`)
 - Error handling for localStorage failures
 
