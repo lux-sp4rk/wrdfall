@@ -4,7 +4,7 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = '1774036565|3050589';
+const CACHE_VERSION = '1774036566|3050590';
 /** @type {string} */
 const CACHE_PREFIX = 'Word Fall-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
