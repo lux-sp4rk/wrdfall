@@ -18,7 +18,10 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies
+      - name: Install root dependencies
+        run: npm install --ignore-scripts
+
+      - name: Install landing dependencies
         run: npm install
         working-directory: landing
 
