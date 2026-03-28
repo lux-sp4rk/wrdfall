@@ -43,11 +43,17 @@ echo "  Dictionaries: dist/dictionaries/*.txt"
 # Compress dictionaries
 echo ""
 echo "📦 Compressing dictionaries..."
+rm -f dist/dictionaries/*.gz dist/dictionaries/*.br 2>/dev/null || true
 for dict in dist/dictionaries/*.txt; do
   [ -f "$dict" ] || continue
   lang=$(basename "$dict" .txt)
-  gzip -k9 "$dict" 2>/dev/null || true
-  echo "  $lang: compressed"
+  # Create .gz (for fallback) and .br (preferred)
+  gzip -k9 -c "$dict" > "dist/dictionaries/${lang}.gz" 2>/dev/null || true
+  brotli -k -q 11 -o "dist/dictionaries/${lang}.br" "$dict" 2>/dev/null || true
+  gz_size=$(stat -c%s "dist/dictionaries/${lang}.gz" 2>/dev/null || echo 0)
+  br_size=$(stat -c%s "dist/dictionaries/${lang}.br" 2>/dev/null || echo 0)
+  orig_size=$(stat -c%s "$dict" 2>/dev/null || echo 0)
+  echo "  $lang: raw=${orig_size}B gzip=${gz_size}B brotli=${br_size}B"
 done
 
 echo "✅ Build complete!"

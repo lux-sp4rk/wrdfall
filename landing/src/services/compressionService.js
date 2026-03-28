@@ -44,10 +44,10 @@ export class CompressionService {
    */
   async fetchDictionary(language) {
     // Try formats in order of preference
-    // Gzip first (widest support), then brotli, then raw
+    // Brotli first (best compression), then gzip, then raw
     const formats = [
-      { ext: '.gz', decompress: async (data) => await this._decompressGzip(data) },
       { ext: '.br', decompress: async (data) => await this._decompressBrotli(data) },
+      { ext: '.gz', decompress: async (data) => await this._decompressGzip(data) },
       { ext: '.txt', decompress: async (data) => data } // raw format
     ];
 
@@ -136,8 +136,8 @@ export class CompressionService {
 
       return result;
     } catch (error) {
-      const message = error?.message || String(error);
-      throw new Error(`Brotli decompression not supported in this browser: ${message}`);
+      console.warn(`Brotli decompression failed (falling back to next format): ${error?.message || error}`);
+      throw error; // Re-throw to let the format loop try the next format
     }
   }
 }
