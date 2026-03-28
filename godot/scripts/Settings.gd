@@ -3,7 +3,6 @@ extends Control
 @onready var language_option: OptionButton = %LanguageOption
 @onready var difficulty_option: OptionButton = %DifficultyOption
 @onready var difficulty_label: Label = %DifficultyLabel
-@onready var theme_option: OptionButton = %ThemeOption
 @onready var feature_label: Label = %FeatureLabel
 @onready var drop_ratchet_toggle: CheckButton = %DropRatchetToggle
 @onready var back_button: Button = %BackButton
@@ -12,7 +11,6 @@ func _ready() -> void:
 	_setup_ui_text()
 	_setup_languages()
 	_setup_difficulties()
-	_setup_themes()
 	_setup_features()
 	_apply_theme()
 	_update_sync_ui()
@@ -89,23 +87,6 @@ func _on_back_pressed() -> void:
 	else:
 		get_tree().change_scene_to_file("res://scenes/Home.tscn")
 
-func _setup_themes() -> void:
-	theme_option.clear()
-	theme_option.add_item("Light", 0)
-	theme_option.set_item_metadata(0, "light")
-	theme_option.add_item("Dark", 1)
-	theme_option.set_item_metadata(1, "dark")
-
-	var selected_index: int = 0 if GameSettings.theme == "light" else 1
-	theme_option.selected = selected_index
-
-	if not theme_option.item_selected.is_connected(_on_theme_selected):
-		theme_option.item_selected.connect(_on_theme_selected)
-
-func _on_theme_selected(index: int) -> void:
-	var theme_name = theme_option.get_item_metadata(index)
-	ThemeManager.set_theme(theme_name)
-
 func _setup_features() -> void:
 	drop_ratchet_toggle.button_pressed = FeatureFlags.drop_ratchet_enabled
 	if not drop_ratchet_toggle.toggled.is_connected(_on_drop_ratchet_toggled):
@@ -129,11 +110,6 @@ func _apply_theme() -> void:
 	var lang_label = $MarginContainer/VBox/LanguageBox/Label
 	if lang_label:
 		lang_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
-
-	# Update ThemeBox label
-	var theme_label = $MarginContainer/VBox/ThemeBox/Label
-	if theme_label:
-		theme_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
 
 	# Update title
 	var title = $MarginContainer/VBox/Title

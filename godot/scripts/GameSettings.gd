@@ -2,7 +2,7 @@ extends Node
 
 var current_language: String = "en"
 var difficulty: String = "normal"
-var theme: String = "light"
+var theme: String = "dark"
 var has_completed_tutorial: bool = false
 
 # All game constants now defined in GameConstants autoload
