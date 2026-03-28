@@ -132,13 +132,19 @@ self.addEventListener(
 				const response = await fetchAndCache(event, cache, isCachable);
 				return response;
 			})());
-		} else if (ENSURE_CROSSORIGIN_ISOLATION_HEADERS) {
+	} else if (ENSURE_CROSSORIGIN_ISOLATION_HEADERS) {
+		// Only apply COOP/COEP headers to same-origin requests
+		// External requests (fonts, APIs) should pass through unchanged
+		const url = new URL(event.request.url);
+		if (url.origin === self.location.origin) {
 			event.respondWith((async () => {
 				let response = await fetch(event.request);
 				response = ensureCrossOriginIsolationHeaders(response);
 				return response;
 			})());
 		}
+		// For cross-origin requests, don't intercept - let browser handle normally
+	}
 	}
 );
 
@@ -159,7 +165,7 @@ self.addEventListener('message', (event) => {
 		} else if (msg === 'clear') {
 			caches.delete(CACHE_NAME);
 		} else if (msg === 'update') {
-			self.skipWaiting().then(() => self.clients.claim()).then(() => self.clients.matchAll()).then((all) => all.forEach((c) => c.navigate(c.url)));
+			self.skipWaiting().then(() => self.clients.claim()).then(() => self.clients.matchAll()).then((all) => all.forEach((c) => { c.navigate(c.url); }));
 		}
 	});
 });
