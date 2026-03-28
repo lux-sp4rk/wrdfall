@@ -66,7 +66,7 @@ npm run serve
 
 **Verify:**
 - [ ] Page renders instantly (< 500ms)
-- [ ] "Word Loom" logo visible
+- [ ] "wordfall" logo visible
 - [ ] "Word-building meets Tetris" tagline visible
 - [ ] Play button visible (disabled initially)
 - [ ] Language selector visible (English/Español)

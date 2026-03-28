@@ -22,7 +22,7 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, 
       {/* Main card */}
       <div className="main-card">
         <div className="title-section">
-          <h1 className="logo text-wrap">Word Loom</h1>
+          <h1 className="logo text-wrap">wordfall</h1>
           <p className="tagline text-wrap">Word-building meets Tetris</p>
           {state.highScore > 0 && (
             <p className="high-score-text" role="status" aria-live="polite">

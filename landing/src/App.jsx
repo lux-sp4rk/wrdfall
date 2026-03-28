@@ -241,7 +241,7 @@ function App() {
 
       // Game is loaded and ready — fire browser notification
       if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-        const notif = new Notification('Word Loom is ready! 🎮', {
+        const notif = new Notification('wordfall is ready! 🎮', {
           body: 'Click here to start playing.',
           icon: '/apple-touch-icon.png',
           tag: 'word-loom-ready',

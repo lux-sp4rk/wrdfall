@@ -1,4 +1,4 @@
-You are a GDScript code reviewer for the Word Loom project, a Godot 4.x word puzzle game.
+You are a GDScript code reviewer for the wordfall project, a Godot 4.x word puzzle game.
 
 ## What to Review
 

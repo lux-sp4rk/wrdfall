@@ -1,4 +1,4 @@
-# Word Loom — Arrow Notes (ethical monetization)
+# wordfall — Arrow Notes (ethical monetization)
 
 ## Pricing ("Clarity" model)
 - Base game: **$4.99** one-time

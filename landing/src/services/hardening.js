@@ -1,5 +1,5 @@
 /**
- * Hardening utilities for Word Loom landing page
+ * Hardening utilities for wordfall landing page
  * Handles edge cases, errors, i18n, and accessibility
  */
 

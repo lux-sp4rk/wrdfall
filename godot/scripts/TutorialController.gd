@@ -2,7 +2,7 @@ extends Node
 class_name TutorialController
 
 ## Tutorial Controller
-## Manages the guided interactive tutorial system for Word Loom
+## Manages the guided interactive tutorial system for wordfall
 ## Handles state machine, input gating, phase progression, and coordination
 
 # Tutorial phases
@@ -83,7 +83,7 @@ func _load_phase_configs() -> void:
 	
 	# Phase 1: INTRO
 	var intro_config := PhaseConfig.new(TutorialPhase.INTRO)
-	intro_config.title = tutorial_strings.get("intro_title", "Welcome to Word Loom")
+	intro_config.title = tutorial_strings.get("intro_title", "Welcome to wordfall")
 	intro_config.instruction = tutorial_strings.get("intro_instruction", "Drag across letters to spell words")
 	intro_config.board_preset = [
 		["", "", "", "", ""],
@@ -197,7 +197,7 @@ func _load_phase_configs() -> void:
 func _get_default_tutorial_strings(lang_code: String) -> Dictionary:
 	"""Default English tutorial strings."""
 	return {
-		"intro_title": "Welcome to Word Loom",
+		"intro_title": "Welcome to wordfall",
 		"intro_instruction": "Drag across letters to spell words",
 		"selection_title": "Find Words",
 		"selection_instruction": "Look for 3+ letter words. Longer = more points!",

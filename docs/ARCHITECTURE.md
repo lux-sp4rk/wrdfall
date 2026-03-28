@@ -1,10 +1,10 @@
-# Word Loom Architecture
+# wordfall Architecture
 
 > **A calm, strategic word puzzle game** — Letters fall, words rise. Built with Godot 4.6 (GDScript).
 
 ## Overview
 
-Word Loom is a Tetris-meets-Scrabble word puzzle game where players swipe adjacent tiles on a 5×5 grid to form words. The game targets iPad, phone, and browser (HTML5) with a senior-first design philosophy: high contrast, large tap targets, and calm pacing.
+wordfall is a Tetris-meets-Scrabble word puzzle game where players swipe adjacent tiles on a 5×5 grid to form words. The game targets iPad, phone, and browser (HTML5) with a senior-first design philosophy: high contrast, large tap targets, and calm pacing.
 
 **Core Game Mode: Loom Drop**
 - Letters fall onto a 5×5 grid at timed intervals
@@ -226,7 +226,7 @@ JavaScriptBridge.get_interface("localStorage").setItem("key", "value")
 
 | Section | Key Settings |
 |---------|-------------|
-| Application | Name: "Word Loom", Main Scene: `Boot.tscn` |
+| Application | Name: "wordfall", Main Scene: `Boot.tscn` |
 | Display | 720×1280 viewport, canvas_items stretch, portrait orientation |
 | Rendering | GL Compatibility (required for HTML5) |
 | Autoload | 7 singletons loaded in order |

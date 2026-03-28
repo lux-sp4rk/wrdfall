@@ -56,7 +56,7 @@ Add a `Button` node:
 
 ```
 ┌─────────────────────────────┐
-│      WORD LOOM              │
+│      wordfall              │
 │        🎮                   │
 │                             │
 │   AuthPanel (VBoxContainer) │

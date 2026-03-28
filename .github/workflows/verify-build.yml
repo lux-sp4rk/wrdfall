@@ -30,5 +30,5 @@ jobs:
         if: failure()
         run: |
           curl -X POST -H "Content-Type: application/json" \
-          -d '{"text": "🚨 Word Loom Build FAILED for PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.html_url }}"}' \
+          -d '{"text": "🚨 wordfall Build FAILED for PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.html_url }}"}' \
           ${{ secrets.OPENCLAW_WEBHOOK_URL }}

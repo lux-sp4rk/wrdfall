@@ -1,6 +1,6 @@
-# Word Loom Landing Page - Hardening Summary
+# wordfall Landing Page - Hardening Summary
 
-This document summarizes the hardening improvements made to the Word Loom landing page to handle edge cases, errors, internationalization issues, and real-world usage scenarios.
+This document summarizes the hardening improvements made to the wordfall landing page to handle edge cases, errors, internationalization issues, and real-world usage scenarios.
 
 ## Hardening Areas Addressed
 

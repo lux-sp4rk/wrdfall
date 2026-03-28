@@ -1,4 +1,4 @@
-# Justfile - Word Loom Tasks
+# Justfile - wordfall Tasks
 # Usage: just <recipe>
 
 # Default recipe (lists all)

@@ -1,4 +1,4 @@
-# Deployment Guide - Word Loom
+# Deployment Guide - wordfall
 
 ## Simple Setup
 
@@ -188,7 +188,7 @@ INSERT INTO profiles (id, high_score) VALUES ('not-my-id', 100);
 
 ## Hybrid Loader Architecture
 
-Word Loom uses a **hybrid loader** for fast initial render:
+wordfall uses a **hybrid loader** for fast initial render:
 
 ### How It Works
 

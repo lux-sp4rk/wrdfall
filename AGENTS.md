@@ -1,7 +1,7 @@
-# AGENTS.md — Word Loom Instructions
+# AGENTS.md — wordfall Instructions
 
 ## Project Intent
-Word Loom: Tetris-meets-Scrabble built with **Godot 4.6 (GDScript)**. Strategic word puzzles for iPad, mobile, and browser.
+wordfall: Tetris-meets-Scrabble built with **Godot 4.6 (GDScript)**. Strategic word puzzles for iPad, mobile, and browser.
 
 ## Stack & Tooling
 

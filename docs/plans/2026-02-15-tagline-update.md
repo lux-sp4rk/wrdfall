@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Update Word Loom's tagline from "A calm, senior-first word puzzle game" to "Strategic word puzzles meet Tetris" across all documentation files and remove "no ads" claim.
+**Goal:** Update wordfall's tagline from "A calm, senior-first word puzzle game" to "Strategic word puzzles meet Tetris" across all documentation files and remove "no ads" claim.
 
 **Architecture:** Simple text replacements across 3 documentation files (README.md, CLAUDE.md, docs/game-rules.md). No code changes required.
 
@@ -77,7 +77,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 head -10 CLAUDE.md
 ```
 
-Expected: Line 4 contains "Word Loom is a calm, senior-first word puzzle game built with **Godot 4.6 (GDScript)**."
+Expected: Line 4 contains "wordfall is a calm, senior-first word puzzle game built with **Godot 4.6 (GDScript)**."
 
 **Step 2: Update tagline in CLAUDE.md**
 
@@ -85,12 +85,12 @@ Replace line 4 with new positioning:
 
 **Old:**
 ```markdown
-Word Loom is a calm, senior-first word puzzle game built with **Godot 4.6 (GDScript)**.
+wordfall is a calm, senior-first word puzzle game built with **Godot 4.6 (GDScript)**.
 ```
 
 **New:**
 ```markdown
-Word Loom is a strategic word puzzle game built with **Godot 4.6 (GDScript)** — strategic word puzzles meet Tetris.
+wordfall is a strategic word puzzle game built with **Godot 4.6 (GDScript)** — strategic word puzzles meet Tetris.
 ```
 
 Use Edit tool to make the change.
@@ -128,7 +128,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 head -5 docs/game-rules.md
 ```
 
-Expected: Line 3 contains "Word Loom is a calm, senior-first word puzzle game. The primary game mode is **Loom Drop**..."
+Expected: Line 3 contains "wordfall is a calm, senior-first word puzzle game. The primary game mode is **Loom Drop**..."
 
 **Step 2: Update tagline in game-rules.md**
 
@@ -136,12 +136,12 @@ Replace line 3 with new description:
 
 **Old:**
 ```markdown
-Word Loom is a calm, senior-first word puzzle game. The primary game mode is **Loom Drop** — a Tetris-style falling-letter puzzle where you swipe to form words on a 5x5 grid.
+wordfall is a calm, senior-first word puzzle game. The primary game mode is **Loom Drop** — a Tetris-style falling-letter puzzle where you swipe to form words on a 5x5 grid.
 ```
 
 **New:**
 ```markdown
-Word Loom is a strategic word puzzle game where word-building meets Tetris. The primary game mode is **Loom Drop** — a Tetris-style falling-letter puzzle where you swipe to form words on a 5x5 grid.
+wordfall is a strategic word puzzle game where word-building meets Tetris. The primary game mode is **Loom Drop** — a Tetris-style falling-letter puzzle where you swipe to form words on a 5x5 grid.
 ```
 
 Use Edit tool to make the change.
