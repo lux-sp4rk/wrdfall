@@ -100,6 +100,12 @@ self.addEventListener(
 		const base = referrer.slice(0, referrer.lastIndexOf('/') + 1);
 		const local = url.startsWith(base) ? url.replace(base, '') : '';
 		const isCachable = FULL_CACHE.some((v) => v === local) || (base === referrer && base.endsWith(CACHED_FILES[0]));
+		// Bypass SW for Godot engine files — they have immutable cache headers from
+		// netlify.toml and SW interception causes opaque-response RangeError on large binaries.
+		// See: https://github.com/lux-sp4rk/word-loom/issues/178
+		if (url.endsWith('.wasm') || url.endsWith('.pck')) {
+			return;
+		}
 		if (isNavigate || isCachable) {
 			event.respondWith((async () => {
 				// Try to use cache first
