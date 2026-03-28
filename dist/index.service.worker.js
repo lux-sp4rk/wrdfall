@@ -4,7 +4,7 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = '1774036565|3050589';
+const CACHE_VERSION = '1774036568|3050592';
 /** @type {string} */
 const CACHE_PREFIX = 'Word Fall-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
@@ -42,6 +42,12 @@ self.addEventListener('activate', (event) => {
  * @returns {Response}
  */
 function ensureCrossOriginIsolationHeaders(response) {
+	// Don't modify error responses (status 0 or network failures)
+	// Response constructor requires status in range [200, 599]
+	if (!response || response.status === 0 || response.status < 200 || response.status >= 600) {
+		return response;
+	}
+
 	if (response.headers.get('Cross-Origin-Embedder-Policy') === 'require-corp'
 		&& response.headers.get('Cross-Origin-Opener-Policy') === 'same-origin') {
 		return response;
