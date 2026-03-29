@@ -29,9 +29,4 @@ jobs:
         run: npm run build:all
 
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./
+        run: npx vercel deploy dist/ --token=${{ secrets.VERCEL_TOKEN }} --yes --prod=${{ github.ref == 'refs/heads/main' }}
