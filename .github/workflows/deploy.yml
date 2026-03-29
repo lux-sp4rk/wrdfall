@@ -36,5 +36,4 @@ jobs:
           projectName: wordfall
           directory: dist
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          filter: ""
           branch: ${{ github.ref_name }}
