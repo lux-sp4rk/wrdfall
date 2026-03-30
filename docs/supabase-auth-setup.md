@@ -59,7 +59,7 @@ Go to **Supabase Dashboard → Authentication → Providers**
    - Authorized redirect URIs:
      ```
      https://szgdvwfqlbixprrygnxg.supabase.co/auth/v1/callback
-     https://wordloom.netlify.app/auth/callback
+     https://wordfall.netlify.app/auth/callback
      ```
    - Copy **Client ID** and **Client Secret**
 4. **Add to Supabase:**
@@ -82,7 +82,7 @@ Requires Apple Developer account ($99/year).
    - Enable **Sign in with Apple**
    - Configure domains and return URLs:
      ```
-     Domain: wordloom.netlify.app
+     Domain: wordfall.netlify.app
      Return URL: https://szgdvwfqlbixprrygnxg.supabase.co/auth/v1/callback
      ```
    - Download and configure keys

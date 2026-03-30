@@ -11,6 +11,7 @@ import { StatsScreen } from './screens/StatsScreen.jsx';
 import { SettingsScreen } from './screens/SettingsScreen.jsx';
 import { RulesScreen } from './screens/RulesScreen.jsx';
 import { TutorialPrompt } from './components/TutorialPrompt.jsx';
+import { WaterfallTransition } from './components/WaterfallTransition.jsx';
 import { 
   categorizeError, 
   createNetworkMonitor, 
@@ -129,7 +130,7 @@ function App() {
       }
     });
 
-    window.wordLoomGoHome = () => {
+    window.wordfallGoHome = () => {
       if (godotLauncher.current) {
         godotLauncher.current.stop();
         godotLauncher.current = null;
@@ -142,7 +143,7 @@ function App() {
     };
 
     return () => { 
-      delete window.wordLoomGoHome;
+      delete window.wordfallGoHome;
       if (networkMonitor.current) {
         networkMonitor.current.destroy();
       }
@@ -241,7 +242,7 @@ function App() {
 
       // Game is loaded and ready — fire browser notification
       if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-        const notif = new Notification('Word Loom is ready! 🎮', {
+        const notif = new Notification('Wordfall is ready! 🎮', {
           body: 'Click here to start playing.',
           icon: '/apple-touch-icon.png',
           tag: 'word-loom-ready',
@@ -260,6 +261,9 @@ function App() {
       if (landingRef.current) {
         landingRef.current.style.display = 'none';
       }
+
+      // Game is running — remove the waterfall overlay
+      setState(prev => ({ ...prev, transitioning: false }));
     } catch (error) {
       console.error('[launchGame] Game start failed:', error);
       const categorized = categorizeError(error);
@@ -296,7 +300,7 @@ function App() {
       </a>
 
       {state.currentScreen === 'home' && (
-        <div ref={landingRef} id="main-content">
+        <div ref={landingRef} id="main-content" className={state.transitioning ? 'game-active' : ''}>
           <HomeScreen
             state={{ ...state, onRetry: startPrefetch, errorDetails }}
             onPlayClick={handlePlayClick}
@@ -337,6 +341,8 @@ function App() {
         language={currentSettings.language}
         theme={state.theme}
       />
+
+      <WaterfallTransition isActive={state.transitioning} theme={state.theme} />
     </div>
   )
 }

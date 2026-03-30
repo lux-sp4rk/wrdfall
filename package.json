@@ -2,7 +2,7 @@
   "name": "word-loom",
   "version": "1.0.0",
   "private": true,
-  "description": "Word Loom - A calm, senior-first word puzzle game",
+  "description": "Wordfall - A calm, senior-first word puzzle game",
   "scripts": {
     "serve": "python3 -m http.server -d dist 8000",
     "open": "open http://localhost:8000",

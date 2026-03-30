@@ -116,8 +116,8 @@ Create `landing/index.html`:
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="description" content="Word Loom - Word-building meets Tetris" />
-    <title>Word Loom</title>
+    <meta name="description" content="Wordfall - Word-building meets Tetris" />
+    <title>Wordfall</title>
     <style>
       /* Critical CSS - inline for instant render */
       * {
@@ -944,7 +944,7 @@ function App() {
     }
 
     // Set up Godot → JS bridge
-    window.wordLoomSaveScore = async (score) => {
+    window.wordfallSaveScore = async (score) => {
       await storageManager.current.saveHighScore(score);
     };
   }
@@ -967,7 +967,7 @@ function App() {
       <div className="container">
         {/* Hero */}
         <div className="hero">
-          <h1 className="logo">Word Loom</h1>
+          <h1 className="logo">Wordfall</h1>
           <p className="tagline">Word-building meets Tetris</p>
         </div>
 
@@ -1522,7 +1522,7 @@ Create or update `build.sh`:
 ```bash
 #!/bin/bash
 
-# Build script for Word Loom (Netlify)
+# Build script for Wordfall (Netlify)
 
 set -e  # Exit on error
 
@@ -1742,7 +1742,7 @@ Append to `docs/deployment.md`:
 
 ## Hybrid Loader Architecture
 
-Word Loom uses a **hybrid loader** for fast initial render:
+Wordfall uses a **hybrid loader** for fast initial render:
 
 ### How It Works
 

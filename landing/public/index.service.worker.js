@@ -4,9 +4,9 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = '1774036565|3050589';
+const CACHE_VERSION = '1774896195|2929363';
 /** @type {string} */
-const CACHE_PREFIX = 'Word Loom-sw-cache-';
+const CACHE_PREFIX = 'Wordfall-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
 /** @type {string} */
 const OFFLINE_URL = 'index.offline.html';

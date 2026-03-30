@@ -1,11 +1,11 @@
 #!/bin/bash
-# Word Loom TDD Runner
+# Wordfall TDD Runner
 # Runs GUT tests headlessly using the local Godot 4.3 binary.
 
 GODOT_BIN="/home/uli/bin/godot"
 PROJECT_PATH="/home/uli/Projects/word-loom/godot"
 
-echo "🚀 Running Word Loom GUT Tests..."
+echo "🚀 Running Wordfall GUT Tests..."
 
 $GODOT_BIN --headless --path "$PROJECT_PATH" -s res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
 

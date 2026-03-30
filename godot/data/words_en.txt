@@ -1,4 +1,4 @@
-# Word Loom dictionary
+# Wordfall dictionary
 # Source: SOWPODS (Collins Scrabble Words) - International Scrabble word list
 # Filtered to 3-15 letter words, uppercased
 # No proper nouns, abbreviations, or non-Scrabble words

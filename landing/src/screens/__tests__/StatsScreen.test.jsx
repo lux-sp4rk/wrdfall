@@ -19,7 +19,7 @@ vi.mock('../../services/statsService.js', () => {
     getLeaderboard: vi.fn().mockResolvedValue([]),
     resetStats: vi.fn().mockResolvedValue(undefined),
     formatTime: vi.fn(s => `${Math.floor(s / 60)}m`),
-    getShareText: vi.fn(() => 'Word Loom Stats'),
+    getShareText: vi.fn(() => 'Wordfall Stats'),
   }
   return { StatsService: vi.fn(function () { return instance }) }
 })

@@ -166,9 +166,9 @@ git commit -m "feat: add hookify rule to remind about PCK rebuild after .gd edit
 ## Task 4: Rebuild the PCK
 
 This bakes all accumulated GDScript fixes into `dist/index.pck`:
-- `LoomDrop.gd`: exit/quit → `window.wordLoomGoHome()` on web (from `dcf68a1`)
-- `Settings.gd`: back → `window.wordLoomGoHome()` on web (from `dcf68a1`)
-- `Stats.gd`: back → `window.wordLoomGoHome()` on web (from `dcf68a1`)
+- `LoomDrop.gd`: exit/quit → `window.wordfallGoHome()` on web (from `dcf68a1`)
+- `Settings.gd`: back → `window.wordfallGoHome()` on web (from `dcf68a1`)
+- `Stats.gd`: back → `window.wordfallGoHome()` on web (from `dcf68a1`)
 - `GameSidebar.gd`: hide Settings/Stats buttons on web (Task 1 above)
 
 **Step 1: Export from Godot headless**
@@ -268,7 +268,7 @@ git push
 ## What Was Already Correct (no changes needed)
 
 - `Boot.gd`: already routes web → LoomDrop.tscn (skips Godot home on startup)
-- `LoomDrop.gd`: exit/quit already call `window.wordLoomGoHome()` on web (`dcf68a1`)
-- `Settings.gd`: back already calls `window.wordLoomGoHome()` on web (`dcf68a1`)
-- `Stats.gd`: back already calls `window.wordLoomGoHome()` on web (`dcf68a1`)
-- `App.jsx`: `window.wordLoomGoHome` callback already registered
+- `LoomDrop.gd`: exit/quit already call `window.wordfallGoHome()` on web (`dcf68a1`)
+- `Settings.gd`: back already calls `window.wordfallGoHome()` on web (`dcf68a1`)
+- `Stats.gd`: back already calls `window.wordfallGoHome()` on web (`dcf68a1`)
+- `App.jsx`: `window.wordfallGoHome` callback already registered

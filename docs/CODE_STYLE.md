@@ -1,6 +1,6 @@
-# Word Loom Code Style
+# Wordfall Code Style
 
-> GDScript coding conventions for the Word Loom project (Godot 4.6)
+> GDScript coding conventions for the Wordfall project (Godot 4.6)
 
 ## Naming Conventions
 

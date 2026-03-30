@@ -2,13 +2,13 @@ import React from 'react'
 
 const UI_TEXT = {
   en: {
-    title: 'Welcome to Word Loom!',
+    title: 'Welcome to Wordfall!',
     message: 'Would you like a quick tutorial to get started?',
     yesButton: 'Yes, show me',
     noButton: 'No, skip',
   },
   es: {
-    title: '¡Bienvenido a Word Loom!',
+    title: '¡Bienvenido a Wordfall!',
     message: '¿Te gustaría un tutorial rápido para comenzar?',
     yesButton: 'Sí, mostrar',
     noButton: 'No, saltar',

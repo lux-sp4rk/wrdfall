@@ -43,3 +43,6 @@ node_modules
 
 # Worktrees
 .worktrees/
+
+# logs
+logs/

@@ -6,7 +6,7 @@
 
 ## Overview
 
-Add light/dark theme switching to Word Loom with persistent user preference. All screens (Home, Settings, Stats, LoomDrop, TopNavBar) will respond to theme changes for consistent visual experience.
+Add light/dark theme switching to Wordfall with persistent user preference. All screens (Home, Settings, Stats, LoomDrop, TopNavBar) will respond to theme changes for consistent visual experience.
 
 ## Requirements
 

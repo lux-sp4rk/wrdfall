@@ -5,7 +5,7 @@
 
 set -e
 
-echo "🚀 WordLoom Optimized Build Pipeline"
+echo "🚀 Wordfall Optimized Build Pipeline"
 echo "===================================="
 echo ""
 

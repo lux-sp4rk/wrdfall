@@ -1,6 +1,6 @@
-# How to Play Word Loom
+# How to Play Wordfall
 
-Word Loom is a relaxing word puzzle with a twist: letters fall like rain, and you've got to spell words before the board fills up!
+Wordfall is a relaxing word puzzle with a twist: letters fall like rain, and you've got to spell words before the board fills up!
 
 ## The Basics
 

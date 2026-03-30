@@ -227,7 +227,7 @@ func _create_debug_flags_panel() -> void:
 
 func _on_home_pressed() -> void:
 	if OS.has_feature("web"):
-		JavaScriptBridge.eval("window.wordLoomGoHome && window.wordLoomGoHome()")
+		JavaScriptBridge.eval("window.wordfallGoHome && window.wordfallGoHome()")
 	else:
 		get_tree().change_scene_to_file("res://scenes/Home.tscn")
 
@@ -277,7 +277,7 @@ func _on_retry_pressed() -> void:
 
 func _on_quit_pressed() -> void:
 	if OS.has_feature("web"):
-		JavaScriptBridge.eval("window.wordLoomGoHome && window.wordLoomGoHome()")
+		JavaScriptBridge.eval("window.wordfallGoHome && window.wordfallGoHome()")
 	else:
 		get_tree().change_scene_to_file("res://scenes/Home.tscn")
 

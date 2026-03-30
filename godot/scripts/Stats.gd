@@ -187,7 +187,7 @@ func _format_time(seconds: float) -> String:
 
 func _on_back_pressed() -> void:
 	if OS.has_feature("web"):
-		JavaScriptBridge.eval("window.wordLoomGoHome && window.wordLoomGoHome()")
+		JavaScriptBridge.eval("window.wordfallGoHome && window.wordfallGoHome()")
 	else:
 		get_tree().change_scene_to_file("res://scenes/Home.tscn")
 

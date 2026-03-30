@@ -22,7 +22,7 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, 
       {/* Main card */}
       <div className="main-card">
         <div className="title-section">
-          <h1 className="logo text-wrap">Word Loom</h1>
+          <h1 className="logo text-wrap">Wordfall</h1>
           <p className="tagline text-wrap">Word-building meets Tetris</p>
           {state.highScore > 0 && (
             <p className="high-score-text" role="status" aria-live="polite">
@@ -80,6 +80,8 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, 
         )}
 
         <button type="button" className="rules-button" onClick={onRulesClick}>How to Play</button>
+
+        <div className="card-divider" />
 
         <div className="secondary-buttons">
           <button type="button" className="secondary-button" onClick={onStatsClick}>Stats</button>

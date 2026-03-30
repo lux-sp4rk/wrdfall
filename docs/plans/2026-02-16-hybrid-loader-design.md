@@ -497,13 +497,13 @@ func _on_game_over(final_score: int):
     if OS.has_feature("web"):
         # Call JavaScript function directly
         var js_interface = JavaScriptBridge.get_interface("window")
-        if js_interface and js_interface.has("wordLoomSaveScore"):
-            js_interface.wordLoomSaveScore.call(final_score)
+        if js_interface and js_interface.has("wordfallSaveScore"):
+            js_interface.wordfallSaveScore.call(final_score)
 ```
 
 ```javascript
 // Global handler
-window.wordLoomSaveScore = async (score) => {
+window.wordfallSaveScore = async (score) => {
   await storageManager.saveHighScore(score);
 };
 ```
