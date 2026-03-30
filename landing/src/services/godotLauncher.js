@@ -34,6 +34,7 @@ export class GodotLauncher {
       this.canvas.style.left = '0';
       // Match letterbox bars to the theme background so they aren't black
       this.canvas.style.backgroundColor = this.config.backgroundColor || '#2B3D4F';
+      this.canvas.style.zIndex = '0';
       document.body.appendChild(this.canvas);
 
       // CRITICAL: Godot Engine.init() and the Engine config's `executable` field expect the
@@ -111,7 +112,10 @@ export class GodotLauncher {
       console.log(`⚙️ Settings injected: ${JSON.stringify(window.WORD_LOOM_SETTINGS)}`);
 
       // Start Godot — must pass mainPack so the engine knows where to find the PCK.
+      // startGame() resolves when the Godot main loop starts, not when the first frame renders.
+      // Wait one additional rAF so the first frame has painted before we declare "ready."
       await this.engine.startGame({ mainPack: this.config.mainPack });
+      await new Promise(resolve => requestAnimationFrame(resolve));
     } catch (error) {
       console.error('Failed to start Godot game:', error);
       throw new Error(`Game start failed: ${error.message}`);

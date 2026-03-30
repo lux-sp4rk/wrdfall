@@ -265,6 +265,16 @@ button {
   min-height: 48px;
 }
 
+/* ===== Main content wrapper — must sit above Godot canvas ===== */
+#main-content {
+  position: relative;
+  z-index: 9999;
+}
+
+#main-content.game-active {
+  pointer-events: none;
+}
+
 /* High contrast text — font smoothing already set on .landing-container */
 
 /* Focus states for keyboard navigation */

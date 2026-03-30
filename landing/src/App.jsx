@@ -297,7 +297,7 @@ function App() {
       </a>
 
       {state.currentScreen === 'home' && (
-        <div ref={landingRef} id="main-content">
+        <div ref={landingRef} id="main-content" className={state.transitioning ? 'game-active' : ''}>
           <HomeScreen
             state={{ ...state, onRetry: startPrefetch, errorDetails }}
             onPlayClick={handlePlayClick}
