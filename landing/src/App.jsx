@@ -261,6 +261,9 @@ function App() {
       if (landingRef.current) {
         landingRef.current.style.display = 'none';
       }
+
+      // Game is running — remove the waterfall overlay
+      setState(prev => ({ ...prev, transitioning: false }));
     } catch (error) {
       console.error('[launchGame] Game start failed:', error);
       const categorized = categorizeError(error);
