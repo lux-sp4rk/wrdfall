@@ -81,6 +81,8 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, 
 
         <button type="button" className="rules-button" onClick={onRulesClick}>How to Play</button>
 
+        <div className="card-divider" />
+
         <div className="secondary-buttons">
           <button type="button" className="secondary-button" onClick={onStatsClick}>Stats</button>
           <button type="button" className="secondary-button" onClick={onSettingsClick}>Settings</button>

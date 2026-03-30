@@ -11,6 +11,7 @@ import { StatsScreen } from './screens/StatsScreen.jsx';
 import { SettingsScreen } from './screens/SettingsScreen.jsx';
 import { RulesScreen } from './screens/RulesScreen.jsx';
 import { TutorialPrompt } from './components/TutorialPrompt.jsx';
+import { WaterfallTransition } from './components/WaterfallTransition.jsx';
 import { 
   categorizeError, 
   createNetworkMonitor, 
@@ -337,6 +338,8 @@ function App() {
         language={currentSettings.language}
         theme={state.theme}
       />
+
+      <WaterfallTransition isActive={state.transitioning} theme={state.theme} />
     </div>
   )
 }

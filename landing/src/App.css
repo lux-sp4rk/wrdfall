@@ -143,7 +143,7 @@
   padding: 12px 32px;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 150ms ease;
+  transition: all 150ms cubic-bezier(0.22, 1, 0.36, 1);
   min-height: 48px;
   min-width: 120px;
 }
@@ -157,22 +157,28 @@
   transform: scale(0.98);
 }
 
+.retry-button:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 /* ===== Play Button ===== */
 
 .play-button {
   background: var(--color-primary);
   color: var(--text-on-primary);
   font-family: inherit;
-  font-size: clamp(24px, 5vw, 48px);
+  font-size: clamp(28px, 6vw, 56px);
   font-weight: 700;
   border: none;
-  border-radius: 12px;
+  border-radius: 16px;
   cursor: pointer;
-  transition: all 150ms ease;
-  box-shadow: 0 4px 12px var(--shadow);
+  transition: all 150ms cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 6px 20px var(--shadow);
   width: 100%;
-  height: 110px;
-  min-height: 110px;
+  height: 120px;
+  min-height: 120px;
+  margin-bottom: 8px;
 }
 
 .play-button:hover:not(:disabled) {
@@ -273,13 +279,13 @@ button:focus-visible {
   background: var(--bg-card);
   border-radius: 24px;
   box-shadow: 0 8px 20px var(--shadow);
-  padding: 60px 50px;
+  padding: 48px 40px;
   width: 100%;
-  max-width: 520px;
+  max-width: 480px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 32px;
+  gap: 20px;
   position: relative;
   z-index: 1;
 }
@@ -309,64 +315,82 @@ button:focus-visible {
   text-align: center;
 }
 
-/* ===== Secondary buttons row ===== */
-
-/* ===== Rules button ===== */
+/* ===== Rules button (tertiary action) ===== */
 
 .rules-button {
-  width: 100%;
+  width: auto;
   background: transparent;
-  border: 2px solid var(--color-secondary);
-  color: var(--text-primary);
+  border: none;
+  color: var(--text-secondary);
   font-family: inherit;
-  font-size: clamp(16px, 3vw, 20px);
-  font-weight: 600;
-  height: 56px;
-  min-height: 56px;
-  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  height: 48px;
+  min-height: 48px;
+  padding: 0 16px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 150ms ease;
+  transition: all 150ms cubic-bezier(0.22, 1, 0.36, 1);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--color-secondary);
+  text-decoration-thickness: 1.5px;
 }
 
 .rules-button:hover {
-  background: var(--color-secondary);
-  color: var(--text-on-primary);
+  color: var(--color-primary);
+  text-decoration-color: var(--color-primary);
+  background: var(--bg-primary);
 }
 
 .rules-button:active {
   transform: scale(0.98);
 }
 
+.rules-button:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ===== Secondary buttons - reduced visual weight ===== */
+
 .secondary-buttons {
   display: flex;
-  gap: 20px;
+  gap: 12px;
   width: 100%;
+  order: 10;
+  margin-top: 8px;
 }
 
 .secondary-button {
   flex: 1;
-  background: var(--color-secondary);
-  color: var(--text-on-primary);
+  background: transparent;
+  color: var(--text-secondary);
   font-family: inherit;
-  font-size: clamp(18px, 3vw, 28px);
-  font-weight: 700;
-  height: 85px;
-  min-height: 85px;
-  border: none;
-  border-radius: 14px;
+  font-size: clamp(14px, 2.5vw, 18px);
+  font-weight: 600;
+  height: 56px;
+  min-height: 56px;
+  border: 2px solid var(--border-neutral);
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 150ms ease;
-  box-shadow: 0 3px 8px var(--shadow);
+  transition: all 150ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .secondary-button:hover {
-  filter: brightness(1.08);
-  transform: translateY(-2px);
+  background: var(--bg-primary);
+  border-color: var(--color-secondary);
+  color: var(--text-primary);
+  transform: translateY(-1px);
 }
 
 .secondary-button:active {
-  filter: brightness(0.95);
   transform: translateY(0);
+}
+
+.secondary-button:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 /* ===== Divider + Copyright ===== */
@@ -412,16 +436,23 @@ button:focus-visible {
 
 @media (max-width: 560px) {
   .main-card {
-    padding: 40px 24px;
-    gap: 24px;
+    padding: 36px 24px;
+    gap: 16px;
   }
   .secondary-button {
-    height: 70px;
-    min-height: 70px;
+    height: 52px;
+    min-height: 52px;
+    font-size: 15px;
   }
   .play-button {
-    height: 88px;
-    min-height: 88px;
+    height: 100px;
+    min-height: 100px;
+    font-size: clamp(24px, 7vw, 40px);
+  }
+  .rules-button {
+    font-size: 15px;
+    height: 48px;
+    min-height: 48px;
   }
 }
 
@@ -442,8 +473,19 @@ button:focus-visible {
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  padding: 8px 0;
-  min-height: 44px;
+  padding: 8px 12px;
+  min-height: 48px;
+  border-radius: 8px;
+  transition: background-color 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.back-button:hover {
+  background: var(--bg-primary);
+}
+
+.back-button:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .screen-title {
@@ -491,13 +533,18 @@ button:focus-visible {
   font-size: 16px;
   font-weight: 600;
   color: var(--text-primary);
-  transition: all 150ms ease;
+  transition: all 150ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .radio-option.selected {
   border-color: var(--color-primary);
   background: var(--bg-primary);
   color: var(--color-primary);
+}
+
+.radio-option:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .radio-option input[type="radio"] {
@@ -592,6 +639,16 @@ button:focus-visible {
 .icon-button-danger {
   color: var(--color-error);
   border-color: var(--color-error);
+}
+
+.icon-button:hover {
+  background: var(--bg-primary);
+  border-color: var(--color-secondary);
+}
+
+.icon-button:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .confirm-overlay {
@@ -694,7 +751,7 @@ button:focus-visible {
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 150ms ease;
+  transition: all 150ms cubic-bezier(0.22, 1, 0.36, 1);
   border: none;
 }
 
@@ -994,7 +1051,7 @@ button:focus-visible {
   font-size: 17px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 150ms ease;
+  transition: background-color 150ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .tutorial-prompt-yes:hover {
@@ -1014,7 +1071,7 @@ button:focus-visible {
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 150ms ease;
+  transition: all 150ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .tutorial-prompt-no:hover {
@@ -1339,5 +1396,195 @@ button:focus-visible {
   .radio-option.selected {
     outline: 3px solid var(--color-primary);
     outline-offset: 2px;
+  }
+}
+
+/* ============================================
+   WATERFALL LOADING ANIMATION
+   Letters cascading like water during game launch
+   ============================================ */
+
+.waterfall-transition {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+
+.waterfall-transition.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.waterfall-container {
+  position: relative;
+  width: 200px;
+  height: 300px;
+  overflow: hidden;
+}
+
+.waterfall-letter {
+  position: absolute;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-primary);
+  opacity: 0;
+  animation: waterfall-fall 1.5s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Stagger the letters across the width */
+.waterfall-letter:nth-child(1) { left: 20%; animation-delay: 0s; }
+.waterfall-letter:nth-child(2) { left: 50%; animation-delay: 0.2s; }
+.waterfall-letter:nth-child(3) { left: 80%; animation-delay: 0.4s; }
+.waterfall-letter:nth-child(4) { left: 35%; animation-delay: 0.6s; }
+.waterfall-letter:nth-child(5) { left: 65%; animation-delay: 0.8s; }
+.waterfall-letter:nth-child(6) { left: 15%; animation-delay: 1s; }
+.waterfall-letter:nth-child(7) { left: 85%; animation-delay: 1.2s; }
+
+@keyframes waterfall-fall {
+  0% {
+    transform: translateY(-40px) rotate(-5deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  40% {
+    transform: translateY(100px) rotate(3deg);
+    opacity: 0.9;
+  }
+  70% {
+    transform: translateY(200px) rotate(-2deg);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(320px) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+/* Splash effect at the bottom */
+.waterfall-splash {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(
+    to top,
+    rgba(242, 145, 112, 0.1) 0%,
+    transparent 100%
+  );
+  animation: splash-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes splash-pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scaleY(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scaleY(1.1);
+  }
+}
+
+/* Loading text */
+.waterfall-loading-text {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+  animation: text-pulse 2s ease-in-out infinite;
+}
+
+@keyframes text-pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Reduced motion fallback - simple fade */
+@media (prefers-reduced-motion: reduce) {
+  .waterfall-letter {
+    animation: none;
+    opacity: 0.3;
+    position: static;
+    margin: 8px;
+  }
+
+  .waterfall-splash,
+  .waterfall-loading-text {
+    animation: none;
+  }
+}
+
+/* ============================================
+   PAGE LOAD ENTRANCE ANIMATIONS
+   Subtle staggered reveals for home screen
+   ============================================ */
+
+.main-card {
+  animation: card-entrance 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes card-entrance {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Staggered entrance for card children */
+.main-card > * {
+  opacity: 0;
+  animation: content-fade-in 400ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.main-card > *:nth-child(1) { animation-delay: 100ms; }
+.main-card > *:nth-child(2) { animation-delay: 180ms; }
+.main-card > *:nth-child(3) { animation-delay: 260ms; }
+.main-card > *:nth-child(4) { animation-delay: 340ms; }
+.main-card > *:nth-child(5) { animation-delay: 420ms; }
+.main-card > *:nth-child(6) { animation-delay: 500ms; }
+.main-card > *:nth-child(7) { animation-delay: 580ms; }
+.main-card > *:nth-child(8) { animation-delay: 660ms; }
+
+@keyframes content-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Reduced motion for entrance animations */
+@media (prefers-reduced-motion: reduce) {
+  .main-card,
+  .main-card > * {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }
