@@ -3,17 +3,15 @@
   "outputDirectory": ".",
   "installCommand": "",
   "routes": [
-    { "src": "/index\\.wasm", "dest": "/index.wasm" },
-    { "src": "/index\\.pck", "dest": "/index.pck" },
-    { "src": "/index\\.js", "dest": "/index.js" },
-    { "src": "/index\\.service\\.worker\\.js", "dest": "/index.service.worker.js" },
-    { "src": "/index\\.audio\\.worklet\\.js", "dest": "/index.audio.worklet.js" },
-    { "src": "/index\\.manifest\\.json", "dest": "/index.manifest.json" },
-    { "src": "/index\\.png", "dest": "/index.png" },
-    { "src": "/index\\.icon\\.png", "dest": "/index.icon.png" },
-    { "src": "/index\\.(144x144|180x180|512x180)\\.png", "dest": "/index.$1.png" },
-    { "src": "/apple-touch-icon\\.png", "dest": "/index.apple-touch-icon.png" },
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
+    { "src": "/index.service.worker.js", "dest": "/index.service.worker.js" },
+    { "src": "/index.audio.worklet.js", "dest": "/index.audio.worklet.js" },
+    { "src": "/index.manifest.json", "dest": "/index.manifest.json" },
     { "src": "/dictionaries/(.*)", "dest": "/dictionaries/$1" },
+    { "src": "/index.wasm", "dest": "/index.wasm" },
+    { "src": "/index.pck", "dest": "/index.pck" },
+    { "src": "/index.js", "dest": "/index.js" },
+    { "src": "/apple-touch-icon.png", "dest": "/index.apple-touch-icon.png" },
     { "src": "/(.*)", "dest": "/index.html" }
   ],
   "headers": [
@@ -46,19 +44,13 @@
       ]
     },
     {
-      "source": "/(.*).js",
+      "source": "/assets/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     },
     {
       "source": "/(.*).css",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
-      ]
-    },
-    {
-      "source": "/index.png",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
