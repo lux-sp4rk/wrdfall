@@ -14,13 +14,12 @@
   force = false
 
 # Cache headers for Godot Wasm (immutable, 1 year)
-# Content-Encoding: identity = no compression; Godot engine handles its own compression
 [[headers]]
   for = "/*.wasm"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
     Content-Type = "application/wasm"
-    Content-Encoding = "identity"
+    Content-Encoding = "br"
     Cross-Origin-Resource-Policy = "same-origin"
 
 # Cache headers for Godot PCK (immutable, 1 year)
@@ -28,7 +27,7 @@
   for = "/*.pck"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
-    Content-Encoding = "identity"
+    Content-Encoding = "br"
     Cross-Origin-Resource-Policy = "same-origin"
 
 # Cache headers for dictionaries (30 days)
@@ -57,12 +56,12 @@
     Pragma = "no-cache"
     Expires = "0"
 
-# Security headers (COEP/COOP removed — see #178)
-# Godot 4 uses SharedArrayBuffer internally; if needed in future,
-# add COOP: same-origin + COEP: require-corp with proper CORP headers on all cross-origin assets.
+# Security headers
 [[headers]]
   for = "/*"
   [headers.values]
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Embedder-Policy = "require-corp"
