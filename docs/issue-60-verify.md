@@ -63,14 +63,14 @@ quit_button.release_focus()
 ### Test Cases
 
 #### Test 1: Win Condition Zoom Check
-1. Open Word Loom on iPad in Safari
+1. Open Wordfall on iPad in Safari
 2. Play until you win (clear all letters or no valid words remain)
 3. Observe the Game Over modal appearing
 4. **Expected**: No zoom occurs, viewport remains at 1.0x scale
 5. **Expected**: Modal is fully visible and properly scaled
 
 #### Test 2: Lose Condition Zoom Check
-1. Open Word Loom on iPad in Safari
+1. Open Wordfall on iPad in Safari
 2. Play until the grid fills (top row has no space for new letters)
 3. Observe the Game Over modal appearing
 4. **Expected**: No zoom occurs, viewport remains at 1.0x scale

@@ -403,7 +403,7 @@ export class StatsService {
 
   getShareText(stats) {
     return [
-      'Word Loom Stats',
+      'Wordfall Stats',
       '━━━━━━━━━━━━━━━',
       `High Score: ${stats.high_score}`,
       `Longest Word: ${stats.longest_word || '—'}`,
@@ -492,7 +492,7 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick }
     <div className={`landing-container theme-${state.theme}`} style={{ opacity: state.transitioning ? 0 : 1, transition: 'opacity 500ms ease-out' }}>
       <div className="landing-content">
         <div className="hero">
-          <h1 className="logo">Word Loom</h1>
+          <h1 className="logo">Wordfall</h1>
           <p className="tagline">Word-building meets Tetris</p>
         </div>
 
@@ -679,7 +679,7 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick }
       {/* Main card */}
       <div className="main-card">
         <div className="title-section">
-          <h1 className="logo">Word Loom</h1>
+          <h1 className="logo">Wordfall</h1>
           <p className="tagline">Word-building meets Tetris</p>
           {state.highScore > 0 && (
             <p className="high-score-text">Best: {state.highScore.toLocaleString()}</p>

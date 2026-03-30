@@ -809,7 +809,7 @@ Add to CLAUDE.md under Project Structure:
 
 ```markdown
 ## Theme System
-Word Loom supports light and dark themes with persistent user preference.
+Wordfall supports light and dark themes with persistent user preference.
 
 **Theme Manager:**
 - `ThemeManager.gd` - Global autoload managing theme state

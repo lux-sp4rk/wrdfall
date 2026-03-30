@@ -1,4 +1,4 @@
-# Word Loom
+# Wordfall
 
 **Strategic word puzzles meet Tetris.** Built with Godot 4.6 (GDScript). High contrast, large tap targets. Targets iPad, phone, and browser (HTML5).
 

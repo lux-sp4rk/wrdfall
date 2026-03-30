@@ -1,4 +1,4 @@
-# Word Loom — Oracle Notes (senior-first puzzle design)
+# Wordfall — Oracle Notes (senior-first puzzle design)
 
 ## Best practices (UX + cognitive load)
 - High contrast (aim WCAG AAA-ish), large type.

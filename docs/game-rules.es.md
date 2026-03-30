@@ -1,6 +1,6 @@
-# Word Loom: Reglas del Juego
+# Wordfall: Reglas del Juego
 
-Word Loom es un juego de palabras estratégico donde la formación de palabras se encuentra con Tetris. El modo de juego principal es **Loom Drop** — un puzzle de letras que caen al estilo Tetris donde deslizas para formar palabras en una cuadrícula de 5x5.
+Wordfall es un juego de palabras estratégico donde la formación de palabras se encuentra con Tetris. El modo de juego principal es **Loom Drop** — un puzzle de letras que caen al estilo Tetris donde deslizas para formar palabras en una cuadrícula de 5x5.
 
 ## Cómo Jugar
 
@@ -162,7 +162,7 @@ Las letras no son puramente aleatorias. El sistema de caídas usa tres estrategi
 
 ## Idiomas
 
-Word Loom soporta inglés y español, intercambiables en la pantalla de Configuración.
+Wordfall soporta inglés y español, intercambiables en la pantalla de Configuración.
 
 - **Inglés:** Diccionario SOWPODS (~270k palabras)
 - **Español:** Diccionario FISE 2017 (~639k palabras), incluye la letra &#xD1;

@@ -35,9 +35,9 @@ Desktop builds are unaffected.
 ### 2. Rebuild PCK
 
 Export from Godot headless to regenerate `dist/index.pck` with all accumulated GDScript fixes:
-- `LoomDrop.gd`: exit/quit → `window.wordLoomGoHome()` on web
-- `Settings.gd`: back → `window.wordLoomGoHome()` on web
-- `Stats.gd`: back → `window.wordLoomGoHome()` on web
+- `LoomDrop.gd`: exit/quit → `window.wordfallGoHome()` on web
+- `Settings.gd`: back → `window.wordfallGoHome()` on web
+- `Stats.gd`: back → `window.wordfallGoHome()` on web
 - `GameSidebar.gd`: hide Settings/Stats on web (new)
 
 ### 3. PCK reminder — AGENTS.md callout

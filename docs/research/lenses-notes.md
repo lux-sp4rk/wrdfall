@@ -1,6 +1,6 @@
-# The Art of Game Design ("Book of Lenses") — working notes for Word Loom
+# The Art of Game Design ("Book of Lenses") — working notes for Wordfall
 
-These are **paraphrased, non-quotational** notes: a practical checklist to make Word Loom fun (especially for a senior-first, calm puzzle).
+These are **paraphrased, non-quotational** notes: a practical checklist to make Wordfall fun (especially for a senior-first, calm puzzle).
 
 ## Why this matters
 If the core interaction isn’t satisfying, monetization is irrelevant. Our job is to find the *smallest fun thing* and amplify it.
@@ -14,7 +14,7 @@ If the core interaction isn’t satisfying, monetization is irrelevant. Our job 
 - Does the player understand the goal in <30 seconds without coaching?
 - Are rules visible at the moment they matter?
 
-### 3) Lens of **Tactile Satisfaction** (Word Loom-specific)
+### 3) Lens of **Tactile Satisfaction** (Wordfall-specific)
 - Do drag/drop and “locking” a word feel *good* (sound, animation, snap)?
 - Is the "submit" moment rewarding even for a small word?
 
@@ -56,7 +56,7 @@ If the core interaction isn’t satisfying, monetization is irrelevant. Our job 
    - Would you play again tomorrow? Why/why not?
 4) End with: “If you could change one thing, what would it be?”
 
-## Word Loom “fun hypothesis” (draft)
+## Wordfall “fun hypothesis” (draft)
 - The fun is **weaving**: assembling a word feels like placing the last piece of a small puzzle.
 - The satisfaction is **locking** it in and watching the tapestry fill.
 - The calm comes from **no timers, no pressure**, and forgiving hints.

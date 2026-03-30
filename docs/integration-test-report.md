@@ -66,7 +66,7 @@ npm run serve
 
 **Verify:**
 - [ ] Page renders instantly (< 500ms)
-- [ ] "Word Loom" logo visible
+- [ ] "Wordfall" logo visible
 - [ ] "Word-building meets Tetris" tagline visible
 - [ ] Play button visible (disabled initially)
 - [ ] Language selector visible (English/Español)
@@ -209,7 +209,7 @@ Before deploying to Netlify:
 1. **Resolve path issue** (critical blocker)
 2. **Complete manual tests** (all checklist items)
 3. **Verify Supabase env vars** are set in Netlify dashboard
-4. **Test on production URL** (wordloom.netlify.app)
+4. **Test on production URL** (wordfall.netlify.app)
 
 ---
 

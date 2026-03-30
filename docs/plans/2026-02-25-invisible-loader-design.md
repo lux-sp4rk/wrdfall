@@ -51,7 +51,7 @@ Visually identical to Godot's `Home.tscn`:
 - **Decorative tiles**: 4 subtle letter-tile panels at corners (same opacity/rotation as tscn)
 - **Card**: centered `PanelContainer` equivalent — white/dark bg, `border-radius: 24px`, drop shadow
 - **Font**: Inter (self-hosted from `godot/assets/fonts/Inter/`)
-- **Title**: "Word Loom" — large, terracotta `#E07857`
+- **Title**: "Wordfall" — large, terracotta `#E07857`
 - **Tagline**: "Word-building meets Tetris" — teal `#7A9D8C`
 - **High Score**: shown if > 0 (reads from Supabase / localStorage)
 - **Play button**: terracotta, full card-width, 110px height

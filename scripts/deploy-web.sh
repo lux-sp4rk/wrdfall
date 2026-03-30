@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Unified Web Deploy for Word Loom
+# Unified Web Deploy for Wordfall
 # Orchestrates: build → cache-hash → validate → deploy
 # Fixes the three-layer caching fragmentation (browser/Netlify/Godot PCK)
 #
@@ -21,7 +21,7 @@ for arg in "$@"; do
   esac
 done
 
-echo "🚀 Word Loom Web Deploy"
+echo "🚀 Wordfall Web Deploy"
 echo "======================="
 [ "$DRY_RUN" = true ] && echo "🔍 DRY RUN MODE (no actual deploy)"
 echo ""

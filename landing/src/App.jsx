@@ -130,7 +130,7 @@ function App() {
       }
     });
 
-    window.wordLoomGoHome = () => {
+    window.wordfallGoHome = () => {
       if (godotLauncher.current) {
         godotLauncher.current.stop();
         godotLauncher.current = null;
@@ -143,7 +143,7 @@ function App() {
     };
 
     return () => { 
-      delete window.wordLoomGoHome;
+      delete window.wordfallGoHome;
       if (networkMonitor.current) {
         networkMonitor.current.destroy();
       }
@@ -242,7 +242,7 @@ function App() {
 
       // Game is loaded and ready — fire browser notification
       if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-        const notif = new Notification('Word Loom is ready! 🎮', {
+        const notif = new Notification('Wordfall is ready! 🎮', {
           body: 'Click here to start playing.',
           icon: '/apple-touch-icon.png',
           tag: 'word-loom-ready',

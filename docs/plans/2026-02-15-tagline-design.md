@@ -1,11 +1,11 @@
-# Word Loom Tagline Update — Design Doc
+# Wordfall Tagline Update — Design Doc
 
 **Date:** 2026-02-15
 **Status:** Approved
 
 ## Problem
 
-The current tagline "A calm, senior-first word puzzle game" no longer accurately represents Word Loom's gameplay experience. Recent features have transformed the game:
+The current tagline "A calm, senior-first word puzzle game" no longer accurately represents Wordfall's gameplay experience. Recent features have transformed the game:
 
 - **Combo streak system** — Consecutive 4+ letter words build score multipliers (up to 3.0×), rewarding risky play
 - **Drop speed ratchet** — Every 5 letter drops speeds up the game by 0.5s (floor at 2s), creating mounting pressure
@@ -35,12 +35,12 @@ The game has evolved into a strategic, pressure-building hybrid that's far from 
    - **Removes:** "No ads" claim (free version will have ads for monetization)
 
 2. **CLAUDE.md** (line 4)
-   - **Current:** "Word Loom is a calm, senior-first word puzzle game built with **Godot 4.6 (GDScript)**."
-   - **New:** "Word Loom is a strategic word puzzle game built with **Godot 4.6 (GDScript)** — strategic word puzzles meet Tetris."
+   - **Current:** "Wordfall is a calm, senior-first word puzzle game built with **Godot 4.6 (GDScript)**."
+   - **New:** "Wordfall is a strategic word puzzle game built with **Godot 4.6 (GDScript)** — strategic word puzzles meet Tetris."
 
 3. **docs/game-rules.md** (line 3)
-   - **Current:** "Word Loom is a calm, senior-first word puzzle game. The primary game mode is **Loom Drop**..."
-   - **New:** "Word Loom is a strategic word puzzle game where word-building meets Tetris. The primary game mode is **Loom Drop**..."
+   - **Current:** "Wordfall is a calm, senior-first word puzzle game. The primary game mode is **Loom Drop**..."
+   - **New:** "Wordfall is a strategic word puzzle game where word-building meets Tetris. The primary game mode is **Loom Drop**..."
 
 ### What Stays the Same
 
@@ -63,7 +63,7 @@ The Tetris-meets-words hybrid is unique. Most word games are either:
 - Turn-based board games (Scrabble-style)
 - Time-limited search games (word search-style)
 
-Word Loom's falling-letter + gravity mechanic creates a distinct niche that deserves a tagline that highlights it.
+Wordfall's falling-letter + gravity mechanic creates a distinct niche that deserves a tagline that highlights it.
 
 ## Success Criteria
 
