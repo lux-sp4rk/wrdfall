@@ -10,6 +10,7 @@
     "build:landing": "cd landing && npm run build",
     "build:all": "./build.sh",
     "deploy:prod": "npm run build:all && git add . && git commit -m 'Deploy web build' && git push origin main",
+    "release": "npx release-please --dry-run",
     "dev:landing": "cd landing && npm run dev",
     "build:godot": "./scripts/export-godot.sh",
     "sync": "./scripts/sync-repo.sh",
@@ -27,6 +28,7 @@
   "devDependencies": {
     "html-minifier-terser": "^7.2.0",
     "lefthook": "^2.1.4",
+    "release-please": "^17.3.0",
     "terser": "^5.37.0"
   }
 }
