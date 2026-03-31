@@ -14,6 +14,17 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: './src/test-setup.js',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'public/',       # Godot WASM / compiled artifacts — not testable source
+        'src/test-setup.js',
+        '**/*.test.{js,jsx}',
+        '**/__tests__/**',
+      ],
+    },
   },
   build: {
     outDir: '../dist',
