@@ -1,7 +1,13 @@
 {
-  "buildCommand": "",
-  "outputDirectory": ".",
-  "installCommand": "",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "projects": [
+    {
+      "path": "landing"
+    }
+  ],
+  "buildCommand": "cd landing && pnpm build",
+  "outputDirectory": "landing/dist",
+  "installCommand": "cd landing && pnpm install",
   "routes": [
     { "src": "/assets/(.*)", "dest": "/assets/$1" },
     { "src": "/index.service.worker.js", "dest": "/index.service.worker.js" },
