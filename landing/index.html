@@ -3,8 +3,83 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="description" content="Wordfall - Word-building meets Tetris" />
-    <title>Wordfall</title>
+    <meta name="description" content="Wordfall is a tactical word-building puzzle game that blends Tetris-style falling blocks with word creation. Free to play in your browser. Build words, clear lines, challenge your vocabulary." />
+    <title>Wordfall — Tactical Word-Building Puzzle Game</title>
+    <link rel="canonical" href="https://wordfall.gg/" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Wordfall — A Tactical Word-Building Puzzle Game" />
+    <meta property="og:description" content="Blend Tetris-style falling blocks with word creation. Free to play in your browser." />
+    <meta property="og:image" content="https://wordfall.gg/og-image.png" />
+    <meta property="og:url" content="https://wordfall.gg/" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Wordfall — Tactical Word-Building Puzzle Game" />
+    <meta name="twitter:description" content="Blend Tetris-style falling blocks with word creation. Free to play in your browser." />
+    <meta name="twitter:image" content="https://wordfall.gg/og-image.png" />
+
+    <!-- VideoGame Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoGame",
+      "name": "Wordfall",
+      "description": "A tactical word-building puzzle game that blends Tetris-style falling blocks with word creation. Players arrange falling letter tiles to form words and clear lines.",
+      "url": "https://wordfall.gg/",
+      "genre": "Puzzle",
+      "gamePlatform": ["Web Browser"],
+      "author": {
+        "@type": "Organization",
+        "name": "NoctuaWrkz"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "NoctuaWrkz"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/FreeOnTheWeb"
+      }
+    }
+    </script>
+
+    <!-- FAQ Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do you play Wordfall?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Falling letter tiles drop from the top. Arrange them into horizontal or vertical words. Complete a row to clear it and score points. The game ends when tiles stack to the top."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Wordfall free to play?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, Wordfall is completely free to play in any modern web browser. No download or account required."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What platforms does Wordfall run on?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Wordfall runs in any desktop or mobile web browser with no install required. Built with Godot Engine."
+          }
+        }
+      ]
+    }
+    </script>
     <style>
       /* Critical CSS - inline for instant render */
       * {
@@ -31,6 +106,9 @@
     <meta name="theme-color" content="#242933">
   </head>
   <body>
+    <!-- SEO H1: visually hidden, visible to crawlers and screen readers -->
+    <style>#seo-h1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}</style>
+    <h1 id="seo-h1">Wordfall — A Tactical Word-Building Puzzle Game</h1>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
