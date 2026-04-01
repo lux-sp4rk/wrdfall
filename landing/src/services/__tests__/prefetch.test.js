@@ -2,29 +2,33 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { PrefetchManager } from '../prefetch.js';
 
 describe('PrefetchManager', () => {
+  let originalEnv;
+
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
-    // Reset env for each test
-    vi.stubEnv('VITE_GODOT_WASM', undefined);
-    vi.stubEnv('VITE_GODOT_PCK', undefined);
-    vi.stubEnv('VITE_GODOT_WASM_SIZE_MB', undefined);
-    vi.stubEnv('VITE_GODOT_PCK_SIZE_MB', undefined);
+    // Store original env
+    originalEnv = { ...import.meta.env };
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
-    vi.unstubAllEnvs();
+    // Restore original env
+    Object.assign(import.meta.env, originalEnv);
   });
 
   it('should use default filenames when env vars are not set', () => {
+    // Clear env vars
+    delete import.meta.env.VITE_GODOT_WASM_SIZE_MB;
+    delete import.meta.env.VITE_GODOT_PCK_SIZE_MB;
+    
     const manager = new PrefetchManager(() => {});
     expect(manager.downloads.wasm.size).toBe(33.7);
     expect(manager.downloads.pck.size).toBe(50.3);
   });
 
   it('should use filenames from env vars when set', async () => {
-    vi.stubEnv('VITE_GODOT_WASM', 'index.12345');
-    vi.stubEnv('VITE_GODOT_PCK', 'index.12345.pck');
+    import.meta.env.VITE_GODOT_WASM = 'index.12345';
+    import.meta.env.VITE_GODOT_PCK = 'index.12345.pck';
     
     const manager = new PrefetchManager(() => {});
     
@@ -50,8 +54,8 @@ describe('PrefetchManager', () => {
   });
 
   it('should use sizes from env vars when set', () => {
-    vi.stubEnv('VITE_GODOT_WASM_SIZE_MB', '40.5');
-    vi.stubEnv('VITE_GODOT_PCK_SIZE_MB', '60.2');
+    import.meta.env.VITE_GODOT_WASM_SIZE_MB = '40.5';
+    import.meta.env.VITE_GODOT_PCK_SIZE_MB = '60.2';
     
     const manager = new PrefetchManager(() => {});
     expect(manager.downloads.wasm.size).toBe(40.5);
