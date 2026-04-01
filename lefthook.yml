@@ -12,7 +12,6 @@ pre-push:
         fi
 
 post-commit:
-  scripts:
+  commands:
     rescue_main_commits:
-      runner: bash
-      script: .lefthook/rescue-main-commits.sh
+      run: bash .lefthook/post-commit/rescue_main_commits
