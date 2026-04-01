@@ -10,3 +10,9 @@ pre-push:
           echo "Direct push to main is not allowed. Use a feature branch."
           exit 1
         fi
+
+post-commit:
+  scripts:
+    rescue_main_commits:
+      runner: bash
+      script: .lefthook/rescue-main-commits.sh
