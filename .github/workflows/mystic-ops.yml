@@ -1,0 +1,30 @@
+name: Mystic Ops
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  mystic-ops:
+    runs-on: ubuntu-latest
+    name: 🛡️ Mystic Ops
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Summon Mystic Ops
+        uses: lux-sp4rk/mystic-ops@main
+        with:
+          arcee-api-key: ${{ secrets.ARCEE_API_KEY }}
+
+          # ── Faye: Test + Coverage ──
+          faye-model: "trinity-large-preview"
+          faye-passes: "test,coverage"
+          faye-coverage-threshold: 80
+          faye-test-command: "cd landing && pnpm vitest run --passWithNoTests"
+          faye-coverage-command: "cd landing && pnpm vitest run --coverage --passWithNoTests"
+
+          # ── D33: Code Review ──
+          d33-model: "trinity-mini"
+          d33-passes: "logic,security,judge"
+          d33-severity-threshold: "warning"
+          d33-max-files: 20

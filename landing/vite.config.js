@@ -19,10 +19,10 @@ export default defineConfig({
       reporter: ['text', 'html', 'json'],
       exclude: [
         'node_modules/',
+        'public/',       // Godot WASM / compiled artifacts — not testable source
         'src/test-setup.js',
         '**/*.test.{js,jsx}',
         '**/__tests__/**',
-        'public/**',
         'src/main.jsx',
       ],
     },

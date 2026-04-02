@@ -61,7 +61,8 @@ func open() -> void:
 	visible = true
 	sidebar_opened.emit()
 
-	# Enable overlay input blocking
+	# Block all input to sidebar so clicks don't pass through to game buttons behind it
+	mouse_filter = Control.MOUSE_FILTER_STOP
 	background_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 
 	# Kill previous tween if still running
@@ -82,7 +83,8 @@ func close() -> void:
 	is_open = false
 	sidebar_closed.emit()
 
-	# Disable overlay input blocking immediately
+	# Stop blocking input when sidebar is hidden
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	background_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	# Kill previous tween if still running
