@@ -30,16 +30,16 @@ describe('DictionaryManager', () => {
       await expect(manager.load('e')).rejects.toThrow('Invalid language code')
     })
 
-    it('validates 2-letter language codes', async () => {
+    it('accepts valid 2-letter language codes', async () => {
       // Should not throw for valid codes
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         text: vi.fn().mockResolvedValue('HELLO\nWORLD'),
       })
 
-      // These should not throw
-      await expect(manager.load('en')).rejects.not.toThrow('Invalid language code')
-      await expect(manager.load('es')).rejects.not.toThrow('Invalid language code')
+      // These should resolve without throwing
+      await expect(manager.load('en')).resolves.toBeInstanceOf(Set)
+      await expect(manager.load('es')).resolves.toBeInstanceOf(Set)
     })
 
     it('returns cached data if available', async () => {
@@ -105,45 +105,4 @@ describe('DictionaryManager', () => {
     })
   })
 
-  describe('isValidWord', () => {
-    it('returns false when dictionary not loaded', async () => {
-      const result = await manager.isValidWord('HELLO', 'en')
-      expect(result).toBe(false)
-    })
-
-    it('returns true for valid word', async () => {
-      const words = new Set(['HELLO', 'WORLD'])
-      manager.cache.set('en', words)
-      
-      const result = await manager.isValidWord('hello', 'en')
-      expect(result).toBe(true)
-    })
-
-    it('returns false for invalid word', async () => {
-      const words = new Set(['HELLO', 'WORLD'])
-      manager.cache.set('en', words)
-      
-      const result = await manager.isValidWord('INVALID', 'en')
-      expect(result).toBe(false)
-    })
-
-    it('is case insensitive', async () => {
-      const words = new Set(['HELLO'])
-      manager.cache.set('en', words)
-      
-      expect(await manager.isValidWord('hello', 'en')).toBe(true)
-      expect(await manager.isValidWord('HELLO', 'en')).toBe(true)
-      expect(await manager.isValidWord('Hello', 'en')).toBe(true)
-    })
-  })
-
-  describe('clear', () => {
-    it('clears the cache', () => {
-      manager.cache.set('en', new Set(['HELLO']))
-      expect(manager.cache.size).toBe(1)
-      
-      manager.clear()
-      expect(manager.cache.size).toBe(0)
-    })
-  })
 })

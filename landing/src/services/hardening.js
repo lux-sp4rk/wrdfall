@@ -9,7 +9,7 @@
 export function sanitizeText(text) {
   if (!text || typeof text !== 'string') return ''
   return text
-    .replace(/[<>]/g, '') // Remove potential HTML tags
+    .replace(/<[^>]*>/g, '') // Remove HTML tags, keep inner content
     .trim()
     .slice(0, 1000) // Limit length
 }
