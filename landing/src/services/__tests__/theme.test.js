@@ -1,108 +1,138 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { detectSystemTheme, getTheme, setTheme } from '../theme.js';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { theme, setTheme, getTheme, detectSystemTheme } from '../theme.js'
 
-describe('theme', () => {
-  let originalMatchMedia;
-
+describe('Theme Module', () => {
   beforeEach(() => {
-    localStorage.clear();
-    // Store original matchMedia
-    originalMatchMedia = window.matchMedia;
-  });
+    localStorage.clear()
+    document.documentElement.classList.remove('dark')
+  })
 
   afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  describe('detectSystemTheme', () => {
-    it('detects light mode preference', () => {
-      window.matchMedia = vi.fn().mockImplementation((query) => ({
-        matches: query === '(prefers-color-scheme: light)',
-      }));
-      expect(detectSystemTheme()).toBe('light');
-    });
-
-    it('defaults to dark when no light preference', () => {
-      window.matchMedia = vi.fn().mockImplementation(() => ({
-        matches: false,
-      }));
-      expect(detectSystemTheme()).toBe('dark');
-    });
-
-    it('defaults to dark when matchMedia not available', () => {
-      window.matchMedia = undefined;
-      expect(detectSystemTheme()).toBe('dark');
-    });
-
-    it('handles matchMedia errors gracefully', () => {
-      window.matchMedia = vi.fn().mockImplementation(() => {
-        throw new Error('matchMedia error');
-      });
-      expect(detectSystemTheme()).toBe('dark');
-    });
-  });
+    localStorage.clear()
+    document.documentElement.classList.remove('dark')
+    vi.restoreAllMocks()
+  })
 
   describe('getTheme', () => {
     it('returns saved theme from localStorage', () => {
-      localStorage.setItem('word-loom-theme', 'light');
-      expect(getTheme()).toBe('light');
-    });
+      localStorage.setItem('word-loom-theme', 'dark')
+      expect(getTheme()).toBe('dark')
+    })
 
-    it('detects system theme on first visit', () => {
-      window.matchMedia = vi.fn().mockImplementation((query) => ({
-        matches: query === '(prefers-color-scheme: light)',
-      }));
+    it('detects system preference on first visit', () => {
+      // Mock matchMedia for light mode
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: vi.fn().mockImplementation(query => ({
+          matches: query === '(prefers-color-scheme: light)',
+          media: query,
+        })),
+      })
       
-      expect(getTheme()).toBe('light');
-      expect(localStorage.getItem('word-loom-theme')).toBe('light');
-    });
+      expect(getTheme()).toBe('light')
+    })
 
-    it('ignores invalid saved themes', () => {
-      localStorage.setItem('word-loom-theme', 'invalid-theme');
-      window.matchMedia = vi.fn().mockImplementation(() => ({
-        matches: false,
-      }));
+    it('defaults to dark when system preference unavailable', () => {
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: undefined,
+      })
       
-      expect(getTheme()).toBe('dark');
-    });
+      expect(getTheme()).toBe('dark')
+    })
 
     it('handles localStorage errors gracefully', () => {
-      // Make localStorage.getItem throw
-      const originalGetItem = localStorage.getItem;
-      localStorage.getItem = () => {
-        throw new Error('localStorage error');
-      };
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+        throw new Error('Storage access denied')
+      })
       
-      window.matchMedia = vi.fn().mockImplementation(() => ({
-        matches: false,
-      }));
+      expect(getTheme()).toBe('dark')
+      expect(spy).toHaveBeenCalled()
       
-      expect(getTheme()).toBe('dark');
-      
-      localStorage.getItem = originalGetItem;
-    });
-  });
+      spy.mockRestore()
+    })
+  })
 
   describe('setTheme', () => {
-    it('saves valid theme to localStorage', () => {
-      setTheme('light');
-      expect(localStorage.getItem('word-loom-theme')).toBe('light');
-      
-      setTheme('dark');
-      expect(localStorage.getItem('word-loom-theme')).toBe('dark');
-    });
+    it('sets light theme correctly', () => {
+      setTheme('light')
+      expect(localStorage.getItem('word-loom-theme')).toBe('light')
+    })
 
-    it('defaults to dark for invalid themes', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      setTheme('invalid');
-      expect(localStorage.getItem('word-loom-theme')).toBe('dark');
-      expect(consoleSpy).toHaveBeenCalledWith('Invalid theme: invalid, defaulting to dark');
-    });
+    it('sets dark theme correctly', () => {
+      setTheme('dark')
+      expect(localStorage.getItem('word-loom-theme')).toBe('dark')
+    })
+
+    it('defaults to dark for invalid theme values', () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      setTheme('invalid')
+      expect(localStorage.getItem('word-loom-theme')).toBe('dark')
+      expect(spy).toHaveBeenCalledWith('Invalid theme: invalid, defaulting to dark')
+      spy.mockRestore()
+    })
 
     it('handles localStorage errors gracefully', () => {
-      // Test that setTheme is callable
-      // Full error handling is tested via integration tests
-      expect(() => setTheme('light')).not.toThrow();
-    });
-  });
-});
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('Storage full')
+      })
+      
+      setTheme('dark')
+      expect(spy).toHaveBeenCalled()
+      
+      spy.mockRestore()
+    })
+  })
+
+  describe('detectSystemTheme', () => {
+    it('returns light when system prefers light mode', () => {
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: vi.fn().mockImplementation(query => ({
+          matches: query === '(prefers-color-scheme: light)',
+          media: query,
+        })),
+      })
+      
+      expect(detectSystemTheme()).toBe('light')
+    })
+
+    it('returns dark when system prefers dark mode', () => {
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: vi.fn().mockImplementation(query => ({
+          matches: false,
+          media: query,
+        })),
+      })
+      
+      expect(detectSystemTheme()).toBe('dark')
+    })
+
+    it('returns dark when matchMedia is unavailable', () => {
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: undefined,
+      })
+      
+      expect(detectSystemTheme()).toBe('dark')
+    })
+
+    it('handles matchMedia errors gracefully', () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: vi.fn().mockImplementation(() => {
+          throw new Error('matchMedia error')
+        }),
+      })
+      
+      expect(detectSystemTheme()).toBe('dark')
+      expect(spy).toHaveBeenCalled()
+      
+      spy.mockRestore()
+    })
+  })
+})

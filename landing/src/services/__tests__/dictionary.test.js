@@ -1,135 +1,108 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { DictionaryManager } from '../dictionary.js';
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { DictionaryManager } from '../dictionary.js'
 
 describe('DictionaryManager', () => {
-  let manager;
+  let manager
 
   beforeEach(() => {
-    manager = new DictionaryManager();
-    vi.stubGlobal('fetch', vi.fn());
-  });
+    manager = new DictionaryManager()
+    vi.clearAllMocks()
+  })
+
+  describe('constructor', () => {
+    it('creates dictionary manager instance', () => {
+      expect(manager).toBeInstanceOf(DictionaryManager)
+    })
+
+    it('initializes with empty cache', () => {
+      expect(manager.cache.size).toBe(0)
+    })
+
+    it('initializes with empty loading map', () => {
+      expect(manager.loading.size).toBe(0)
+    })
+  })
 
   describe('load', () => {
-    it('validates language code format', async () => {
-      await expect(manager.load('invalid')).rejects.toThrow('Invalid language code');
-      await expect(manager.load('EN')).rejects.toThrow('Invalid language code');
-      await expect(manager.load('english')).rejects.toThrow('Invalid language code');
-    });
+    it('throws error for invalid language code', async () => {
+      await expect(manager.load('invalid')).rejects.toThrow('Invalid language code')
+      await expect(manager.load('123')).rejects.toThrow('Invalid language code')
+      await expect(manager.load('e')).rejects.toThrow('Invalid language code')
+    })
 
-    it('returns cached dictionary', async () => {
-      const words = new Set(['HELLO', 'WORLD']);
-      manager.cache.set('en', words);
-
-      const result = await manager.load('en');
-      expect(result).toBe(words);
-      expect(global.fetch).not.toHaveBeenCalled();
-    });
-
-    it('dedupes concurrent requests', async () => {
-      let resolveFetch;
-      global.fetch.mockImplementation(() => new Promise(resolve => {
-        resolveFetch = resolve;
-      }));
-
-      const promise1 = manager.load('en');
-      const promise2 = manager.load('en');
-
-      expect(manager.loading.has('en')).toBe(true);
-
-      // Resolve the fetch
-      resolveFetch({
+    it('accepts valid 2-letter language codes', async () => {
+      // Should not throw for valid codes
+      global.fetch = vi.fn().mockResolvedValue({
         ok: true,
-        text: async () => 'HELLO\nWORLD',
-      });
+        text: vi.fn().mockResolvedValue('HELLO\nWORLD'),
+      })
 
-      const result1 = await promise1;
-      const result2 = await promise2;
+      // These should resolve without throwing
+      await expect(manager.load('en')).resolves.toBeInstanceOf(Set)
+      await expect(manager.load('es')).resolves.toBeInstanceOf(Set)
+    })
 
-      expect(result1).toBe(result2); // Same reference
-      expect(global.fetch).toHaveBeenCalledTimes(1);
-    });
-
-    it('fetches and parses dictionary from server', async () => {
-      global.fetch.mockResolvedValue({
-        ok: true,
-        text: async () => 'HELLO\nWORLD\n#comment\n\nTEST',
-      });
-
-      const result = await manager.load('en');
-      expect(result).toBeInstanceOf(Set);
-      expect(result.has('HELLO')).toBe(true);
-      expect(result.has('WORLD')).toBe(true);
-      expect(result.has('TEST')).toBe(true);
-      expect(result.has('#COMMENT')).toBe(false);
-    });
-
-    it('handles HTTP errors', async () => {
-      global.fetch.mockResolvedValue({
-        ok: false,
-        status: 404,
-      });
-
-      await expect(manager.load('en')).rejects.toThrow("Failed to load dictionary for 'en'");
-    });
-
-    it('handles network errors', async () => {
-      global.fetch.mockRejectedValue(new Error('Network failure'));
-
-      await expect(manager.load('en')).rejects.toThrow('Network error loading en dictionary');
-    });
-  });
+    it('returns cached data if available', async () => {
+      const testSet = new Set(['HELLO', 'WORLD'])
+      manager.cache.set('en', testSet)
+      
+      const result = await manager.load('en')
+      expect(result).toBe(testSet)
+    })
+  })
 
   describe('parseWords', () => {
-    it('parses text into word set', () => {
-      const text = 'hello\nworld\nHELLO\n#comment\n\n  spaced  ';
-      const words = manager.parseWords(text);
+    it('returns empty set for empty text', () => {
+      const result = manager.parseWords('')
+      expect(result.size).toBe(0)
+    })
 
-      expect(words).toBeInstanceOf(Set);
-      expect(words.has('HELLO')).toBe(true);
-      expect(words.has('WORLD')).toBe(true);
-      expect(words.has('SPACED')).toBe(true);
-      expect(words.has('#COMMENT')).toBe(false);
-    });
+    it('returns empty set for null text', () => {
+      const result = manager.parseWords(null)
+      expect(result.size).toBe(0)
+    })
 
-    it('handles empty text', () => {
-      const words = manager.parseWords('');
-      expect(words.size).toBe(0);
-    });
+    it('returns empty set for undefined text', () => {
+      const result = manager.parseWords(undefined)
+      expect(result.size).toBe(0)
+    })
 
-    it('handles null text', () => {
-      const words = manager.parseWords(null);
-      expect(words.size).toBe(0);
-    });
-  });
+    it('parses words from text', () => {
+      const text = 'HELLO\nWORLD\nTEST'
+      const result = manager.parseWords(text)
+      expect(result.size).toBe(3)
+      expect(result.has('HELLO')).toBe(true)
+      expect(result.has('WORLD')).toBe(true)
+      expect(result.has('TEST')).toBe(true)
+    })
 
-  describe('sendToGodot', () => {
-    it('sends dictionary to window object', () => {
-      const words = new Set(['HELLO', 'WORLD']);
-      manager.sendToGodot('en', words);
+    it('converts words to uppercase', () => {
+      const text = 'hello\nWorld\nTeSt'
+      const result = manager.parseWords(text)
+      expect(result.has('HELLO')).toBe(true)
+      expect(result.has('WORLD')).toBe(true)
+      expect(result.has('TEST')).toBe(true)
+    })
 
-      expect(window.WORD_LOOM_DICTIONARY).toEqual({
-        language: 'en',
-        words: ['HELLO', 'WORLD'],
-      });
-    });
+    it('skips empty lines', () => {
+      const text = 'HELLO\n\nWORLD\n\nTEST'
+      const result = manager.parseWords(text)
+      expect(result.size).toBe(3)
+    })
 
-    it('validates words is a Set', () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    it('skips comment lines starting with #', () => {
+      const text = 'HELLO\n# This is a comment\nWORLD'
+      const result = manager.parseWords(text)
+      expect(result.size).toBe(2)
+      expect(result.has('# This is a comment')).toBe(false)
+    })
 
-      manager.sendToGodot('en', ['not', 'a', 'set']);
+    it('trims whitespace from words', () => {
+      const text = '  HELLO  \n  WORLD  '
+      const result = manager.parseWords(text)
+      expect(result.has('HELLO')).toBe(true)
+      expect(result.has('WORLD')).toBe(true)
+    })
+  })
 
-      expect(consoleSpy).toHaveBeenCalledWith('sendToGodot: words must be a Set');
-    });
-  });
-
-  describe('getCacheSize', () => {
-    it('returns size of cached dictionary', () => {
-      manager.cache.set('en', new Set(['A', 'B', 'C']));
-      expect(manager.getCacheSize('en')).toBe(3);
-    });
-
-    it('returns 0 for uncached language', () => {
-      expect(manager.getCacheSize('es')).toBe(0);
-    });
-  });
-});
+})

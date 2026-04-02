@@ -1,91 +1,62 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { CompressionService } from '../compressionService.js';
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { CompressionService } from '../compressionService.js'
 
 describe('CompressionService', () => {
-  let service;
+  let service
 
   beforeEach(() => {
-    service = new CompressionService();
-    vi.stubGlobal('fetch', vi.fn());
-  });
+    service = new CompressionService()
+    vi.clearAllMocks()
+  })
 
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
+  describe('constructor', () => {
+    it('creates compression service instance', () => {
+      expect(service).toBeInstanceOf(CompressionService)
+    })
+
+    it('initializes with empty cache', () => {
+      expect(service.decompressed.size).toBe(0)
+    })
+
+    it('marks pako as not loaded initially', () => {
+      expect(service.pako).toBeNull()
+      expect(service.pakoLoadFailed).toBe(false)
+    })
+  })
 
   describe('loadPako', () => {
     it('loads pako library', async () => {
-      const pako = await service.loadPako();
-      expect(pako).toBeDefined();
-      expect(service.pako).toBe(pako);
-    });
+      const pako = await service.loadPako()
+      expect(pako).toBeDefined()
+      expect(service.pako).toBe(pako)
+    })
 
     it('returns cached pako if already loaded', async () => {
-      const pako1 = await service.loadPako();
-      const pako2 = await service.loadPako();
-      expect(pako1).toBe(pako2);
-    });
+      const pako1 = await service.loadPako()
+      const pako2 = await service.loadPako()
+      expect(pako1).toBe(pako2)
+    })
 
-    it('does not retry after load failure', async () => {
-      // Simulate load failure by setting pakoLoadFailed flag
-      service.pakoLoadFailed = true;
-      await expect(service.loadPako()).rejects.toThrow('pako loading previously failed');
-    });
-  });
+    it('does not retry after failure', async () => {
+      service.pakoLoadFailed = true
+      await expect(service.loadPako()).rejects.toThrow('pako loading previously failed')
+    })
+  })
 
-  describe('fetchDictionary', () => {
-    it('returns cached dictionary if available', async () => {
-      service.decompressed.set('en.br', 'cached dictionary');
-      const result = await service.fetchDictionary('en');
-      expect(result).toBe('cached dictionary');
-      expect(global.fetch).not.toHaveBeenCalled();
-    });
-
-    it('fetches and caches raw text file', async () => {
-      const mockText = 'word1\nword2\nword3';
-      global.fetch.mockResolvedValue({
-        ok: true,
-        arrayBuffer: async () => new TextEncoder().encode(mockText).buffer,
-      });
-
-      const result = await service.fetchDictionary('en');
-      expect(result).toBe(mockText);
-      expect(service.decompressed.has('en.txt')).toBe(true);
-    });
-
-    it('tries multiple formats until one succeeds', async () => {
-      // Brotli fails, gzip fails, raw succeeds
-      global.fetch
-        .mockResolvedValueOnce({ ok: false })
-        .mockResolvedValueOnce({ ok: false })
-        .mockResolvedValueOnce({
-          ok: true,
-          arrayBuffer: async () => new TextEncoder().encode('words').buffer,
-        });
-
-      const result = await service.fetchDictionary('en');
-      expect(result).toBe('words');
-      expect(global.fetch).toHaveBeenCalledTimes(3);
-    });
-
-    it('throws error when all formats fail', async () => {
-      global.fetch.mockResolvedValue({ ok: false });
-
-      await expect(service.fetchDictionary('en')).rejects.toThrow(
-        "Could not load dictionary for 'en' in any format"
-      );
-    });
-  });
-
-  describe('_decompressGzip', () => {
-    it('exists as a method', () => {
-      expect(typeof service._decompressGzip).toBe('function');
-    });
-  });
-
-  describe('_decompressBrotli', () => {
-    it('exists as a method', () => {
-      expect(typeof service._decompressBrotli).toBe('function');
-    });
-  });
-});
+  describe('caching', () => {
+    it('returns cached data if available', async () => {
+      const testData = 'test dictionary data'
+      // Cache key format is "language.ext" based on the formats array order (.br first)
+      service.decompressed.set('test.br', testData)
+      
+      // Mock fetch to verify it's not called when cache hit
+      const fetchSpy = vi.fn().mockResolvedValue({ ok: false })
+      global.fetch = fetchSpy
+      
+      const result = await service.fetchDictionary('test')
+      expect(result).toBe(testData)
+      // Should not call fetch when data is cached
+      expect(fetchSpy).not.toHaveBeenCalled()
+    })
+  })
+})

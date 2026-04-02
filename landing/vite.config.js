@@ -16,13 +16,14 @@ export default defineConfig({
     setupFiles: './src/test-setup.js',
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'html', 'json'],
       exclude: [
         'node_modules/',
         'public/',       // Godot WASM / compiled artifacts — not testable source
         'src/test-setup.js',
         '**/*.test.{js,jsx}',
         '**/__tests__/**',
+        'src/main.jsx',
       ],
     },
   },

@@ -1,0 +1,83 @@
+name: Test Coverage
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  test-landing:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./landing
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: landing/package-lock.json
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run tests with coverage
+        run: npm test -- --coverage --reporter=verbose
+      
+      - name: Check coverage threshold
+        run: |
+          COVERAGE=$(cat coverage/coverage-summary.json | jq '.total.lines.pct' || echo "0")
+          echo "Current coverage: ${COVERAGE}%"
+          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            echo "❌ Coverage ${COVERAGE}% is below threshold of 80%"
+            exit 1
+          fi
+          echo "✅ Coverage ${COVERAGE}% meets threshold of 80%"
+      
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: landing-coverage
+          path: landing/coverage/
+
+  test-godot:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      
+      - name: Cache Godot
+        uses: actions/cache@v4
+        with:
+          path: |
+            ./godot_bin
+            ~/.local/share/godot/export_templates/4.6.stable
+          key: ${{ runner.os }}-godot-4.6-stable
+      
+      - name: Install Godot
+        run: |
+          if [ ! -f ./godot_bin/godot ]; then
+            mkdir -p ./godot_bin
+            wget -q -O ./godot_bin/godot.zip https://downloads.tuxfamily.org/godotengine/4.6/Godot_v4.6-stable_linux.x86_64.zip
+            unzip -q ./godot_bin/godot.zip -d ./godot_bin
+            chmod +x ./godot_bin/Godot_v4.6-stable_linux.x86_64
+            mv ./godot_bin/Godot_v4.6-stable_linux.x86_64 ./godot_bin/godot
+          fi
+      
+      - name: Run GUT tests
+        run: |
+          cd godot
+          ../godot_bin/godot --headless --script addons/gut/gut_cmdln.gd -gdir=res://tests -ginclude_subdirs -gexit
+      
+      - name: Check GUT test results
+        run: |
+          # GUT returns exit code based on test results
+          echo "GUT tests completed"
