@@ -393,6 +393,10 @@ func _resize_grid() -> void:
 	if cell_height < 16.0:
 		cell_height = 16.0
 
+	# Hard clamp to prevent drift over long sessions (defensive Fix #230)
+	cell_width = clamp(cell_width, 40.0, 120.0)
+	cell_height = clamp(cell_height, 40.0, 120.0)
+
 	# In portrait mode, limit aspect ratio to prevent overly tall cells (max 1.6:1)
 	if not is_landscape and cell_height > cell_width * 1.6:
 		cell_height = cell_width * 1.6
@@ -409,6 +413,18 @@ func _resize_grid() -> void:
 			btn.add_theme_font_size_override("font_size", font_size)
 			if not point_labels.is_empty():
 				point_labels[row][col].add_theme_font_size_override("font_size", pt_font_size)
+	_verify_board_centered()
+
+
+func _verify_board_centered() -> void:
+	# Defensive: verify board panel stays centered in GridCenter after resize
+	# Prevents cumulative drift from rounding errors over long sessions (Fix #230)
+	if board_panel == null or grid_center == null:
+		return
+	var expected_pos := (grid_center.size - board_panel.size) / 2.0
+	var drift := board_panel.position - expected_pos
+	if drift.length() > 2.0:  # Snap if drifted more than 2px
+		board_panel.position = expected_pos
 
 
 func _seed_words() -> void:
