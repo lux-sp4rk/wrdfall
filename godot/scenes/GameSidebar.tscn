@@ -3,7 +3,6 @@
 [ext_resource type="Script" path="res://scripts/GameSidebar.gd" id="1"]
 
 [node name="GameSidebar" type="Panel"]
-custom_minimum_size = Vector2(300, 1280)
 anchors_preset = 9
 anchor_bottom = 1.0
 offset_right = 300.0
@@ -17,11 +16,11 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 300.0
-offset_right = 420.0
+offset_right = 0.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 0
-color = Color(0, 0, 0, 0.3)
+color = Color(0, 0, 0, 0.5)
 
 [node name="ButtonContainer" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
@@ -36,7 +35,7 @@ offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 16
-alignment = 1
+alignment = 0
 
 [node name="CloseButton" type="Button" parent="ButtonContainer"]
 unique_name_in_owner = true
