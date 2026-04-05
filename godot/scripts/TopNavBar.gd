@@ -21,6 +21,9 @@ var active_word_score_tween: Tween = null
 func _ready() -> void:
 	burger_button.pressed.connect(_on_burger_pressed)
 	exit_button.pressed.connect(_on_exit_pressed)
+	# Exit is now in the sidebar on web — hide from top nav
+	if OS.has_feature("web"):
+		exit_button.hide()
 	_update_high_score_display()
 	_apply_theme()
 	ThemeManager.theme_changed.connect(_apply_theme)
