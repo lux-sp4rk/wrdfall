@@ -1,7 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "outputDirectory": "dist",
-  "installCommand": "npm install --ignore-scripts && cd landing && npm install",
   "routes": [
     { "src": "/assets/(.*)", "dest": "/assets/$1" },
     { "src": "/index.service.worker.js", "dest": "/index.service.worker.js" },
