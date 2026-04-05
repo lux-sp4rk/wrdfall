@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - fix/exit-button-sidebar
   pull_request:
 
 jobs:
