@@ -11,7 +11,7 @@ var active_tween: Tween = null
 
 @onready var background_overlay: ColorRect = %BackgroundOverlay
 @onready var button_container: VBoxContainer = %ButtonContainer
-@onready var close_button: Button = %CloseButton
+@onready var exit_button: Button = %ExitButton
 @onready var settings_button: Button = %SettingsButton
 @onready var stats_button: Button = %StatsButton
 @onready var rules_button: Button = %RulesButton
@@ -27,7 +27,7 @@ func _ready() -> void:
 	_apply_theme()
 
 	# Connect button signals
-	close_button.pressed.connect(_on_close_pressed)
+	exit_button.pressed.connect(_on_exit_pressed)
 	settings_button.pressed.connect(_on_settings_pressed)
 	stats_button.pressed.connect(_on_stats_pressed)
 	rules_button.pressed.connect(_on_rules_pressed)
@@ -107,8 +107,13 @@ func _on_overlay_input(event: InputEvent) -> void:
 		close()
 
 
-func _on_close_pressed() -> void:
-	close()
+func _on_exit_pressed() -> void:
+	sidebar_closed.emit()
+	# Navigate back to React shell
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.wordfallGoHome && window.wordfallGoHome()")
+	else:
+		get_tree().change_scene_to_file("res://scenes/Home.tscn")
 
 
 func _on_settings_pressed() -> void:
@@ -150,7 +155,7 @@ func _apply_theme() -> void:
 		background_overlay.color = Color(overlay_color.r, overlay_color.g, overlay_color.b, 0.5)
 
 	# Style all buttons
-	var buttons = [close_button, settings_button, stats_button, rules_button, help_button]
+	var buttons = [exit_button, settings_button, stats_button, rules_button, help_button]
 	for button in buttons:
 		if button:
 			# Normal state
