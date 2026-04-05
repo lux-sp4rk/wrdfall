@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "project": "wordfall",
   "outputDirectory": "dist",
   "routes": [
     { "src": "/assets/(.*)", "dest": "/assets/$1" },
