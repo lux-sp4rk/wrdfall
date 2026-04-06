@@ -1426,6 +1426,7 @@ func _update_draw_more_button() -> void:
 
 func _setup_icon_button(btn: Button, icon_text: String, label_text: String) -> void:
 	btn.text = ""
+	btn.clip_contents = true  # Fix #221: prevent label bleeding
 	if btn.has_theme_font_size_override("font_size"):
 		btn.remove_theme_font_size_override("font_size")
 
@@ -1439,16 +1440,20 @@ func _setup_icon_button(btn: Button, icon_text: String, label_text: String) -> v
 	var icon_label := Label.new()
 	icon_label.name = "Icon"
 	icon_label.text = icon_text
-	icon_label.add_theme_font_size_override("font_size", 36)
+	icon_label.add_theme_font_size_override("font_size", 28)  # Fix #221: reduced from 36
 	icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	icon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	icon_label.size_flags_vertical = Control.SIZE_EXPAND_FILL  # Fix #221: fill available space
 	icon_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(icon_label)
 
 	var text_label := Label.new()
 	text_label.name = "Text"
 	text_label.text = label_text
-	text_label.add_theme_font_size_override("font_size", 14)
+	text_label.add_theme_font_size_override("font_size", 12)  # Fix #221: reduced from 14
 	text_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	text_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL  # Fix #221: fill available space
 	text_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(text_label)
 
