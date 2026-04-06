@@ -12,25 +12,21 @@ Wordfall: Tetris-meets-Scrabble built with **Godot 4.6 (GDScript)**. Strategic w
 | Web | React + Vite | [landing/package.json](landing/package.json) |
 
 **Non-obvious:**
-- **PCK Footgun**: Re-export required for any `.gd` changes to be seen on web. [ARCHITECTURE.md:43](ARCHITECTURE.md:43)
+- **Automated Builds**: Godot web exports are built automatically in GitHub Actions for PRs and main branch pushes. No manual export needed.
 - **LFS Tracking**: Large binaries (`.wasm`, `.pck`) are in Git LFS.
 
 ## Essential Commands
 
 ```bash
-# Export Godot to landing/public/
-npm run build:godot
-
-# Full build (Godot + React)
-./build.sh
-
 # Run local web server
 npm run serve
+
+# Run tests
+cd godot && ./run_tests.sh
 ```
 
 ## Git Workflow
 - **PR-first**: Never push to main.
-- **Commit Assets**: Re-exported `.wasm` and `.pck` files MUST be committed for deploys.
 
 ## Key Patterns
 
