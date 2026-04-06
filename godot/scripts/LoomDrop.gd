@@ -80,6 +80,9 @@ var _rescue_letters_remaining: Array = []
 
 
 func _ready() -> void:
+	# Set viewport clear color to match background - prevents black flash on load
+	RenderingServer.set_default_clear_color(ThemeManager.get_color("background"))
+
 	# Load difficulty-based settings
 	SHAKE_COST = GameSettings.get_power_up_cost("shake")
 	SWAP_COST = GameSettings.get_power_up_cost("swap")
