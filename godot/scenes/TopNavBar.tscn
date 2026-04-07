@@ -35,6 +35,8 @@ shadow_offset = Vector2(0, 1)
 [node name="TopNavBar" type="HBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
 theme_override_constants/separation = 12
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_right = 8
 script = ExtResource("1")
 
 [node name="BurgerMenuButton" type="Button" parent="."]
