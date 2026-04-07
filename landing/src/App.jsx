@@ -45,9 +45,6 @@ function App() {
   const [showTutorialPrompt, setShowTutorialPrompt] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [errorDetails, setErrorDetails] = useState(null);
-  const [notificationPermission, setNotificationPermission] = useState(
-    typeof Notification !== 'undefined' ? Notification.permission : 'denied'
-  );
 
   const landingRef = useRef(null);
   const storageManager = useRef(new StorageManager(supabase));
@@ -60,10 +57,6 @@ function App() {
 
   // Extracted launch sequence — called after prefetch finishes when triggered by play click
   const proceedFromPrefetchReady = useCallback(async () => {
-    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
-      const perm = await Notification.requestPermission();
-      setNotificationPermission(perm);
-    }
     const hasCompletedTutorial = localStorage.getItem('word-loom-tutorial-completed') === 'true';
     const hasSkippedTutorial = localStorage.getItem('word-loom-tutorial-skipped') === 'true';
     if (!hasCompletedTutorial && !hasSkippedTutorial) {
@@ -239,20 +232,6 @@ function App() {
         settings: { theme: state.theme },
         launchScene: launchScene,
       });
-
-      // Game is loaded and ready — fire browser notification
-      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-        const notif = new Notification('Wordfall is ready! 🎮', {
-          body: 'Click here to start playing.',
-          icon: '/apple-touch-icon.png',
-          tag: 'word-loom-ready',
-          requireInteraction: false,
-        });
-        notif.onclick = () => {
-          window.focus();
-          notif.close();
-        };
-      }
 
       window.saveHighScore = (score) => {
         storageManager.current.saveHighScore(score);
