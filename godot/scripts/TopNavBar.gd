@@ -5,9 +5,11 @@ extends HBoxContainer
 
 signal exit_pressed
 signal burger_pressed
+signal view_toggled(is_grid_view: bool)
 
 @onready var burger_button = %BurgerMenuButton
 @onready var exit_button = %ExitButton
+@onready var view_toggle_button = %ViewToggleButton
 @onready var score_label = %ScoreLabel
 @onready var high_score_label = %HighScoreLabel
 @onready var timer_label = %TimerLabel
@@ -17,10 +19,13 @@ var drop_timer_ref: Timer = null
 var is_showing_word_score: bool = false
 var word_score_timer: Timer
 var active_word_score_tween: Tween = null
+var is_grid_view: bool = true
 
 func _ready() -> void:
 	burger_button.pressed.connect(_on_burger_pressed)
 	exit_button.pressed.connect(_on_exit_pressed)
+	if view_toggle_button:
+		view_toggle_button.pressed.connect(_on_view_toggle_pressed)
 	# Exit is now in the sidebar on web — hide from top nav
 	if OS.has_feature("web"):
 		exit_button.hide()
@@ -41,6 +46,11 @@ func _on_burger_pressed() -> void:
 
 func _on_exit_pressed() -> void:
 	exit_pressed.emit()
+
+func _on_view_toggle_pressed() -> void:
+	is_grid_view = !is_grid_view
+	view_toggle_button.text = "⊞" if is_grid_view else "☰"
+	view_toggled.emit(is_grid_view)
 
 func update_score(score: int) -> void:
 	score_label.text = "Score: %d" % score
@@ -71,8 +81,8 @@ func _update_high_score_display(current_score: int = 0) -> void:
 		high_score_label.text = ""
 
 func _apply_theme() -> void:
-	# Update Burger and Exit buttons
-	for btn in [burger_button, exit_button]:
+	# Update Burger, Exit, and View Toggle buttons
+	for btn in [burger_button, exit_button, view_toggle_button]:
 		if btn:
 			var normal_style = btn.get_theme_stylebox("normal")
 			if normal_style:
