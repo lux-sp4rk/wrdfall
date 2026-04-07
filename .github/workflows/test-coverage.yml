@@ -65,7 +65,7 @@ jobs:
       - name: Install Godot
         run: |
           if [ ! -f ./godot_bin/godot ]; then
-            mkdir -p ./godot_bin
+            mkdir -p ./godot_bin || true
             wget -q -O ./godot_bin/godot.zip https://downloads.tuxfamily.org/godotengine/4.6/Godot_v4.6-stable_linux.x86_64.zip
             unzip -q ./godot_bin/godot.zip -d ./godot_bin
             chmod +x ./godot_bin/Godot_v4.6-stable_linux.x86_64

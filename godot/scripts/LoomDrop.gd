@@ -1444,20 +1444,18 @@ func _setup_icon_button(btn: Button, icon_text: String, label_text: String) -> v
 	var icon_label := Label.new()
 	icon_label.name = "Icon"
 	icon_label.text = icon_text
-	icon_label.add_theme_font_size_override("font_size", 12)  # Small icon
+	icon_label.add_theme_font_size_override("font_size", 26)  # Icon
 	icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	icon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	icon_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	icon_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(icon_label)
 
 	var text_label := Label.new()
 	text_label.name = "Text"
 	text_label.text = label_text
-	text_label.add_theme_font_size_override("font_size", 26)  # Large readable text
+	text_label.add_theme_font_size_override("font_size", 11)  # Text
 	text_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	text_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	text_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(text_label)
 
