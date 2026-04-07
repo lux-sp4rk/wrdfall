@@ -3,7 +3,6 @@ extends HBoxContainer
 ## Top navigation bar component with Exit and Pause buttons
 ## Emits signals that the parent scene can connect to
 
-signal exit_pressed
 signal burger_pressed
 
 @onready var burger_button = %BurgerMenuButton
@@ -32,9 +31,6 @@ func _ready() -> void:
 
 func _on_burger_pressed() -> void:
 	burger_pressed.emit()
-
-func _on_exit_pressed() -> void:
-	exit_pressed.emit()
 
 func update_score(score: int) -> void:
 	score_label.text = "Score: %d" % score
@@ -65,8 +61,8 @@ func _update_high_score_display(current_score: int = 0) -> void:
 		high_score_label.text = ""
 
 func _apply_theme() -> void:
-	# Update Burger, Exit, and View Toggle buttons
-	for btn in [burger_button, exit_button]:
+	# Update Burger button
+	for btn in [burger_button]:
 		if btn:
 			var normal_style = btn.get_theme_stylebox("normal")
 			if normal_style:

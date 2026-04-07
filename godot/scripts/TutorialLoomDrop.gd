@@ -66,7 +66,6 @@ func _ready() -> void:
 	swap_button.pressed.connect(_on_swap_pressed)
 	draw_more_button.pressed.connect(_on_draw_more_pressed)
 	pause_button.pressed.connect(_on_pause_pressed)
-	top_nav_bar.exit_pressed.connect(_on_home_pressed)
 	top_nav_bar.set_drop_timer(drop_timer)
 	word_scored.connect(top_nav_bar.show_word_score)
 	retry_button.pressed.connect(_on_retry_pressed)
