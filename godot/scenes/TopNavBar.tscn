@@ -37,10 +37,18 @@ custom_minimum_size = Vector2(0, 70)
 theme_override_constants/separation = 12
 script = ExtResource("1")
 
-[node name="BurgerMenuButton" type="Button" parent="."]
+[node name="LeftContainer" type="Control" parent="."]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+
+[node name="BurgerMenuButton" type="Button" parent="LeftContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(70, 70)
-layout_mode = 2
+layout_mode = 0
+offset_left = 0
+offset_top = 0
+offset_right = 70
+offset_bottom = 70
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.9)
@@ -50,10 +58,14 @@ theme_override_styles/hover = SubResource("NavButtonHover")
 theme_override_styles/pressed = SubResource("NavButtonPressed")
 text = "☰"
 
-[node name="ExitButton" type="Button" parent="."]
+[node name="ExitButton" type="Button" parent="LeftContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(110, 70)
-layout_mode = 2
+layout_mode = 0
+offset_left = 82
+offset_top = 0
+offset_right = 192
+offset_bottom = 70
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.9)
@@ -82,10 +94,6 @@ theme_override_font_sizes/font_size = 36
 text = "+150 GREAT!"
 horizontal_alignment = 1
 visible = false
-
-[node name="Spacer" type="Control" parent="."]
-layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="ScoreContainer" type="VBoxContainer" parent="."]
 custom_minimum_size = Vector2(220, 0)
