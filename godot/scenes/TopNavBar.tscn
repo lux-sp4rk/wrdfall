@@ -81,40 +81,51 @@ theme_override_constants/margin_left = 8
 theme_override_constants/margin_right = 8
 script = ExtResource("1")
 
-[node name="ViewToggleContainer" type="MarginContainer" parent="."]
+[node name="LeftContainer" type="Control" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="ButtonRow" type="HBoxContainer" parent="LeftContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ViewToggleContainer" type="MarginContainer" parent="LeftContainer/ButtonRow"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
+theme_override_constants/margin_top = 13
 
-[node name="ViewToggleButton" type="Button" parent="ViewToggleContainer"]
+[node name="ViewToggleButton" type="Button" parent="LeftContainer/ButtonRow/ViewToggleContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(56, 44)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.9)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 32
 theme_override_styles/normal = SubResource("ViewToggleButtonNormal")
 theme_override_styles/hover = SubResource("ViewToggleButtonHover")
 theme_override_styles/pressed = SubResource("ViewToggleButtonPressed")
 text = "⊞"
 toggle_mode = true
 
-[node name="BurgerMenuButton" type="Button" parent="."]
+[node name="BurgerMenuButton" type="Button" parent="LeftContainer/ButtonRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(70, 70)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.9)
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 42
 theme_override_styles/normal = SubResource("NavButtonNormal")
 theme_override_styles/hover = SubResource("NavButtonHover")
 theme_override_styles/pressed = SubResource("NavButtonPressed")
 text = "☰"
 
-[node name="ExitButton" type="Button" parent="."]
+[node name="ExitButton" type="Button" parent="LeftContainer/ButtonRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(110, 70)
 layout_mode = 2
@@ -146,10 +157,6 @@ theme_override_font_sizes/font_size = 36
 text = "+150 GREAT!"
 horizontal_alignment = 1
 visible = false
-
-[node name="Spacer" type="Control" parent="."]
-layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="ScoreContainer" type="VBoxContainer" parent="."]
 custom_minimum_size = Vector2(220, 0)
