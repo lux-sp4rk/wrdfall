@@ -7,7 +7,6 @@ signal exit_pressed
 signal burger_pressed
 
 @onready var burger_button = %BurgerMenuButton
-@onready var exit_button = %ExitButton
 @onready var score_label = %ScoreLabel
 @onready var high_score_label = %HighScoreLabel
 @onready var timer_label = %TimerLabel
@@ -19,11 +18,6 @@ var word_score_timer: Timer
 var active_word_score_tween: Tween = null
 func _ready() -> void:
 	burger_button.pressed.connect(_on_burger_pressed)
-	if exit_button:
-		exit_button.pressed.connect(_on_exit_pressed)
-	# Exit is now in the sidebar on web — hide from top nav
-	if OS.has_feature("web") and exit_button:
-		exit_button.hide()
 	_update_high_score_display()
 	_apply_theme()
 	ThemeManager.theme_changed.connect(_apply_theme)
