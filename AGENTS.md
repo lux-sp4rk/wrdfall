@@ -27,6 +27,7 @@ cd godot && ./run_tests.sh
 
 ## Git Workflow
 - **PR-first**: Never push to main.
+- **Commit & Push**: Always commit changes and push to the current branch when done.
 
 ## Key Patterns
 
