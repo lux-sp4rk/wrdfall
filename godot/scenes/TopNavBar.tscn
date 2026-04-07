@@ -93,26 +93,6 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="ViewToggleContainer" type="MarginContainer" parent="LeftContainer/ButtonRow"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 13
-
-[node name="ViewToggleButton" type="Button" parent="LeftContainer/ButtonRow/ViewToggleContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 44)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.9)
-theme_override_font_sizes/font_size = 32
-theme_override_styles/normal = SubResource("ViewToggleButtonNormal")
-theme_override_styles/hover = SubResource("ViewToggleButtonHover")
-theme_override_styles/pressed = SubResource("ViewToggleButtonPressed")
-text = "⊞"
-toggle_mode = true
-
 [node name="BurgerMenuButton" type="Button" parent="LeftContainer/ButtonRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(70, 70)
@@ -125,19 +105,6 @@ theme_override_styles/normal = SubResource("NavButtonNormal")
 theme_override_styles/hover = SubResource("NavButtonHover")
 theme_override_styles/pressed = SubResource("NavButtonPressed")
 text = "☰"
-
-[node name="ExitButton" type="Button" parent="LeftContainer/ButtonRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(110, 70)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.9)
-theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("NavButtonNormal")
-theme_override_styles/hover = SubResource("NavButtonHover")
-theme_override_styles/pressed = SubResource("NavButtonPressed")
-text = "Exit"
 
 [node name="CenterDisplay" type="VBoxContainer" parent="."]
 layout_mode = 2
