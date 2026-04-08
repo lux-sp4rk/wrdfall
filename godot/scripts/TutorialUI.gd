@@ -44,9 +44,11 @@ func setup(controller: TutorialController) -> void:
 	"""Set up the UI with the tutorial controller."""
 	tutorial_controller = controller
 	
-	# Connect to controller signals
-	tutorial_controller.phase_changed.connect(_on_phase_changed)
-	tutorial_controller.tutorial_completed.connect(_on_tutorial_completed)
+	# Connect to controller signals (with guards to prevent duplicates on re-setup)
+	if not tutorial_controller.phase_changed.is_connected(_on_phase_changed):
+		tutorial_controller.phase_changed.connect(_on_phase_changed)
+	if not tutorial_controller.tutorial_completed.is_connected(_on_tutorial_completed):
+		tutorial_controller.tutorial_completed.connect(_on_tutorial_completed)
 	
 	# Initialize with current phase
 	_update_ui_for_phase(tutorial_controller.current_phase, tutorial_controller.get_current_phase_config())
