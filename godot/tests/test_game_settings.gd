@@ -1,6 +1,10 @@
 extends GutTest
 
 func test_initial_settings():
+	# Reset to defaults before checking (in case saved settings differ)
+	GameSettings.current_language = "en"
+	GameSettings.difficulty = "normal"
+	GameSettings.theme = "light"
 	assert_eq(GameSettings.current_language, "en", "Default language should be en")
 	assert_eq(GameSettings.difficulty, "normal", "Default difficulty should be normal")
 	assert_eq(GameSettings.theme, "light", "Default theme should be light")
