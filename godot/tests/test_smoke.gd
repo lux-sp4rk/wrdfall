@@ -19,6 +19,11 @@ func test_topnavbar_scene_ready():
 	Catches broken builds where scene nodes were removed but the script
 	still holds @onready references to them — which would crash _ready().
 	"""
+	# Skip in headless mode - UI scenes require display server
+	if DisplayServer.get_name() == "headless":
+		pass_pending("Skipped in headless mode")
+		return
+
 	var scene = preload("res://scenes/TopNavBar.tscn")
 	var nav = scene.instantiate()
 	add_child(nav)
@@ -31,6 +36,11 @@ func test_topnavbar_scene_ready():
 
 func test_loomdrop_scene_ready():
 	"""Verify LoomDrop game scene loads without null @onready errors."""
+	# Skip in headless mode - UI scenes require display server
+	if DisplayServer.get_name() == "headless":
+		pass_pending("Skipped in headless mode")
+		return
+
 	var scene = preload("res://scenes/LoomDrop.tscn")
 	var loom = scene.instantiate()
 	add_child(loom)
