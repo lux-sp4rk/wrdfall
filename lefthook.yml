@@ -10,6 +10,20 @@ pre-push:
           echo "Direct push to main is not allowed. Use a feature branch."
           exit 1
         fi
+    - name: run-gut-tests
+      root: "godot/"
+      run: |
+        if command -v godot &> /dev/null; then
+          GODOT_BIN="godot"
+        elif [ -f "$HOME/bin/godot" ]; then
+          GODOT_BIN="$HOME/bin/godot"
+        else
+          echo "Godot not found. Skipping tests."
+          exit 0
+        fi
+        echo "Running GUT tests..."
+        "$GODOT_BIN" --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
+      fail_text: "Tests failed. Fix them before pushing."
 
 post-commit:
   commands:
