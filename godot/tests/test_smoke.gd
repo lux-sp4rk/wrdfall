@@ -24,9 +24,9 @@ func test_topnavbar_scene_ready():
 	add_child(nav)
 	await nav.ready  # forces _ready() to execute fully
 	# Verify critical nodes resolved
-	assert_not_null(nav.%BurgerMenuButton, "BurgerMenuButton must exist in scene")
-	assert_not_null(nav.%TimerLabel, "TimerLabel must exist in scene")
-	assert_not_null(nav.%ScoreLabel, "ScoreLabel must exist in scene")
+	assert_not_null(nav.get_node("%BurgerMenuButton"), "BurgerMenuButton must exist in scene")
+	assert_not_null(nav.get_node("%TimerLabel"), "TimerLabel must exist in scene")
+	assert_not_null(nav.get_node("%ScoreLabel"), "ScoreLabel must exist in scene")
 	nav.free()
 
 func test_loomdrop_scene_ready():
@@ -35,5 +35,5 @@ func test_loomdrop_scene_ready():
 	var loom = scene.instantiate()
 	add_child(loom)
 	await loom.ready
-	assert_not_null(loom.%TileGrid, "TileGrid must exist in scene")
+	assert_not_null(loom.get_node("%TileGrid"), "TileGrid must exist in scene")
 	loom.free()
