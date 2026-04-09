@@ -8,23 +8,39 @@ jobs:
   mystic-ops:
     runs-on: ubuntu-latest
     name: 🛡️ Mystic Ops
-    steps:
-      - uses: actions/checkout@v4
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
 
-      - name: Summon Mystic Ops
-        uses: lux-sp4rk/mystic-ops@main
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          clean: false
+
+      - name: Checkout Faye action
+        uses: actions/checkout@v4
+        with:
+          repository: lux-sp4rk/test-runner-faye
+          path: .github/actions/test-runner-faye
+          token: ${{ secrets.PAT_TEST_RUNNER }}
+
+      - name: Summon Faye
+        uses: ./.github/actions/test-runner-faye
         with:
           arcee-api-key: ${{ secrets.ARCEE_API_KEY }}
+          model: "trinity-large-preview"
+          passes: "test,coverage"
+          coverage-threshold: 80
+          test-command: "cd landing && pnpm vitest run --passWithNoTests"
+          coverage-command: "cd landing && pnpm vitest run --coverage --passWithNoTests"
 
-          # ── Faye: Test + Coverage ──
-          faye-model: "trinity-large-preview"
-          faye-passes: "test,coverage"
-          faye-coverage-threshold: 80
-          faye-test-command: "cd landing && pnpm vitest run --passWithNoTests"
-          faye-coverage-command: "cd landing && pnpm vitest run --coverage --passWithNoTests"
-
-          # ── D33: Code Review ──
-          d33-model: "trinity-mini"
-          d33-passes: "logic,security,judge"
-          d33-severity-threshold: "warning"
-          d33-max-files: 20
+      - name: Summon D33
+        uses: lux-sp4rk/bug-hunter-d33@main
+        with:
+          arcee-api-key: ${{ secrets.ARCEE_API_KEY }}
+          model: "trinity-mini"
+          passes: "logic,security,judge"
+          severity-threshold: "warning"
+          max-files: 20
