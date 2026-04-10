@@ -26,3 +26,4 @@ jobs:
           passes: 'logic,security,judge'
           severity-threshold: 'warning'
           max-files: 20
+          custom-prompts-path: '.ai-memory'
