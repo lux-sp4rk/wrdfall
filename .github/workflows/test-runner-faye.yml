@@ -26,3 +26,4 @@ jobs:
           coverage-threshold: 80
           test-command: 'cd landing && pnpm vitest run --passWithNoTests'
           coverage-command: 'cd landing && pnpm vitest run --coverage --passWithNoTests'
+          custom-prompts-path: '.ai-memory'
