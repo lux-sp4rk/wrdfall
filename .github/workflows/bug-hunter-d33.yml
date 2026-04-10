@@ -1,0 +1,28 @@
+name: Bug Hunter D33
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  bug-hunter-d33:
+    name: Bug Hunter D33
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Summon the Hunter
+        uses: lux-sp4rk/bug-hunter-d33@0a78dcecc1dbfeef2321ac00294fab3968aaba3b2
+        continue-on-error: true
+        with:
+          arcee-api-key: ${{ secrets.ARCEE_API_KEY }}
+          model: 'arcee/trinity-mini'
+          passes: 'logic,security,judge'
+          severity-threshold: 'warning'
+          max-files: 20
