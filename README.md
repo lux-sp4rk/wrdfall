@@ -1,6 +1,6 @@
 # Wordfall
 
-**Strategic word puzzles meet Tetris.** Built with Godot 4.6 (GDScript). High contrast, large tap targets. Targets iPad, phone, and browser (HTML5).
+**Strategic word puzzles meet Tetris.** Built with Godot 4.6 (GDScript). High contrast, large tap targets. Targets iPad, phone, and browser (Web export).
 
 ## Quick Start
 
@@ -15,7 +15,7 @@ open godot/project.godot   # macOS — or open via Godot's Import dialog
 
 ## Deployment
 
-**Note on Architecture:** This project serves the web build directly from the `dist/` directory. Netlify does not have the Godot SDK to export the project itself, so pre-built artifacts must be committed (tracked via Git LFS). **Do not delete `dist/` or ignore it.**
+**Note on Architecture:** This project serves the web build from the `dist/` directory. Vercel does not have the Godot SDK to export the project itself, so `dist/` is generated locally or in CI via `npm run build:all`. `dist/` is generated — not committed directly.**
 
 ## Development
 
@@ -33,7 +33,7 @@ docs/
   game-rules.md        # Full game rules reference
   deployment.md        # Deployment guide
   plans/               # Feature design docs and implementation plans
-dist/                  # Deployed web build (Netlify)
+dist/                  # Generated build output (Vercel)
 ```
 
 ### Key Scripts
@@ -68,9 +68,9 @@ dist/                  # Deployed web build (Netlify)
 npm run serve             # Serve from dist/ on :8000
 ```
 
-### Production (Netlify)
+### Production (Vercel)
 
-Deployed automatically from `dist/` via Netlify.
+Deployed automatically from `dist/` via Vercel.
 
 ```bash
 # Manual deploy workflow:
@@ -99,7 +99,7 @@ Uses [Supabase](https://supabase.com/) for backend services. Plugin in `godot/ad
 
 | Doc | Contents |
 |---|---|
-| [`CLAUDE.md`](CLAUDE.md) | AI assistant instructions and project context |
+| [`AGENTS.md`](AGENTS.md) | AI assistant instructions and project context |
 | [`docs/game-rules.md`](docs/game-rules.md) | Complete game rules, scoring tables, mechanics |
 | [`docs/deployment.md`](docs/deployment.md) | Deployment guide |
 | [`docs/plans/`](docs/plans/) | Feature design docs and implementation plans |
