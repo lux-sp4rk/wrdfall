@@ -66,8 +66,6 @@ func _create_hand_cursor() -> void:
 	
 	_hand_cursor_control = cursor_control
 
-var _hand_cursor_control: Control = null
-
 # === Public Methods ===
 
 func create_pulse_ring(target_button: Button, color: Color = Color(0.35, 0.65, 1.0, 0.6)) -> void:

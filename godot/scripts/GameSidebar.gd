@@ -40,6 +40,9 @@ func _ready() -> void:
 	background_overlay.modulate.a = 0.0
 	background_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
+	# Sidebar starts off-screen and hidden until burger is pressed
+	visible = false
+
 	# On web, React shell owns Stats and Settings navigation
 	if OS.has_feature("web"):
 		settings_button.hide()
