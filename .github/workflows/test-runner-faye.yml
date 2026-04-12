@@ -17,13 +17,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
       - name: Summon Faye
-        uses: lux-sp4rk/test-runner-faye@d397b2b1940d2983c839566a02a9fdfee83057f2
+        uses: lux-sp4rk/test-runner-faye@47df92c69563850cb02b541ff6d74716b6ec369b
         continue-on-error: false
         with:
           arcee-api-key: ${{ secrets.ARCEE_API_KEY }}
           passes: 'test,coverage,delta'
           coverage-threshold: 80
-          test-command: 'cd landing && pnpm vitest run --passWithNoTests'
-          coverage-command: 'cd landing && pnpm vitest run --coverage --passWithNoTests'
+          test-command: 'pnpm vitest run --passWithNoTests'
+          coverage-command: 'pnpm vitest run --coverage --passWithNoTests'
+          working-directory: 'landing'
           custom-prompts-path: '.ai-memory'
