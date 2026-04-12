@@ -30,7 +30,7 @@ jobs:
             mkdir -p ./godot_bin
           fi
           if [ ! -f ./godot_bin/godot ]; then
-            wget -q -O ./godot_bin/godot.zip https://downloads.tuxfamily.org/godotengine/4.6/Godot_v4.6-stable_linux.x86_64.zip
+            wget -q -O ./godot_bin/godot.zip https://github.com/godotengine/godot/releases/download/4.6-stable/Godot_v4.6-stable_linux.x86_64.zip
             unzip -q ./godot_bin/godot.zip -d ./godot_bin
             chmod +x ./godot_bin/Godot_v4.6-stable_linux.x86_64
             mv ./godot_bin/Godot_v4.6-stable_linux.x86_64 ./godot_bin/godot
