@@ -44,4 +44,25 @@ describe('saveSettings', () => {
     expect(localStorage.getItem('word-loom-theme')).toBe('light')
     expect(localStorage.getItem('word-loom-language')).toBe('en')
   })
+
+  it('returns false for invalid non-object input', () => {
+    expect(saveSettings(null)).toBe(false)
+    expect(saveSettings('string')).toBe(false)
+    expect(saveSettings(123)).toBe(false)
+  })
+
+  it('returns false when localStorage throws', () => {
+    const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('quota exceeded') })
+    const result = saveSettings({ language: 'es' })
+    expect(result).toBe(false)
+    spy.mockRestore()
+  })
+
+  it('falls back to defaults when localStorage.getItem throws', () => {
+    const spy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => { throw new Error('disabled') })
+    const s = getSettings()
+    expect(s.language).toBe(DEFAULTS.language)
+    expect(s.difficulty).toBe(DEFAULTS.difficulty)
+    spy.mockRestore()
+  })
 })

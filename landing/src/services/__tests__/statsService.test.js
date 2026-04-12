@@ -60,3 +60,111 @@ describe('StatsService.getShareText', () => {
     expect(text).toContain('Longest Word: QUARTZ')
   })
 })
+
+describe('StatsService.getLeaderboard', () => {
+  it('returns empty array when supabase is null', async () => {
+    const s = new StatsService(null)
+    const board = await s.getLeaderboard()
+    expect(board).toEqual([])
+  })
+
+  it('returns ranked leaderboard on success', async () => {
+    const mockSupabase = {
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          order: vi.fn(() => ({
+            limit: vi.fn().mockResolvedValue({
+              data: [
+                { user_id: 'u1', score: 5000, profiles: { display_name: 'Alice' } },
+                { user_id: 'u2', score: 3000, profiles: { display_name: 'Bob' } },
+              ],
+              error: null,
+            })
+          }))
+        }))
+      }))
+    }
+    const s = new StatsService(mockSupabase)
+    const board = await s.getLeaderboard(10)
+    expect(board).toHaveLength(2)
+    expect(board[0].rank).toBe(1)
+    expect(board[1].rank).toBe(2)
+  })
+
+  it('returns empty array on supabase error', async () => {
+    const mockSupabase = {
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          order: vi.fn(() => ({
+            limit: vi.fn().mockResolvedValue({
+              data: null,
+              error: new Error('network'),
+            })
+          }))
+        }))
+      }))
+    }
+    const s = new StatsService(mockSupabase)
+    const board = await s.getLeaderboard()
+    expect(board).toEqual([])
+  })
+})
+
+describe('StatsService.resetStats', () => {
+  it('removes localStorage key', async () => {
+    localStorage.setItem('word-loom-stats', JSON.stringify({ high_score: 999 }))
+    const s = new StatsService(null)
+    await s.resetStats()
+    expect(localStorage.getItem('word-loom-stats')).toBeNull()
+  })
+})
+
+describe('StatsService._getLocalStats', () => {
+  it('returns EMPTY_STATS for invalid JSON', () => {
+    localStorage.setItem('word-loom-stats', 'not-json')
+    const s = new StatsService(null)
+    const stats = s._getLocalStats()
+    expect(stats.high_score).toBe(0)
+    expect(stats.session_history).toEqual([])
+  })
+})
+
+describe('StatsService.getStats with supabase', () => {
+  it('fetches from supabase when userId is provided', async () => {
+    const mockSupabase = {
+      from: vi.fn((table) => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn().mockResolvedValue({
+              data: { high_score: 9999 },
+              error: null,
+            }),
+            order: vi.fn(() => ({
+              limit: vi.fn().mockResolvedValue({ data: [], error: null })
+            }))
+          }))
+        }))
+      }))
+    }
+    const s = new StatsService(mockSupabase)
+    const stats = await s.getStats('user-123')
+    expect(stats.high_score).toBe(9999)
+    expect(stats.session_history).toEqual([])
+  })
+
+  it('falls back to localStats on supabase error', async () => {
+    localStorage.setItem('word-loom-stats', JSON.stringify({ high_score: 555 }))
+    const mockSupabase = {
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            single: vi.fn().mockRejectedValue(new Error('network')),
+          }))
+        }))
+      }))
+    }
+    const s = new StatsService(mockSupabase)
+    const stats = await s.getStats('user-123')
+    expect(stats.high_score).toBe(555)
+  })
+})
