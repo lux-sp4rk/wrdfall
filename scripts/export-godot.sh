@@ -42,6 +42,9 @@ if [ ! -d "$TEMPLATE_PATH" ]; then
     rm -rf /tmp/godot_templates/ templates.tpz
 fi
 
+echo "🚀 Running GUT tests (fail-fast)..."
+"$GODOT" --headless --path godot -s res://addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
+
 echo "🚀 Exporting Godot project..."
 # 1. Preload to import assets
 timeout 120 "$GODOT" --headless --path godot --editor --quit >/dev/null 2>&1 || true

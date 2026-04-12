@@ -19,11 +19,11 @@ var overlay_layer: CanvasLayer
 
 # Active highlight elements
 var pulse_rings: Dictionary = {}  # Button -> Panel
-var hand_cursor: Sprite2D = null
 var highlighted_tiles: Array = []
 var active_tweens: Dictionary = {}
 
-# Colors
+# Hand cursor reference
+var _hand_cursor_control: Control = null
 var highlight_color: Color = Color(0.35, 0.65, 1.0, 0.8)  # Blue highlight
 var valid_tile_color: Color = Color(0.3, 0.7, 1.0, 0.4)
 
@@ -44,34 +44,8 @@ func _init(controller: TutorialController, game: Control, overlay: CanvasLayer) 
 	_create_hand_cursor()
 
 func _create_hand_cursor() -> void:
-	"""Create the hand cursor sprite."""
-	hand_cursor = Sprite2D.new()
-	hand_cursor.name = "HandCursor"
-	hand_cursor.visible = false
-	hand_cursor.z_index = 100
-	
-	# Create a simple hand cursor using a Label with emoji
-	# This avoids needing external textures
-	var label := Label.new()
-	label.name = "CursorLabel"
-	label.text = "👆"
-	label.add_theme_font_size_override("font_size", 48)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	label.custom_minimum_size = HAND_CURSOR_SIZE
-	
-	# Add to a Container for proper sizing
-	var container := CenterContainer.new()
-	container.name = "CursorContainer"
-	container.custom_minimum_size = HAND_CURSOR_SIZE
-	container.add_child(label)
-	
-	# We need to use a Node2D wrapper since we can't add Control to Sprite2D
-	# So we'll use a different approach: a Control-based cursor
-	hand_cursor.queue_free()
-	
-	# Create Control-based cursor instead
+	"""Create the hand cursor control."""
+	# Create Control-based cursor
 	var cursor_control := Control.new()
 	cursor_control.name = "HandCursorControl"
 	cursor_control.custom_minimum_size = HAND_CURSOR_SIZE
@@ -90,11 +64,7 @@ func _create_hand_cursor() -> void:
 	cursor_control.add_child(cursor_label)
 	overlay_layer.add_child(cursor_control)
 	
-	# Store reference to the control version
-	hand_cursor = null  # We'll use a different reference
 	_hand_cursor_control = cursor_control
-
-var _hand_cursor_control: Control = null
 
 # === Public Methods ===
 

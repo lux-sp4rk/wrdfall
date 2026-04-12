@@ -5,14 +5,13 @@ extends Node
 
 func _ready() -> void:
 	GameSettings.load_from_localstorage()
+	var target_scene: String
 	if OS.has_feature("web"):
 		var launch_scene: String = _get_launch_scene_from_js()
-		if launch_scene == "tutorial":
-			get_tree().change_scene_to_file("res://scenes/Tutorial.tscn")
-		else:
-			get_tree().change_scene_to_file("res://scenes/LoomDrop.tscn")
+		target_scene = "res://scenes/Tutorial.tscn" if launch_scene == "tutorial" else "res://scenes/LoomDrop.tscn"
 	else:
-		get_tree().change_scene_to_file("res://scenes/Home.tscn")
+		target_scene = "res://scenes/Home.tscn"
+	get_tree().call_deferred("change_scene_to_file", target_scene)
 
 
 func _get_launch_scene_from_js() -> String:

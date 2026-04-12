@@ -17,7 +17,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 config/name="Wordfall"
 config/description="A calm, tactile word puzzle game"
 run/main_scene="res://scenes/Boot.tscn"
-config/features=PackedStringArray("4.3")
+config/features=PackedStringArray("4.6")
 
 [autoload]
 
@@ -34,22 +34,14 @@ Supabase="*res://addons/supabase/Supabase/supabase.gd"
 window/size/viewport_width=720
 window/size/viewport_height=1280
 window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 window/handheld/orientation=1
-
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/supabase/plugin.cfg", "res://addons/gut/plugin.cfg")
-
-[gui]
-
-theme/custom="res://assets/themes/spacey/spacey.tres"
-theme/custom_font="res://assets/fonts/InterWithSymbols.tres"
-theme/default_font_size=22
 
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
 textures/vram_compression/import_etc2_astc=true
+environment/defaults/default_clear_color=Color(0.168627, 0.239216, 0.309804, 1)
 
 [supabase]
 

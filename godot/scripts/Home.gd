@@ -29,8 +29,9 @@ func _ready() -> void:
 	if sign_out_button:
 		sign_out_button.pressed.connect(_on_sign_out_pressed)
 
-	# Listen to auth state changes
-	StatsManager.auth_completed.connect(_on_auth_completed)
+	# Listen to auth state changes (with guard to prevent duplicate connections)
+	if not StatsManager.auth_completed.is_connected(_on_auth_completed):
+		StatsManager.auth_completed.connect(_on_auth_completed)
 
 	# Update UI based on current auth state (only if auth UI exists)
 	if auth_panel:

@@ -9,6 +9,12 @@ signal sidebar_closed
 var is_open: bool = false
 var active_tween: Tween = null
 
+const ICON_EXIT := preload("res://assets/icons/icon_exit.svg")
+const ICON_SETTINGS := preload("res://assets/icons/icon_settings.svg")
+const ICON_STATS := preload("res://assets/icons/icon_stats.svg")
+const ICON_RULES := preload("res://assets/icons/icon_rules.svg")
+const ICON_HELP := preload("res://assets/icons/icon_help.svg")
+
 @onready var background_overlay: ColorRect = %BackgroundOverlay
 @onready var button_container: VBoxContainer = %ButtonContainer
 @onready var exit_button: Button = %ExitButton
@@ -33,12 +39,22 @@ func _ready() -> void:
 	rules_button.pressed.connect(_on_rules_pressed)
 	help_button.pressed.connect(_on_help_pressed)
 
+	# Assign icons
+	exit_button.icon = ICON_EXIT
+	settings_button.icon = ICON_SETTINGS
+	stats_button.icon = ICON_STATS
+	rules_button.icon = ICON_RULES
+	help_button.icon = ICON_HELP
+
 	# Connect overlay click to close
 	background_overlay.gui_input.connect(_on_overlay_input)
 
 	# Initially hide overlay (both visually and for input)
 	background_overlay.modulate.a = 0.0
 	background_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	# Sidebar starts off-screen and hidden until burger is pressed
+	visible = false
 
 	# On web, React shell owns Stats and Settings navigation
 	if OS.has_feature("web"):
@@ -165,6 +181,8 @@ func _apply_theme() -> void:
 			normal_style.corner_radius_top_right = 8
 			normal_style.corner_radius_bottom_left = 8
 			normal_style.corner_radius_bottom_right = 8
+			normal_style.content_margin_left = 16
+			normal_style.content_margin_right = 16
 			button.add_theme_stylebox_override("normal", normal_style)
 
 			# Hover state
@@ -174,6 +192,8 @@ func _apply_theme() -> void:
 			hover_style.corner_radius_top_right = 8
 			hover_style.corner_radius_bottom_left = 8
 			hover_style.corner_radius_bottom_right = 8
+			hover_style.content_margin_left = 16
+			hover_style.content_margin_right = 16
 			button.add_theme_stylebox_override("hover", hover_style)
 
 			# Pressed state
@@ -183,6 +203,8 @@ func _apply_theme() -> void:
 			pressed_style.corner_radius_top_right = 8
 			pressed_style.corner_radius_bottom_left = 8
 			pressed_style.corner_radius_bottom_right = 8
+			pressed_style.content_margin_left = 16
+			pressed_style.content_margin_right = 16
 			button.add_theme_stylebox_override("pressed", pressed_style)
 
 			# Text colors

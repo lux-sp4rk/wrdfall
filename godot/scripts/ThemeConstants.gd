@@ -38,10 +38,10 @@ const POINT_LABEL_FONT_SIZE_RATIO: float = 0.4  # Relative to tile font size
 
 # === Icons ===
 
-const ICON_SHAKE: String = "\u21bb"   # ↻
-const ICON_SWAP: String = "\u2194"    # ↔
-const ICON_DRAW_MORE: String = "\u2295"  # ⊕
-const ICON_CANCEL: String = "\u2715"  # ✕
+const ICON_SHAKE: String = "res://assets/icons/icon_shake.svg"
+const ICON_SWAP: String = "res://assets/icons/icon_swap.svg"
+const ICON_DRAW_MORE: String = "res://assets/icons/icon_draw_more.svg"
+const ICON_CANCEL: String = "res://assets/icons/icon_cancel.svg"
 
 # === Helper Functions ===
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://b4qm8xjhw3fxo"]
+[gd_scene load_steps=10 format=3 uid="uid://b4qm8xjhw3fxo"]
 
 [ext_resource type="Script" path="res://scripts/TopNavBar.gd" id="1"]
 
@@ -32,40 +32,84 @@ shadow_color = Color(0.48, 0.61, 0.55, 0.15)
 shadow_size = 2
 shadow_offset = Vector2(0, 1)
 
+[sub_resource type="StyleBoxFlat" id="ViewToggleButtonNormal"]
+bg_color = Color(0.15, 0.19, 0.24, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 4
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="ViewToggleButtonHover"]
+bg_color = Color(0.2, 0.25, 0.31, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 5
+shadow_offset = Vector2(0, 3)
+
+[sub_resource type="StyleBoxFlat" id="ViewToggleButtonPressed"]
+bg_color = Color(0.12, 0.15, 0.19, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+shadow_color = Color(0, 0, 0, 0.2)
+shadow_size = 2
+shadow_offset = Vector2(0, 1)
+
 [node name="TopNavBar" type="HBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
+alignment = 1
 theme_override_constants/separation = 12
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_right = 8
 script = ExtResource("1")
 
-[node name="BurgerMenuButton" type="Button" parent="."]
+[node name="LeftContainer" type="Control" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+size_flags_horizontal = 1
+
+[node name="ButtonRow" type="HBoxContainer" parent="LeftContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BurgerMenuButton" type="Button" parent="LeftContainer/ButtonRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(70, 70)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.9)
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 42
 theme_override_styles/normal = SubResource("NavButtonNormal")
 theme_override_styles/hover = SubResource("NavButtonHover")
 theme_override_styles/pressed = SubResource("NavButtonPressed")
 text = "☰"
 
-[node name="ExitButton" type="Button" parent="."]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(110, 70)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.9)
-theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("NavButtonNormal")
-theme_override_styles/hover = SubResource("NavButtonHover")
-theme_override_styles/pressed = SubResource("NavButtonPressed")
-text = "Exit"
-
 [node name="CenterDisplay" type="VBoxContainer" parent="."]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 alignment = 1
 
 [node name="TimerLabel" type="Label" parent="CenterDisplay"]
@@ -83,13 +127,10 @@ text = "+150 GREAT!"
 horizontal_alignment = 1
 visible = false
 
-[node name="Spacer" type="Control" parent="."]
-layout_mode = 2
-size_flags_horizontal = 3
-
 [node name="ScoreContainer" type="VBoxContainer" parent="."]
 custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
+size_flags_horizontal = 1
 theme_override_constants/separation = 4
 
 [node name="ScoreLabel" type="Label" parent="ScoreContainer"]

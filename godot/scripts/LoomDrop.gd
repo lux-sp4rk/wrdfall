@@ -80,6 +80,9 @@ var _rescue_letters_remaining: Array = []
 
 
 func _ready() -> void:
+	# Set viewport clear color to match background - prevents black flash on load
+	RenderingServer.set_default_clear_color(ThemeManager.get_color("background"))
+
 	# Load difficulty-based settings
 	SHAKE_COST = GameSettings.get_power_up_cost("shake")
 	SWAP_COST = GameSettings.get_power_up_cost("swap")
@@ -116,7 +119,6 @@ func _ready() -> void:
 	swap_button.pressed.connect(_on_swap_pressed)
 	draw_more_button.pressed.connect(_on_draw_more_pressed)
 	pause_button.pressed.connect(_on_pause_pressed)
-	top_nav_bar.exit_pressed.connect(_on_home_pressed)
 	top_nav_bar.set_drop_timer(drop_timer)
 	word_scored.connect(top_nav_bar.show_word_score)
 	retry_button.pressed.connect(_on_retry_pressed)
@@ -223,13 +225,6 @@ func _create_debug_flags_panel() -> void:
 		)
 		row.add_child(toggle)
 
-
-
-func _on_home_pressed() -> void:
-	if OS.has_feature("web"):
-		JavaScriptBridge.eval("window.wordfallGoHome && window.wordfallGoHome()")
-	else:
-		get_tree().change_scene_to_file("res://scenes/Home.tscn")
 
 
 func _on_pause_pressed() -> void:
@@ -1424,8 +1419,9 @@ func _update_draw_more_button() -> void:
 	draw_more_button.disabled = not game_started or is_paused
 
 
-func _setup_icon_button(btn: Button, icon_text: String, label_text: String) -> void:
+func _setup_icon_button(btn: Button, icon_path: String, label_text: String) -> void:
 	btn.text = ""
+	btn.clip_contents = true  # Fix #221: prevent label bleeding
 	if btn.has_theme_font_size_override("font_size"):
 		btn.remove_theme_font_size_override("font_size")
 
@@ -1433,28 +1429,34 @@ func _setup_icon_button(btn: Button, icon_text: String, label_text: String) -> v
 	vbox.name = "Content"
 	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_theme_constant_override("separation", 4)
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	btn.add_child(vbox)
 
-	var icon_label := Label.new()
-	icon_label.name = "Icon"
-	icon_label.text = icon_text
-	icon_label.add_theme_font_size_override("font_size", 36)
-	icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	icon_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_child(icon_label)
+	var icon_rect := TextureRect.new()
+	icon_rect.name = "Icon"
+	icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon_rect.custom_minimum_size = Vector2(26, 26)
+	if ResourceLoader.exists(icon_path):
+		icon_rect.texture = load(icon_path)
+	icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(icon_rect)
 
 	var text_label := Label.new()
 	text_label.name = "Text"
 	text_label.text = label_text
-	text_label.add_theme_font_size_override("font_size", 14)
+	text_label.add_theme_font_size_override("font_size", 11)  # Text
 	text_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	text_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	text_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(text_label)
 
 
-func _set_button_content(btn: Button, icon_text: String, label_text: String) -> void:
-	btn.get_node("Content/Icon").text = icon_text
+func _set_button_content(btn: Button, icon_path: String, label_text: String) -> void:
+	var icon_rect: TextureRect = btn.get_node("Content/Icon")
+	if ResourceLoader.exists(icon_path):
+		icon_rect.texture = load(icon_path)
 	btn.get_node("Content/Text").text = label_text
 
 

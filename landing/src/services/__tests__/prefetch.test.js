@@ -1,25 +1,24 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { PrefetchManager } from '../prefetch.js';
+import { CompressionService } from '../compressionService.js';
 
 describe('PrefetchManager', () => {
-  const originalEnv = { ...import.meta.env };
+  let fetchMock;
 
   beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn());
-    // Reset env for each test
-    import.meta.env.VITE_GODOT_WASM = undefined;
-    import.meta.env.VITE_GODOT_PCK = undefined;
-    import.meta.env.VITE_GODOT_WASM_SIZE_MB = undefined;
-    import.meta.env.VITE_GODOT_PCK_SIZE_MB = undefined;
+    fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    vi.unstubAllEnvs();
+    vi.spyOn(CompressionService.prototype, 'fetchDictionary').mockResolvedValue('word1\nword2');
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
-    // Restore env
-    Object.assign(import.meta.env, originalEnv);
+    vi.unstubAllEnvs();
+    vi.restoreAllMocks();
   });
 
-  it.skip('should use default filenames when env vars are not set', () => {
+  it('should use default filenames when env vars are not set', () => {
     const manager = new PrefetchManager(() => {});
     expect(manager.downloads.wasm.size).toBe(33.7);
     expect(manager.downloads.pck.size).toBe(50.3);
@@ -43,13 +42,13 @@ describe('PrefetchManager', () => {
       }
     };
     
-    global.fetch.mockResolvedValue(mockResponse);
+    fetchMock.mockResolvedValue(mockResponse);
 
     await manager.fetchGodotWasm();
-    expect(global.fetch).toHaveBeenCalledWith('index.12345.wasm');
+    expect(fetchMock).toHaveBeenCalledWith('index.12345.wasm');
 
     await manager.fetchGodotPck();
-    expect(global.fetch).toHaveBeenCalledWith('index.12345.pck');
+    expect(fetchMock).toHaveBeenCalledWith('index.12345.pck');
   });
 
   it('should use sizes from env vars when set', () => {
@@ -59,5 +58,50 @@ describe('PrefetchManager', () => {
     const manager = new PrefetchManager(() => {});
     expect(manager.downloads.wasm.size).toBe(40.5);
     expect(manager.downloads.pck.size).toBe(60.2);
+  });
+
+  it('start() returns blobs when all downloads succeed', async () => {
+    const manager = new PrefetchManager(() => {});
+    
+    const mockResponse = {
+      ok: true,
+      headers: new Headers({ 'Content-Length': '100' }),
+      body: {
+        getReader: () => ({
+          read: vi.fn()
+            .mockResolvedValueOnce({ done: false, value: new Uint8Array(50) })
+            .mockResolvedValueOnce({ done: true })
+        })
+      }
+    };
+    
+    fetchMock.mockResolvedValue(mockResponse);
+
+    const result = await manager.start();
+    expect(result.wasmBlob).toBeInstanceOf(Blob);
+    expect(result.pckBlob).toBeInstanceOf(Blob);
+    expect(typeof result.dict).toBe('string');
+  });
+
+  it('start() throws when a download fails', async () => {
+    const manager = new PrefetchManager(() => {});
+    
+    fetchMock.mockResolvedValue({
+      ok: false,
+      status: 404,
+      body: { getReader: () => ({ read: vi.fn() }) }
+    });
+
+    await expect(manager.start()).rejects.toThrow('Pre-fetch failed');
+  });
+
+  it('_fetchWithProgress throws on non-ok response', async () => {
+    const manager = new PrefetchManager(() => {});
+    fetchMock.mockResolvedValue({
+      ok: false,
+      status: 500,
+    });
+
+    await expect(manager.fetchGodotWasm()).rejects.toThrow('HTTP 500');
   });
 });

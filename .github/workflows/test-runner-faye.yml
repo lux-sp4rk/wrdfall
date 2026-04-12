@@ -1,0 +1,35 @@
+name: Test Runner Faye
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  test-runner:
+    name: Test Runner Faye
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Summon Faye
+        uses: lux-sp4rk/test-runner-faye@6f40b784b727d58c6eaee8efb3cea4ae13bda84f
+        continue-on-error: false
+        with:
+          arcee-api-key: ${{ secrets.ARCEE_API_KEY }}
+          passes: 'test,coverage,delta'
+          coverage-threshold: 80
+          test-command: 'pnpm vitest run --passWithNoTests'
+          coverage-command: 'pnpm vitest run --coverage --passWithNoTests'
+          working-directory: 'landing'
+          custom-prompts-path: '.ai-memory'
