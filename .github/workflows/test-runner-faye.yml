@@ -23,7 +23,7 @@ jobs:
           version: 9
 
       - name: Summon Faye
-        uses: lux-sp4rk/test-runner-faye@53898dd2e53204b90a1a16f7ec6fabb00c35c0c7
+        uses: lux-sp4rk/test-runner-faye@6f40b784b727d58c6eaee8efb3cea4ae13bda84f
         continue-on-error: false
         with:
           arcee-api-key: ${{ secrets.ARCEE_API_KEY }}
