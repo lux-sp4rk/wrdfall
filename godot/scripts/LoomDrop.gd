@@ -1419,7 +1419,7 @@ func _update_draw_more_button() -> void:
 	draw_more_button.disabled = not game_started or is_paused
 
 
-func _setup_icon_button(btn: Button, icon_text: String, label_text: String) -> void:
+func _setup_icon_button(btn: Button, icon_path: String, label_text: String) -> void:
 	btn.text = ""
 	btn.clip_contents = true  # Fix #221: prevent label bleeding
 	if btn.has_theme_font_size_override("font_size"):
@@ -1433,14 +1433,15 @@ func _setup_icon_button(btn: Button, icon_text: String, label_text: String) -> v
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	btn.add_child(vbox)
 
-	var icon_label := Label.new()
-	icon_label.name = "Icon"
-	icon_label.text = icon_text
-	icon_label.add_theme_font_size_override("font_size", 26)  # Icon
-	icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	icon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	icon_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_child(icon_label)
+	var icon_rect := TextureRect.new()
+	icon_rect.name = "Icon"
+	icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon_rect.custom_minimum_size = Vector2(26, 26)
+	if ResourceLoader.exists(icon_path):
+		icon_rect.texture = load(icon_path)
+	icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(icon_rect)
 
 	var text_label := Label.new()
 	text_label.name = "Text"
@@ -1452,8 +1453,10 @@ func _setup_icon_button(btn: Button, icon_text: String, label_text: String) -> v
 	vbox.add_child(text_label)
 
 
-func _set_button_content(btn: Button, icon_text: String, label_text: String) -> void:
-	btn.get_node("Content/Icon").text = icon_text
+func _set_button_content(btn: Button, icon_path: String, label_text: String) -> void:
+	var icon_rect: TextureRect = btn.get_node("Content/Icon")
+	if ResourceLoader.exists(icon_path):
+		icon_rect.texture = load(icon_path)
 	btn.get_node("Content/Text").text = label_text
 
 
