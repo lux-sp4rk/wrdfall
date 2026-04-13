@@ -106,6 +106,19 @@ theme_override_styles/hover = SubResource("NavButtonHover")
 theme_override_styles/pressed = SubResource("NavButtonPressed")
 text = "☰"
 
+[node name="PauseButton" type="Button" parent="LeftContainer/ButtonRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 70)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.9)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("NavButtonNormal")
+theme_override_styles/hover = SubResource("NavButtonHover")
+theme_override_styles/pressed = SubResource("NavButtonPressed")
+text = "Pause"
+
 [node name="CenterDisplay" type="VBoxContainer" parent="."]
 layout_mode = 2
 size_flags_horizontal = 3

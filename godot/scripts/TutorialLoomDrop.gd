@@ -28,6 +28,7 @@ func _ready() -> void:
 	SHAKE_COST = GameSettings.get_power_up_cost("shake")
 	SWAP_COST = GameSettings.get_power_up_cost("swap")
 	DRAW_MORE_COST = GameSettings.get_power_up_cost("draw_more")
+	FREEZE_COST = GameSettings.get_power_up_cost("freeze")
 
 	base_drop_interval = GameSettings.get_drop_interval()
 	current_drop_interval = base_drop_interval
@@ -46,6 +47,7 @@ func _ready() -> void:
 	_setup_icon_button(shake_button, ICON_SHAKE, lang_config.ui_strings["shake"])
 	_setup_icon_button(swap_button, ICON_SWAP, lang_config.ui_strings["swap"])
 	_setup_icon_button(draw_more_button, ICON_DRAW_MORE, lang_config.ui_strings["draw_more"])
+	freeze_button.text = "⏸ Freeze\n(-%d)" % FREEZE_COST
 	
 	# Hide Draw More button if feature flag is disabled
 	if not FeatureFlags.draw_more_enabled:
@@ -55,6 +57,7 @@ func _ready() -> void:
 	_update_shake_button()
 	_update_swap_button()
 	_update_draw_more_button()
+	_update_freeze_button()
 	
 	# Don't start drop timer in tutorial mode
 	# We'll create it but keep it paused
@@ -65,8 +68,9 @@ func _ready() -> void:
 	shake_button.pressed.connect(_on_shake_pressed)
 	swap_button.pressed.connect(_on_swap_pressed)
 	draw_more_button.pressed.connect(_on_draw_more_pressed)
-	pause_button.pressed.connect(_on_pause_pressed)
+	freeze_button.pressed.connect(_on_freeze_pressed)
 	top_nav_bar.set_drop_timer(drop_timer)
+	top_nav_bar.pause_pressed.connect(_on_pause_pressed)
 	word_scored.connect(top_nav_bar.show_word_score)
 	retry_button.pressed.connect(_on_retry_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
@@ -104,6 +108,7 @@ func setup_for_tutorial(controller: TutorialController) -> void:
 	_update_shake_button()
 	_update_swap_button()
 	_update_draw_more_button()
+	_update_freeze_button()
 
 func set_tutorial_board_preset(preset: Array) -> void:
 	"""Set a pre-configured board state for the tutorial."""
@@ -249,8 +254,8 @@ func _input(event: InputEvent) -> void:
 			_trigger_game_complete("dev_lose")
 			return
 
-	# Block word selection when paused
-	if is_paused:
+	# Block word selection when paused or frozen
+	if is_paused or is_frozen:
 		return
 
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
