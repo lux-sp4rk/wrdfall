@@ -47,3 +47,10 @@ node_modules
 # logs
 logs/
 coverage/
+
+# Agent / tooling
+.opencode/
+
+# Syncthing
+.stfolder
+*.sync-conflict-*
