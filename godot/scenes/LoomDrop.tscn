@@ -80,6 +80,18 @@ theme_override_constants/h_separation = 4
 theme_override_constants/v_separation = 4
 columns = 5
 
+[node name="PauseOverlay" type="ColorRect" parent="MarginContainer/VBox/GridCenter/BoardPanel"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+mouse_filter = 0
+visible = false
+
 [node name="ButtonSpacer" type="Control" parent="MarginContainer/VBox" unique_id=1484329959]
 custom_minimum_size = Vector2(0, 8)
 layout_mode = 2
@@ -104,7 +116,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(135, 100)
 layout_mode = 2
 
-[node name="PauseButton" type="Button" parent="MarginContainer/VBox/ActionButtons" unique_id=211392313]
+[node name="FreezeButton" type="Button" parent="MarginContainer/VBox/ActionButtons" unique_id=211392313]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(135, 100)
 layout_mode = 2
@@ -112,8 +124,8 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.9)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 22
-text = "⏸ Pause
-(Free)"
+text = "⏸ Freeze
+(-10)"
 
 [node name="GameOverModal" type="ColorRect" parent="." unique_id=413505439]
 unique_name_in_owner = true

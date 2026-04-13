@@ -4,8 +4,10 @@ extends HBoxContainer
 ## Emits signals that the parent scene can connect to
 
 signal burger_pressed
+signal pause_pressed
 
 @onready var burger_button = %BurgerMenuButton
+@onready var pause_button = %PauseButton
 @onready var score_label = %ScoreLabel
 @onready var high_score_label = %HighScoreLabel
 @onready var timer_label = %TimerLabel
@@ -17,6 +19,7 @@ var word_score_timer: Timer
 var active_word_score_tween: Tween = null
 func _ready() -> void:
 	burger_button.pressed.connect(_on_burger_pressed)
+	pause_button.pressed.connect(_on_pause_pressed)
 	_update_high_score_display()
 	_apply_theme()
 	ThemeManager.theme_changed.connect(_apply_theme)
@@ -31,6 +34,12 @@ func _ready() -> void:
 
 func _on_burger_pressed() -> void:
 	burger_pressed.emit()
+
+func _on_pause_pressed() -> void:
+	pause_pressed.emit()
+
+func set_pause_label(paused: bool) -> void:
+	pause_button.text = "Resume" if paused else "Pause"
 
 func update_score(score: int) -> void:
 	score_label.text = "Score: %d" % score
