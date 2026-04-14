@@ -278,19 +278,6 @@ theme_override_styles/pressed = SubResource("SecondaryButtonPressed")
 theme_override_styles/hover = SubResource("SecondaryButtonHover")
 text = "Settings"
 
-[node name="TutorialButton" type="Button" parent="CenterContainer/MainCard/VBox/SecondaryButtons" unique_id=1234567890]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 85)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.9)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 34
-theme_override_styles/normal = SubResource("SecondaryButtonNormal")
-theme_override_styles/pressed = SubResource("SecondaryButtonPressed")
-theme_override_styles/hover = SubResource("SecondaryButtonHover")
-text = "Tutorial"
-
 [node name="Spacer2" type="Control" parent="CenterContainer/MainCard/VBox" unique_id=1779331416]
 custom_minimum_size = Vector2(0, 8)
 layout_mode = 2
