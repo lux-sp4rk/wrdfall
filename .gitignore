@@ -38,6 +38,10 @@ landing/node_modules
 landing/dist
 landing/.env
 
+# Generated Godot web export files (rebuilt by CI)
+landing/public/index.*
+landing/public/*.import
+
 # Dependencies
 node_modules
 
