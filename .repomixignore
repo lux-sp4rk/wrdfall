@@ -1,0 +1,27 @@
+# Wordfall-specific ignores
+node_modules/
+.git/
+.next/
+build/
+dist/
+.vercel/
+*.svg
+*.png
+*.jpg
+*.woff
+*.woff2
+*.ttf
+*.eot
+*.otf
+pck/
+export/
+godot/data/
+landing/public/dictionaries/
+coverage/
+.nyc_output/
+tmp/
+temp/
+*.log
+.env
+.env.local
+.env.*.local
