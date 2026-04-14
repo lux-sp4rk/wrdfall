@@ -1,7 +1,6 @@
 extends Control
 
 @onready var play_button: Button = %PlayButton
-@onready var tutorial_button: Button = %TutorialButton
 @onready var stats_button: Button = %StatsButton
 @onready var settings_button: Button = %SettingsButton
 @onready var high_score_label: Label = %HighScoreLabel
@@ -18,8 +17,6 @@ extends Control
 func _ready() -> void:
 	# Main navigation
 	play_button.pressed.connect(_on_play_pressed)
-	if tutorial_button:
-		tutorial_button.pressed.connect(_on_tutorial_pressed)
 	stats_button.pressed.connect(_on_stats_pressed)
 	settings_button.pressed.connect(_on_settings_pressed)
 
@@ -68,9 +65,6 @@ func _update_auth_ui() -> void:
 
 func _on_play_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/LoomDrop.tscn")
-
-func _on_tutorial_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/Tutorial.tscn")
 
 func _on_stats_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/Stats.tscn")
@@ -139,13 +133,8 @@ func _apply_theme() -> void:
 	if play_btn:
 		_apply_button_theme(play_btn, "primary")
 
-	# Update Tutorial button StyleBoxes (if exists)
-	var tutorial_btn = %TutorialButton
-	if tutorial_btn:
-		_apply_button_theme(tutorial_btn, "secondary")
-
 	# Update Stats and Settings buttons
-	for btn_name in ["%StatsButton", "%SettingsButton", "%TutorialButton"]:
+	for btn_name in ["%StatsButton", "%SettingsButton"]:
 		var btn = get_node_or_null(btn_name)
 		if btn:
 			var normal_style = btn.get_theme_stylebox("normal")
