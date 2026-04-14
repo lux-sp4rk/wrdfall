@@ -25,11 +25,13 @@ const DROP_INTERVAL_HARD: float = 6.0
 const SHAKE_COST_NORMAL: int = 3
 const SWAP_COST_NORMAL: int = 2
 const DRAW_MORE_COST_NORMAL: int = 5 # we want to encourage draws
+const FREEZE_COST_NORMAL: int = 10
 
 # Hard difficulty
 const SHAKE_COST_HARD: int = 8
 const SWAP_COST_HARD: int = 5
 const DRAW_MORE_COST_HARD: int = 10 # we want to encourage draws
+const FREEZE_COST_HARD: int = 15
 
 # === Vowel Ratios ===
 
@@ -56,6 +58,12 @@ const RATCHET_DROPS_PER_STEP: int = 5           # Speed up every N drops
 const RATCHET_SPEEDUP: float = 0.5              # Reduce interval by 0.5s per step
 const RATCHET_MIN_INTERVAL: float = 2.0         # Floor — never faster than 2s
 const RATCHET_RESET_WORD_LENGTH: int = 5        # 5+ letter word resets speed
+
+# === Progressive Cost Increments ===
+const SHAKE_COST_INCREMENT: int = 2
+const SWAP_COST_INCREMENT: int = 2
+const DRAW_MORE_COST_INCREMENT: int = 3
+const FREEZE_COST_INCREMENT: int = 5
 
 # === UI Text ===
 

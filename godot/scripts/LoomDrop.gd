@@ -10,7 +10,8 @@ signal word_scored(points: int, word_length: int)
 @onready var shake_button: Button = %"ShakeButton"
 @onready var swap_button: Button = %"SwapButton"
 @onready var draw_more_button: Button = %"DrawMoreButton"
-@onready var pause_button: Button = %"PauseButton"
+@onready var freeze_button: Button = %"FreezeButton"
+@onready var pause_overlay: ColorRect = %"PauseOverlay"
 @onready var background: ColorRect = $ColorRect
 @onready var margin_container: MarginContainer = $MarginContainer
 @onready var game_over_modal: ColorRect = %"GameOverModal"
@@ -36,6 +37,7 @@ const INITIAL_FILL_ROWS: int = GameConstants.INITIAL_FILL_ROWS
 var SHAKE_COST: int = 0
 var SWAP_COST: int = 0
 var DRAW_MORE_COST: int = 0
+var FREEZE_COST: int = 0
 
 var grid: Array = []       # 2D [row][col] of String
 var buttons: Array = []    # 2D [row][col] of Button
@@ -64,6 +66,13 @@ var drop_timer: Timer
 var game_over: bool = false
 var game_started: bool = false  # True after first word scored or first tile dropped
 var is_paused: bool = false
+var is_frozen: bool = false
+
+# Progressive power-up use counters per game
+var shake_uses: int = 0
+var swap_uses: int = 0
+var draw_more_uses: int = 0
+var freeze_uses: int = 0
 
 # Combo streak state
 var combo_streak: int = 0
@@ -87,6 +96,7 @@ func _ready() -> void:
 	SHAKE_COST = GameSettings.get_power_up_cost("shake")
 	SWAP_COST = GameSettings.get_power_up_cost("swap")
 	DRAW_MORE_COST = GameSettings.get_power_up_cost("draw_more")
+	FREEZE_COST = GameSettings.get_power_up_cost("freeze")
 
 	base_drop_interval = GameSettings.get_drop_interval()
 	current_drop_interval = base_drop_interval
@@ -103,6 +113,7 @@ func _ready() -> void:
 	_setup_icon_button(shake_button, ICON_SHAKE, lang_config.ui_strings["shake"])
 	_setup_icon_button(swap_button, ICON_SWAP, lang_config.ui_strings["swap"])
 	_setup_icon_button(draw_more_button, ICON_DRAW_MORE, lang_config.ui_strings["draw_more"])
+	freeze_button.text = "⏸ Freeze\n(-%d)" % FREEZE_COST
 	
 	# Hide Draw More button if feature flag is disabled (default: hidden)
 	if not FeatureFlags.draw_more_enabled:
@@ -112,14 +123,16 @@ func _ready() -> void:
 	_update_shake_button()
 	_update_swap_button()
 	_update_draw_more_button()
+	_update_freeze_button()
 	_start_drop_timer()
 
 	# Connect buttons
 	shake_button.pressed.connect(_on_shake_pressed)
 	swap_button.pressed.connect(_on_swap_pressed)
 	draw_more_button.pressed.connect(_on_draw_more_pressed)
-	pause_button.pressed.connect(_on_pause_pressed)
+	freeze_button.pressed.connect(_on_freeze_pressed)
 	top_nav_bar.set_drop_timer(drop_timer)
+	top_nav_bar.pause_pressed.connect(_on_pause_pressed)
 	word_scored.connect(top_nav_bar.show_word_score)
 	retry_button.pressed.connect(_on_retry_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
@@ -228,24 +241,68 @@ func _create_debug_flags_panel() -> void:
 
 
 func _on_pause_pressed() -> void:
-	is_paused = !is_paused
-	pause_button.text = "▶ Resume\n(Free)" if is_paused else "⏸ Pause\n(Free)"
-
+	if is_frozen:
+		return
 	if is_paused:
-		drop_timer.paused = true
-		word_label.text = lang_config.ui_strings.get("paused", "Game Paused")
-		top_nav_bar.set_timer_paused(true)
-		top_nav_bar.set_game_paused(true)
+		_unpause()
 	else:
-		drop_timer.paused = false
-		word_label.text = ""
-		top_nav_bar.set_timer_paused(false)
-		top_nav_bar.set_game_paused(false)
+		_pause()
 
-	# Update button states to disable/enable based on pause state
-	_update_shake_button()
-	_update_swap_button()
-	_update_draw_more_button()
+func _pause() -> void:
+	is_paused = true
+	drop_timer.paused = true
+	word_label.text = lang_config.ui_strings.get("paused", "Game Paused")
+	top_nav_bar.set_timer_paused(true)
+	top_nav_bar.set_game_paused(true)
+	pause_overlay.visible = true
+	top_nav_bar.set_pause_label(true)
+	_update_powerup_buttons()
+
+func _unpause() -> void:
+	is_paused = false
+	drop_timer.paused = false
+	word_label.text = ""
+	top_nav_bar.set_timer_paused(false)
+	top_nav_bar.set_game_paused(false)
+	pause_overlay.visible = false
+	top_nav_bar.set_pause_label(false)
+	_update_powerup_buttons()
+
+func _on_freeze_pressed() -> void:
+	if is_paused:
+		return
+	if is_frozen:
+		_unfreeze()
+	else:
+		_freeze()
+
+func _freeze() -> void:
+	var cost: int = _get_freeze_cost()
+	if score < cost:
+		word_label.text = lang_config.ui_strings.get("need_freeze", "Need %d points to freeze!") % cost
+		return
+	score -= cost
+	freeze_uses += 1
+	_update_score_display()
+	is_frozen = true
+	freeze_button.text = "▶ Resume\n(Free)"
+	word_label.text = lang_config.ui_strings.get("frozen", "Frozen")
+	drop_timer.paused = true
+	top_nav_bar.set_timer_paused(true)
+	top_nav_bar.set_game_paused(true)
+	_update_powerup_buttons()
+
+func _unfreeze() -> void:
+	is_frozen = false
+	drop_timer.paused = false
+	word_label.text = ""
+	freeze_button.text = "⏸ Freeze\n(-%d)" % _get_freeze_cost()
+	top_nav_bar.set_timer_paused(false)
+	top_nav_bar.set_game_paused(false)
+	_update_powerup_buttons()
+
+func _get_freeze_cost() -> int:
+	return FREEZE_COST + freeze_uses * GameConstants.FREEZE_COST_INCREMENT
 
 
 func _on_feature_flag_changed(flag_name: String, value: bool) -> void:
@@ -253,17 +310,20 @@ func _on_feature_flag_changed(flag_name: String, value: bool) -> void:
 		_reset_drop_speed()
 	elif flag_name == "draw_more_enabled":
 		draw_more_button.visible = value
+		_update_powerup_buttons()
 
 
 func _on_sidebar_opened() -> void:
 	# Pause the game
 	drop_timer.paused = true
+	_update_powerup_buttons()
 
 
 func _on_sidebar_closed() -> void:
-	# Resume if game wasn't already paused
-	if not is_paused:
+	# Resume if game wasn't already paused or frozen
+	if not is_paused and not is_frozen:
 		drop_timer.paused = false
+	_update_powerup_buttons()
 
 
 func _on_retry_pressed() -> void:
@@ -644,8 +704,8 @@ func _input(event: InputEvent) -> void:
 			_toggle_debug_flags_panel()
 			return
 
-	# Block word selection when paused, but allow UI buttons to work
-	if is_paused:
+	# Block word selection when paused or frozen, but allow UI buttons to work
+	if is_paused or is_frozen:
 		return
 
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -736,9 +796,7 @@ func _accept_word(word: String) -> void:
 	score += points
 	word_scored.emit(points, word.length())
 	_update_score_display()
-	_update_shake_button()
-	_update_swap_button()
-	_update_draw_more_button()
+	_update_powerup_buttons()
 
 	# Update combo streak
 	if word.length() >= GameConstants.COMBO_THRESHOLD:
@@ -809,19 +867,19 @@ func _score_word(word: String) -> int:
 # --- Shake Button ---
 
 func _on_shake_pressed() -> void:
-	if game_over or is_paused:
+	if game_over or is_paused or is_frozen:
 		return
 
-	if score < SHAKE_COST:
-		word_label.text = lang_config.ui_strings["need_shake"] % SHAKE_COST
+	var cost: int = _get_shake_cost()
+	if score < cost:
+		word_label.text = lang_config.ui_strings["need_shake"] % cost
 		return
 
-	score -= SHAKE_COST
+	score -= cost
+	shake_uses += 1
 	StatsManager.record_powerup("shake")
 	_update_score_display()
-	_update_shake_button()
-	_update_swap_button()
-	_update_draw_more_button()
+	_update_powerup_buttons()
 
 	# Play shake sound
 	if shake_sound and shake_sound.stream:
@@ -829,7 +887,7 @@ func _on_shake_pressed() -> void:
 
 	# Perform shake animation (async)
 	await _shake_grid()
-	word_label.text = lang_config.ui_strings["grid_shaken"] % SHAKE_COST
+	word_label.text = lang_config.ui_strings["grid_shaken"] % cost
 
 
 func _shake_grid() -> void:
@@ -907,11 +965,12 @@ func _shake_grid() -> void:
 # --- Swap Button ---
 
 func _on_swap_pressed() -> void:
-	if game_over or is_paused:
+	if game_over or is_paused or is_frozen:
 		return
 
-	if score < SWAP_COST:
-		word_label.text = lang_config.ui_strings["need_swap"] % SWAP_COST
+	var cost: int = _get_swap_cost()
+	if score < cost:
+		word_label.text = lang_config.ui_strings["need_swap"] % cost
 		return
 
 	# Enter swap targeting mode (step 1: pick first tile)
@@ -925,7 +984,7 @@ func _cancel_swap_targeting() -> void:
 	is_swap_targeting = false
 	swap_first_cell = Vector2i(-1, -1)
 	_clear_selection_visuals()
-	_update_swap_button()
+	_update_powerup_buttons()
 	word_label.text = lang_config.ui_strings["swap_cancel"]
 
 
@@ -948,13 +1007,13 @@ func _handle_swap_targeting(cell: Vector2i) -> void:
 		var first := swap_first_cell
 
 		# Deduct cost and exit targeting mode before animation
-		score -= SWAP_COST
+		var cost: int = _get_swap_cost()
+		score -= cost
+		swap_uses += 1
 		StatsManager.record_powerup("swap")
 		_update_score_display()
-		_update_shake_button()
-		_update_swap_button()
-		_update_draw_more_button()
-		word_label.text = lang_config.ui_strings["swap_done"] % SWAP_COST
+		_update_powerup_buttons()
+		word_label.text = lang_config.ui_strings["swap_done"] % cost
 
 		is_swap_targeting = false
 		swap_first_cell = Vector2i(-1, -1)
@@ -1022,7 +1081,7 @@ func _execute_swap(cell_a: Vector2i, cell_b: Vector2i) -> void:
 # --- Draw More Button ---
 
 func _on_draw_more_pressed() -> void:
-	if game_over or is_paused:
+	if game_over or is_paused or is_frozen:
 		return
 
 	# Find columns that have space (top row is empty)
@@ -1035,7 +1094,16 @@ func _on_draw_more_pressed() -> void:
 		word_label.text = lang_config.ui_strings["draw_more_no_space"]
 		return
 
+	var cost: int = _get_draw_more_cost()
+	if score < cost:
+		word_label.text = lang_config.ui_strings["need_draw_more"] % cost
+		return
+
+	score -= cost
+	draw_more_uses += 1
 	StatsManager.record_powerup("draw")
+	_update_score_display()
+	_update_powerup_buttons()
 
 	# Draw letters
 	_draw_more_letters(open_cols)
@@ -1322,6 +1390,7 @@ func _is_grid_full() -> bool:
 func _trigger_game_complete(reason: String = "unknown") -> void:
 	game_over = true
 	drop_timer.stop()
+	_update_powerup_buttons()
 
 	# Capture previous high score BEFORE ending session
 	var previous_high_score: int = StatsManager.high_score
@@ -1403,20 +1472,51 @@ func _update_score_display() -> void:
 
 
 func _update_shake_button() -> void:
-	shake_button.disabled = not game_started or score < SHAKE_COST or is_paused
+	var cost: int = _get_shake_cost()
+	_set_button_content(shake_button, ICON_SHAKE, "%s\n(-%d)" % [lang_config.ui_strings["shake"], cost])
+	shake_button.disabled = not game_started or score < cost or is_paused or is_frozen or game_sidebar.is_open
 
 
 func _update_swap_button() -> void:
+	var cost: int = _get_swap_cost()
 	if is_swap_targeting:
 		_set_button_content(swap_button, ICON_CANCEL, lang_config.ui_strings["cancel"])
-		swap_button.disabled = is_paused
+		swap_button.disabled = is_paused or is_frozen or game_sidebar.is_open
 	else:
-		_set_button_content(swap_button, ICON_SWAP, lang_config.ui_strings["swap"])
-		swap_button.disabled = not game_started or score < SWAP_COST or is_paused
+		_set_button_content(swap_button, ICON_SWAP, "%s\n(-%d)" % [lang_config.ui_strings["swap"], cost])
+		swap_button.disabled = not game_started or score < cost or is_paused or is_frozen or game_sidebar.is_open
 
 
 func _update_draw_more_button() -> void:
-	draw_more_button.disabled = not game_started or is_paused
+	var cost: int = _get_draw_more_cost()
+	_set_button_content(draw_more_button, ICON_DRAW_MORE, "%s\n(-%d)" % [lang_config.ui_strings["draw_more"], cost])
+	draw_more_button.disabled = not game_started or score < cost or is_paused or is_frozen or game_sidebar.is_open
+
+
+func _update_freeze_button() -> void:
+	var cost: int = _get_freeze_cost()
+	freeze_button.text = "▶ Resume\n(Free)" if is_frozen else "⏸ Freeze\n(-%d)" % cost
+	freeze_button.disabled = game_over or is_paused or (not is_frozen and score < cost) or game_sidebar.is_open
+
+
+func _update_powerup_buttons() -> void:
+	_update_shake_button()
+	_update_swap_button()
+	_update_draw_more_button()
+	_update_freeze_button()
+
+
+func _get_shake_cost() -> int:
+	return SHAKE_COST + shake_uses * GameConstants.SHAKE_COST_INCREMENT
+
+
+func _get_swap_cost() -> int:
+	return SWAP_COST + swap_uses * GameConstants.SWAP_COST_INCREMENT
+
+
+func _get_draw_more_cost() -> int:
+	return DRAW_MORE_COST + draw_more_uses * GameConstants.DRAW_MORE_COST_INCREMENT
+
 
 
 func _setup_icon_button(btn: Button, icon_path: String, label_text: String) -> void:

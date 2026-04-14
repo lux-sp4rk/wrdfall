@@ -19,12 +19,14 @@ const POWER_UP_COSTS = {
 	"normal": {
 		"shake": GameConstants.SHAKE_COST_NORMAL,
 		"swap": GameConstants.SWAP_COST_NORMAL,
-		"draw_more": GameConstants.DRAW_MORE_COST_NORMAL
+		"draw_more": GameConstants.DRAW_MORE_COST_NORMAL,
+		"freeze": GameConstants.FREEZE_COST_NORMAL
 	},
 	"hard": {
 		"shake": GameConstants.SHAKE_COST_HARD,
 		"swap": GameConstants.SWAP_COST_HARD,
-		"draw_more": GameConstants.DRAW_MORE_COST_HARD
+		"draw_more": GameConstants.DRAW_MORE_COST_HARD,
+		"freeze": GameConstants.FREEZE_COST_HARD
 	}
 }
 

@@ -9,7 +9,7 @@ signal sidebar_closed
 var is_open: bool = false
 var active_tween: Tween = null
 
-const ICON_EXIT := preload("res://assets/icons/icon_exit.svg")
+const ICON_CLOSE := preload("res://assets/icons/icon_close.svg")
 const ICON_SETTINGS := preload("res://assets/icons/icon_settings.svg")
 const ICON_STATS := preload("res://assets/icons/icon_stats.svg")
 const ICON_RULES := preload("res://assets/icons/icon_rules.svg")
@@ -17,7 +17,7 @@ const ICON_HELP := preload("res://assets/icons/icon_help.svg")
 
 @onready var background_overlay: ColorRect = %BackgroundOverlay
 @onready var button_container: VBoxContainer = %ButtonContainer
-@onready var exit_button: Button = %ExitButton
+@onready var close_button: Button = %CloseButton
 @onready var settings_button: Button = %SettingsButton
 @onready var stats_button: Button = %StatsButton
 @onready var rules_button: Button = %RulesButton
@@ -33,14 +33,14 @@ func _ready() -> void:
 	_apply_theme()
 
 	# Connect button signals
-	exit_button.pressed.connect(_on_exit_pressed)
+	close_button.pressed.connect(close)
 	settings_button.pressed.connect(_on_settings_pressed)
 	stats_button.pressed.connect(_on_stats_pressed)
 	rules_button.pressed.connect(_on_rules_pressed)
 	help_button.pressed.connect(_on_help_pressed)
 
 	# Assign icons
-	exit_button.icon = ICON_EXIT
+	close_button.icon = ICON_CLOSE
 	settings_button.icon = ICON_SETTINGS
 	stats_button.icon = ICON_STATS
 	rules_button.icon = ICON_RULES
@@ -123,15 +123,6 @@ func _on_overlay_input(event: InputEvent) -> void:
 		close()
 
 
-func _on_exit_pressed() -> void:
-	sidebar_closed.emit()
-	# Navigate back to React shell
-	if OS.has_feature("web"):
-		JavaScriptBridge.eval("window.wordfallGoHome && window.wordfallGoHome()")
-	else:
-		get_tree().change_scene_to_file("res://scenes/Home.tscn")
-
-
 func _on_settings_pressed() -> void:
 	close()
 	await sidebar_closed
@@ -171,7 +162,7 @@ func _apply_theme() -> void:
 		background_overlay.color = Color(overlay_color.r, overlay_color.g, overlay_color.b, 0.5)
 
 	# Style all buttons
-	var buttons = [exit_button, settings_button, stats_button, rules_button, help_button]
+	var buttons = [close_button, settings_button, stats_button, rules_button, help_button]
 	for button in buttons:
 		if button:
 			# Normal state

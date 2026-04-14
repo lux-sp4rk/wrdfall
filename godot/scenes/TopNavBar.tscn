@@ -74,6 +74,14 @@ shadow_color = Color(0, 0, 0, 0.2)
 shadow_size = 2
 shadow_offset = Vector2(0, 1)
 
+[sub_resource type="Theme" id="NavButtonTheme"]
+Button/colors/font_color = Color(1, 1, 1, 1)
+Button/colors/font_hover_color = Color(1, 1, 1, 1)
+Button/colors/font_pressed_color = Color(1, 1, 1, 0.9)
+Button/styles/normal = SubResource("NavButtonNormal")
+Button/styles/hover = SubResource("NavButtonHover")
+Button/styles/pressed = SubResource("NavButtonPressed")
+
 [node name="TopNavBar" type="HBoxContainer"]
 custom_minimum_size = Vector2(0, 70)
 alignment = 1
@@ -92,19 +100,21 @@ size_flags_horizontal = 1
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
+theme = SubResource("NavButtonTheme")
 
 [node name="BurgerMenuButton" type="Button" parent="LeftContainer/ButtonRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(70, 70)
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.9)
 theme_override_font_sizes/font_size = 42
-theme_override_styles/normal = SubResource("NavButtonNormal")
-theme_override_styles/hover = SubResource("NavButtonHover")
-theme_override_styles/pressed = SubResource("NavButtonPressed")
-text = "☰"
+text = "≡"
+
+[node name="PauseButton" type="Button" parent="LeftContainer/ButtonRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 70)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Pause"
 
 [node name="CenterDisplay" type="VBoxContainer" parent="."]
 layout_mode = 2

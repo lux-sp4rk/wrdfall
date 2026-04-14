@@ -37,12 +37,12 @@ grow_vertical = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="ExitButton" type="Button" parent="ButtonContainer"]
+[node name="CloseButton" type="Button" parent="ButtonContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
-text = "Exit"
+text = "Close"
 
 [node name="SettingsButton" type="Button" parent="ButtonContainer"]
 unique_name_in_owner = true
