@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Summon the Hunter
-        uses: lux-sp4rk/bug-hunter-d33@55c5e2ca2f1d94823925b3e8ca7b1bc217f1fe75
+        uses: lux-sp4rk/bug-hunter-d33@9f964167e8d62a86e71ab1c1c176c1401fff2427
         continue-on-error: true
         with:
           arcee-api-key: ${{ secrets.ARCEE_API_KEY }}
