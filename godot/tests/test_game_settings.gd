@@ -55,7 +55,7 @@ func test_is_rescue_enabled_normal():
 
 func test_is_rescue_enabled_hard():
 	GameSettings.difficulty = "hard"
-	assert_false(GameSettings.is_rescue_enabled(), "Rescue should be disabled in hard mode")
+	assert_true(GameSettings.is_rescue_enabled(), "Rescue should be enabled in hard mode")
 
 func test_settings_save_and_load():
 	# Save current settings

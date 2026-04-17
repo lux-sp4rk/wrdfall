@@ -39,7 +39,7 @@ const VOWEL_RATIO_MULTIPLIERS = {
 # Rescue word system enabled per difficulty
 const RESCUE_ENABLED = {
 	"normal": true,
-	"hard": false
+	"hard": true
 }
 
 func get_drop_interval() -> float:
