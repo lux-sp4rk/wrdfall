@@ -18,12 +18,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Summon the Hunter
-        uses: lux-sp4rk/bug-hunter-d33@0a78dcecc1dbfef2321ac00294fab3968aaba3b2
+        uses: lux-sp4rk/bug-hunter-d33@55c5e2ca2f1d94823925b3e8ca7b1bc217f1fe75
         continue-on-error: true
         with:
           arcee-api-key: ${{ secrets.ARCEE_API_KEY }}
           model: 'arcee/trinity-mini'
-          passes: 'logic,security,judge'
-          severity-threshold: 'warning'
-          max-files: 20
+          framework: godot
+          passes: 'logic,security,judge,performance'
+          severity-threshold: 'note'
+          max-files: 50
           custom-prompts-path: '.ai-memory'
