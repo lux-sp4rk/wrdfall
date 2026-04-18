@@ -16,7 +16,13 @@ const UI_TEXT = {
 }
 
 export function TutorialPrompt({ isOpen, onYes, onNo, language = 'en', theme = 'dark' }) {
-  if (!isOpen) return null
+  // Tutorial temporarily disabled - see issue #238
+  // Return null to prevent any modal from showing
+  return null
+  
+  // Original implementation (to re-enable later):
+  // if (!isOpen) return null
+  // ... rest of component
 
   const ui = UI_TEXT[language] || UI_TEXT.en
 
