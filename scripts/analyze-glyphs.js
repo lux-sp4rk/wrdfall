@@ -108,7 +108,7 @@ if (currentRange) {
   ranges.push(currentRange);
 }
 
-console.log(ranges.map(r => {
+console.log(ranges.map(r => { // debug
   if (r.start === r.end) {
     return `U+${r.start.toString(16).toUpperCase().padStart(4, '0')}`;
   }

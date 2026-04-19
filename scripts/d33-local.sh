@@ -16,11 +16,19 @@ ISSUES_FOUND=0
 # Allow lines marked with // debug
 echo ""
 echo "🔍 Checking for stray console.log statements..."
-LOGS=$(find "$PROJECT_ROOT" -type d -name node_modules -prune -o -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \) -print 2>/dev/null | while read -r file; do
-    grep -n "console.log" "$file" 2>/dev/null | grep -v "// debug" | grep -v "node_modules" | head -3 && echo "  in: $file" || true
-done | head -15)
-if [ -n "$LOGS" ]; then
-    echo "$LOGS"
+
+STRAY_LOGS=""
+while IFS= read -r file; do
+    # Check if file has console.log without // debug marker (skip comments)
+    matches=$(grep -n "console\.log" "$file" 2>/dev/null | grep -v "// debug" | grep -v "// Remove console logs" | head -3 || true)
+    if [ -n "$matches" ]; then
+        STRAY_LOGS="${STRAY_LOGS}${file}:\n${matches}\n"
+    fi
+done < <(find "$PROJECT_ROOT" -type d -name node_modules -prune -o -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \) -print 2>/dev/null | grep -v node_modules)
+
+if [ -n "$STRAY_LOGS" ]; then
+    echo -e "$STRAY_LOGS" | head -15
+    echo ""
     echo "⚠️  Found console.log statements (mark end of line with // debug to allow)"
     ISSUES_FOUND=$((ISSUES_FOUND + 1))
 else
