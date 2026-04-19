@@ -9,67 +9,36 @@ describe('TutorialPrompt', () => {
     onNo: vi.fn(),
   };
 
-  it('returns null when not open', () => {
+  // TEMPORARILY DISABLED - Issue #238
+  // Tutorial modal is disabled; all tests should expect null return
+  // To re-enable: restore original tests from git history
+
+  it('returns null when tutorial is disabled (issue #238)', () => {
     const { container } = render(
-      <TutorialPrompt isOpen={false} {...mockHandlers} />
+      <TutorialPrompt isOpen={true} {...mockHandlers} />
     );
     expect(container.firstChild).toBeNull();
   });
 
-  it('renders with English content by default', () => {
-    render(<TutorialPrompt isOpen={true} {...mockHandlers} />);
-    
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByText('Welcome to Wordfall!')).toBeInTheDocument();
-    expect(screen.getByText('Would you like a quick tutorial to get started?')).toBeInTheDocument();
-    expect(screen.getByText('Yes, show me')).toBeInTheDocument();
-    expect(screen.getByText('No, skip')).toBeInTheDocument();
-  });
-
-  it('renders with Spanish content', () => {
-    render(<TutorialPrompt isOpen={true} language="es" {...mockHandlers} />);
-    
-    expect(screen.getByText('¡Bienvenido a Wordfall!')).toBeInTheDocument();
-    expect(screen.getByText('Sí, mostrar')).toBeInTheDocument();
-    expect(screen.getByText('No, saltar')).toBeInTheDocument();
-  });
-
-  it('falls back to English for unsupported language', () => {
-    render(<TutorialPrompt isOpen={true} language="fr" {...mockHandlers} />);
-    
-    expect(screen.getByText('Welcome to Wordfall!')).toBeInTheDocument();
-  });
-
-  it('calls onYes when yes button clicked', () => {
-    render(<TutorialPrompt isOpen={true} {...mockHandlers} />);
-    
-    fireEvent.click(screen.getByText('Yes, show me'));
-    expect(mockHandlers.onYes).toHaveBeenCalledTimes(1);
-  });
-
-  it('calls onNo when no button clicked', () => {
-    render(<TutorialPrompt isOpen={true} {...mockHandlers} />);
-    
-    fireEvent.click(screen.getByText('No, skip'));
-    expect(mockHandlers.onNo).toHaveBeenCalledTimes(1);
-  });
-
-  it('applies theme class', () => {
-    const { container } = render(
-      <TutorialPrompt isOpen={true} theme="light" {...mockHandlers} />
+  it('returns null regardless of isOpen prop while disabled', () => {
+    const { container: openContainer } = render(
+      <TutorialPrompt isOpen={true} {...mockHandlers} />
     );
-    
-    expect(container.querySelector('.theme-light')).toBeInTheDocument();
+    const { container: closedContainer } = render(
+      <TutorialPrompt isOpen={false} {...mockHandlers} />
+    );
+    expect(openContainer.firstChild).toBeNull();
+    expect(closedContainer.firstChild).toBeNull();
   });
 
-  it('has correct aria attributes', () => {
-    render(<TutorialPrompt isOpen={true} {...mockHandlers} />);
-    
-    const dialog = screen.getByRole('dialog');
-    expect(dialog).toHaveAttribute('aria-modal', 'true');
-    expect(dialog).toHaveAttribute('aria-labelledby', 'tutorial-title');
-    
-    const title = screen.getByText('Welcome to Wordfall!');
-    expect(title).toHaveAttribute('id', 'tutorial-title');
-  });
+  // TODO: Restore tests below when tutorial is re-enabled
+  // Original test suite covered:
+  // - renders with English content by default
+  // - renders with Spanish content
+  // - falls back to English for unsupported language
+  // - calls onYes when yes button clicked
+  // - calls onNo when no button clicked
+  // - applies theme class
+  // - has correct aria attributes
+  // See: https://github.com/lux-sp4rk/wordfall/issues/238
 });
