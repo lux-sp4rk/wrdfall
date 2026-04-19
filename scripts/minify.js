@@ -20,7 +20,7 @@ async function processFiles() {
     if (stats.isDirectory()) continue;
 
     if (file.endsWith('.html')) {
-      console.log(`Processing HTML: ${file}`);
+      console.log(`Processing HTML: ${file}`); // debug
       const content = await fs.promises.readFile(filePath, 'utf8');
       try {
         const minified = await htmlMinify(content, {
@@ -32,14 +32,14 @@ async function processFiles() {
           removeStyleLinkTypeAttributes: true
         });
         await fs.promises.writeFile(filePath, minified);
-        console.log(`✅ Minified HTML: ${file}`);
+        console.log(`✅ Minified HTML: ${file}`); // debug
       } catch (err) {
         console.error(`❌ Failed to minify HTML ${file}:`, err);
       }
     } else if (file.endsWith('.js')) {
       // Skip worker/support files if they are huge or problematic, but for Godot exports, main .js is usually fine.
       // Godot exports typically include index.js and index.pck/wasm.
-      console.log(`Processing JS: ${file}`);
+      console.log(`Processing JS: ${file}`); // debug
       const content = await fs.promises.readFile(filePath, 'utf8');
       try {
         const result = await jsMinify(content, {
@@ -51,7 +51,7 @@ async function processFiles() {
         });
         if (result.code) {
           await fs.promises.writeFile(filePath, result.code);
-          console.log(`✅ Minified JS: ${file}`);
+          console.log(`✅ Minified JS: ${file}`); // debug
         }
       } catch (err) {
         console.error(`❌ Failed to minify JS ${file}:`, err);
