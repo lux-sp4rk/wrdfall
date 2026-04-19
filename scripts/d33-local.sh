@@ -13,15 +13,18 @@ echo "================================"
 ISSUES_FOUND=0
 
 # Check for console.log statements that shouldn't be in production
+# Allow lines marked with // debug
 echo ""
 echo "🔍 Checking for stray console.log statements..."
-LOGS=$(find "$PROJECT_ROOT" -type d -name node_modules -prune -o -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" \) -print 2>/dev/null | xargs grep -l "console.log" 2>/dev/null | grep -v node_modules | head -5 || true)
+LOGS=$(find "$PROJECT_ROOT" -type d -name node_modules -prune -o -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \) -print 2>/dev/null | while read -r file; do
+    grep -n "console.log" "$file" 2>/dev/null | grep -v "// debug" | grep -v "node_modules" | head -3 && echo "  in: $file" || true
+done | head -15)
 if [ -n "$LOGS" ]; then
     echo "$LOGS"
-    echo "⚠️  Found console.log statements (mark with // debug to allow)"
+    echo "⚠️  Found console.log statements (mark end of line with // debug to allow)"
     ISSUES_FOUND=$((ISSUES_FOUND + 1))
 else
-    echo "✅ No stray console.log found"
+    echo "✅ No stray console.log found (or all marked // debug)"
 fi
 
 # Check for .only in tests
