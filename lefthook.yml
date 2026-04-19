@@ -16,7 +16,7 @@ pre-push:
         if command -v godot &> /dev/null; then
           GODOT_BIN="godot"
         elif [ -f "$HOME/bin/godot" ]; then
-          GODOT_BIN="$HOME/bin/godot"
+          GODOT_BIN="HOME/bin/godot"
         else
           echo "Godot not found. Skipping tests."
           exit 0
@@ -24,7 +24,17 @@ pre-push:
         echo "Running GUT tests..."
         "$GODOT_BIN" --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
       fail_text: "Tests failed. Fix them before pushing."
-
+    - name: faye-tests
+      root: "landing/"
+      run: |
+        echo "🧪 Faye: Running tests..."
+        pnpm vitest run --passWithNoTests
+      fail_text: "Faye found test failures. Fix before pushing or use: SKIP_LEFTHOOK=1 git push"
+    - name: d33-bug-hunt
+      run: |
+        echo "🐛 D33: Running bug hunt..."
+        ./scripts/d33-local.sh
+      fail_text: "D33 found issues. Fix before pushing or use: SKIP_LEFTHOOK=1 git push"
 post-commit:
   commands:
     rescue_main_commits:

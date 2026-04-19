@@ -73,7 +73,7 @@ export class CompressionService {
         const text = new TextDecoder().decode(decompressed);
         const elapsed = (performance.now() - start).toFixed(2);
 
-        console.log(`📖 Loaded ${language}${ext} (${(buffer.byteLength / 1024).toFixed(2)} KB → decompressed in ${elapsed}ms)`);
+        console.log(`📖 Loaded ${language}${ext} (${(buffer.byteLength / 1024).toFixed(2)} KB → decompressed in ${elapsed}ms)`); // debug
 
         this.decompressed.set(cacheKey, text);
         return text;

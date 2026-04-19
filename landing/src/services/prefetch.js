@@ -86,7 +86,7 @@ export class PrefetchManager {
       const text = await this.compression.fetchDictionary(language);
       const elapsed = (performance.now() - start).toFixed(2);
       
-      console.log(`📖 Dictionary '${language}' decompressed in ${elapsed}ms`);
+      console.log(`📖 Dictionary '${language}' decompressed in ${elapsed}ms`); // debug
       
       // Mark dict as complete
       this.downloads.dict.progress = 1;

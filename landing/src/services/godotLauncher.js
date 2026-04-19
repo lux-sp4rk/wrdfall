@@ -72,7 +72,7 @@ export class GodotLauncher {
       // This 50ms delay ensures JavaScriptBridge is ready before startGame() is called.
       // See: https://github.com/lux-sp4rk/word-loom/issues/162
       await this._delay(50);
-      console.log('✅ Engine initialized. JavaScriptBridge ready.');
+      console.log('✅ Engine initialized. JavaScriptBridge ready.'); // debug
 
       return this.engine;
     } catch (error) {
@@ -101,7 +101,7 @@ export class GodotLauncher {
         words: Array.from(dictionary.words),
       };
 
-      console.log(`📖 Injected ${dictionary.words.length} words into window.WORD_LOOM_DICTIONARY`);
+      console.log(`📖 Injected ${dictionary.words.length} words into window.WORD_LOOM_DICTIONARY`); // debug
 
       // Inject settings
       window.WORD_LOOM_SETTINGS = {
@@ -109,7 +109,7 @@ export class GodotLauncher {
         language: dictionary.language,
       };
 
-      console.log(`⚙️ Settings injected: ${JSON.stringify(window.WORD_LOOM_SETTINGS)}`);
+      console.log(`⚙️ Settings injected: ${JSON.stringify(window.WORD_LOOM_SETTINGS)}`); // debug
 
       // Start Godot — must pass mainPack so the engine knows where to find the PCK.
       // startGame() resolves when the Godot main loop starts, not when the first frame renders.

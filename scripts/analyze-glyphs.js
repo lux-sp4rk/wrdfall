@@ -70,7 +70,7 @@ function scanDirectory(dirPath) {
   }
 }
 
-console.log('🔍 Analyzing glyphs used in the app...');
+console.log('🔍 Analyzing glyphs used in the app...'); // debug
 
 for (const dir of INCLUDE_DIRS) {
   if (fs.existsSync(dir)) {
@@ -84,8 +84,8 @@ for (const dir of INCLUDE_DIRS) {
 
 // Output results
 const glyphList = Array.from(glyphSet).sort();
-console.log(`\n✅ Found ${glyphList.length} unique glyphs:`);
-console.log('\nUnicode ranges (for fonttools):');
+console.log(`\n✅ Found ${glyphList.length} unique glyphs:`); // debug
+console.log('\nUnicode ranges (for fonttools):'); // debug
 
 // Group into ranges for more compact representation
 const ranges = [];
@@ -108,17 +108,17 @@ if (currentRange) {
   ranges.push(currentRange);
 }
 
-console.log(ranges.map(r => {
+console.log(ranges.map(r => { // debug
   if (r.start === r.end) {
     return `U+${r.start.toString(16).toUpperCase().padStart(4, '0')}`;
   }
   return `U+${r.start.toString(16).toUpperCase().padStart(4, '0')}-U+${r.end.toString(16).toUpperCase().padStart(4, '0')}`;
 }).join(',\\\n'));
 
-console.log('\nComma-separated glyph codes (for pyftsubset):');
-console.log(glyphList.map(g => `U+${g.padStart(4, '0')}`).join(','));
+console.log('\nComma-separated glyph codes (for pyftsubset):'); // debug
+console.log(glyphList.map(g => `U+${g.padStart(4, '0')}`).join(',')); // debug
 
 // Save to file for use in subset-font.sh
 const outputFile = 'scripts/glyphs.txt';
 fs.writeFileSync(outputFile, glyphList.join('\n'));
-console.log(`\n📝 Glyph list saved to ${outputFile}`);
+console.log(`\n📝 Glyph list saved to ${outputFile}`); // debug
