@@ -100,6 +100,7 @@ func _ready() -> void:
 
 	base_drop_interval = GameSettings.get_drop_interval()
 	current_drop_interval = base_drop_interval
+	drops_since_start = 0
 
 	lang_config = LanguageConfig.get_config(GameSettings.current_language)
 	dictionary = DictionaryService.new(lang_config.wordlist_path, lang_config.extra_alpha)
