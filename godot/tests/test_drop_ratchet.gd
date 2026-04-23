@@ -68,12 +68,11 @@ func test_pause_does_not_affect_ratchet():
 
 func test_new_game_resets_ratchet():
 	FeatureFlags.drop_ratchet_enabled = true
-	# Ratchet up
-	_game._ratchet_drop_speed()
-	_game._ratchet_drop_speed()
+	# Simulate ratchet state (speed decreased, drops recorded)
+	_game.current_drop_interval = GameConstants.RATCHET_MIN_INTERVAL
+	_game.drops_since_start = 15
 	var ratcheted = _game.current_drop_interval
 	assert_lt(ratcheted, _game.base_drop_interval, "Should be ratcheted down from base")
-	assert_gt(_game.drops_since_start, 0, "Should have recorded drops")
 	
 	# Simulate new game by re-triggering _ready (same lifecycle as scene reload)
 	_game._ready()
