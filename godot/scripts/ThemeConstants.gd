@@ -39,6 +39,20 @@ const BUTTON_FONT_PRESSED: Color = Color.BLACK
 const BUTTON_FONT_DISABLED: Color = Color(0.4, 0.4, 0.4, 1)
 const BUTTON_OUTLINE_COLOR: Color = Color(1, 1, 1, 0.3)
 
+# Modal/Dialog colors
+const MODAL_BG_COLOR: Color = Color(0.22, 0.30, 0.38, 1)  # Slightly lighter than game bg
+const MODAL_BORDER_COLOR: Color = Color(0.45, 0.55, 0.65, 1)
+const MODAL_CORNER_RADIUS: int = 16
+const MODAL_SHADOW_COLOR: Color = Color(0, 0, 0, 0.5)
+const MODAL_SHADOW_SIZE: int = 16
+const MODAL_SHADOW_OFFSET: Vector2 = Vector2(0, 8)
+
+# Modal button colors
+const MODAL_BUTTON_BG: Color = Color(0.35, 0.48, 0.60, 1)
+const MODAL_BUTTON_BG_HOVER: Color = Color(0.42, 0.55, 0.68, 1)
+const MODAL_BUTTON_BG_PRESSED: Color = Color(0.28, 0.40, 0.52, 1)
+const MODAL_BUTTON_FONT_COLOR: Color = Color.WHITE
+
 # === Fonts ===
 
 const TILE_FONT_SIZE: int = 44
@@ -92,4 +106,38 @@ static func create_highlight_stylebox(color: Color, is_valid: bool = true) -> St
 	style.shadow_size = TILE_SHADOW_SIZE
 	style.shadow_offset = TILE_SHADOW_OFFSET
 	
+	return style
+
+## Creates a StyleBoxFlat for modal/dialog panels
+static func create_modal_stylebox() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = MODAL_BG_COLOR
+	style.border_color = MODAL_BORDER_COLOR
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(MODAL_CORNER_RADIUS)
+	style.shadow_color = MODAL_SHADOW_COLOR
+	style.shadow_size = MODAL_SHADOW_SIZE
+	style.shadow_offset = MODAL_SHADOW_OFFSET
+	# Add generous padding inside the panel
+	style.content_margin_left = 32
+	style.content_margin_right = 32
+	style.content_margin_top = 32
+	style.content_margin_bottom = 32
+	return style
+
+## Creates a StyleBoxFlat for modal buttons
+static func create_modal_button_stylebox(state: String = "normal") -> StyleBoxFlat:
+	var bg_color: Color = MODAL_BUTTON_BG
+	match state:
+		"hover":
+			bg_color = MODAL_BUTTON_BG_HOVER
+		"pressed":
+			bg_color = MODAL_BUTTON_BG_PRESSED
+	
+	var style := StyleBoxFlat.new()
+	style.bg_color = bg_color
+	style.set_corner_radius_all(12)
+	style.shadow_color = TILE_SHADOW_COLOR
+	style.shadow_size = TILE_SHADOW_SIZE
+	style.shadow_offset = TILE_SHADOW_OFFSET
 	return style
