@@ -83,10 +83,10 @@ static func english() -> LanguageConfig:
 	]
 	cfg.ui_strings = {
 		"score": "Score: %d",
-		"game_complete": "Game Complete!\nScore: %d",
-		"new_high_score": "New High Score!\n",
-		"you_win": "You Win! Score: %d",
-		"game_over": "Game Over! Score: %d",
+		"game_complete": "Game Complete!",
+		"new_high_score": "🏆 New High Score!",
+		"you_win": "You Win!",
+		"game_over": "Game Over!",
 		"not_valid": "Not a valid word.",
 		"need_shake": "Need %d points to shake!",
 		"grid_shaken": "Grid shaken! (-%d)",
