@@ -1666,7 +1666,7 @@ func _play_win_animation(is_new_high_score: bool) -> void:
 
 	# Phase 4: Restore and display message
 	margin_container.position = orig_margin_pos
-	word_label.text = lang_config.ui_strings["you_win"] % score
+	word_label.text = lang_config.ui_strings["you_win"]
 
 	# Animate word label appearance
 	word_label.modulate.a = 0.0
@@ -1706,7 +1706,7 @@ func _play_lose_animation(is_new_high_score: bool) -> void:
 	await tween.finished
 
 	# Display encouraging message with fade-in
-	word_label.text = lang_config.ui_strings["game_over"] % score
+	word_label.text = lang_config.ui_strings["game_over"]
 	word_label.modulate.a = 0.0
 	var label_tween := create_tween()
 	label_tween.tween_property(word_label, "modulate:a", 1.0, 0.4)
