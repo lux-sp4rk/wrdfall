@@ -1722,12 +1722,12 @@ func _show_game_over_modal(is_new_high_score: bool) -> void:
 	if game_complete_sound and game_complete_sound.stream:
 		game_complete_sound.play()
 
-	# Base message: "Game Complete" with score
-	var base_message: String = lang_config.ui_strings.get("game_complete", "Game Complete!\nScore: %d") % score
+	# Base message for message label
+	var base_message: String = lang_config.ui_strings.get("game_complete", "Game Complete!")
 
-	# If new high score, add congratulatory text and play win sound
+	# If new high score, show congratulatory title
 	if is_new_high_score:
-		modal_message_label.text = lang_config.ui_strings.get("new_high_score", "New High Score!\n") + base_message
+		modal_message_label.text = lang_config.ui_strings.get("new_high_score", "🏆 New High Score!")
 
 		# Play game won sound after a brief delay
 		await get_tree().create_timer(0.3).timeout
@@ -1736,8 +1736,9 @@ func _show_game_over_modal(is_new_high_score: bool) -> void:
 	else:
 		modal_message_label.text = base_message
 
-	# Hide the separate score label since the message includes it
-	modal_score_label.hide()
+	# Always show score in the separate score label for cleaner layout
+	modal_score_label.text = lang_config.ui_strings.get("score_format", "Score: %d") % score
+	modal_score_label.show()
 
 	# Update button labels
 	retry_button.text = lang_config.ui_strings["play_again"]
