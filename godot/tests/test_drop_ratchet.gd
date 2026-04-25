@@ -51,6 +51,35 @@ func test_disabled_ratchet_does_nothing():
 	_game._ratchet_drop_speed()
 	assert_eq(_game.current_drop_interval, initial_interval, "Ratchet should do nothing when disabled")
 
+func test_pause_does_not_affect_ratchet():
+	FeatureFlags.drop_ratchet_enabled = true
+	# Ratchet up first
+	_game._ratchet_drop_speed()
+	var ratcheted_interval = _game.current_drop_interval
+	
+	# Pause and resume
+	_game._pause()
+	assert_true(_game.is_paused, "Game should be paused")
+	_game._unpause()
+	assert_false(_game.is_paused, "Game should be unpaused")
+	
+	# Interval should be unchanged through pause cycle
+	assert_eq(_game.current_drop_interval, ratcheted_interval, "Pausing should not affect ratchet interval")
+
+func test_new_game_resets_ratchet():
+	FeatureFlags.drop_ratchet_enabled = true
+	# Simulate ratchet state (speed decreased, drops recorded)
+	_game.current_drop_interval = GameConstants.RATCHET_MIN_INTERVAL
+	_game.drops_since_start = 15
+	var ratcheted = _game.current_drop_interval
+	assert_lt(ratcheted, _game.base_drop_interval, "Should be ratcheted down from base")
+	
+	# Simulate new game by re-triggering _ready (same lifecycle as scene reload)
+	_game._ready()
+	
+	assert_eq(_game.current_drop_interval, _game.base_drop_interval, "New game should reset interval to base")
+	assert_eq(_game.drops_since_start, 0, "New game should reset drop counter")
+
 func test_runtime_toggle_off_resets_speed():
 	FeatureFlags.drop_ratchet_enabled = true
 	_game.current_drop_interval = GameConstants.RATCHET_MIN_INTERVAL
@@ -58,3 +87,4 @@ func test_runtime_toggle_off_resets_speed():
 	# Toggling off via singleton should trigger reset in LoomDrop
 	FeatureFlags.drop_ratchet_enabled = false
 	assert_eq(_game.current_drop_interval, _game.base_drop_interval, "Toggling flag off should reset current drop speed")
+

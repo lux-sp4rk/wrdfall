@@ -100,6 +100,7 @@ func _ready() -> void:
 
 	base_drop_interval = GameSettings.get_drop_interval()
 	current_drop_interval = base_drop_interval
+	drops_since_start = 0
 
 	lang_config = LanguageConfig.get_config(GameSettings.current_language)
 	dictionary = DictionaryService.new(lang_config.wordlist_path, lang_config.extra_alpha)
@@ -396,12 +397,16 @@ func _initialize_grid() -> void:
 			btn.add_theme_color_override("font_pressed_color", ThemeConstants.TILE_FONT_COLOR)
 			btn.add_theme_color_override("font_disabled_color", ThemeConstants.TILE_FONT_DISABLED_COLOR)
 
-			var tile_style := ThemeConstants.create_tile_stylebox()
-			btn.add_theme_stylebox_override("normal", tile_style)
-			btn.add_theme_stylebox_override("hover", tile_style)
-			btn.add_theme_stylebox_override("pressed", tile_style)
-			btn.add_theme_stylebox_override("disabled", tile_style)
-			btn.add_theme_stylebox_override("focus", tile_style)
+			var tile_style := ThemeConstants.create_tile_stylebox("normal")
+			var tile_normal := ThemeConstants.create_tile_stylebox("normal")
+			var tile_hover := ThemeConstants.create_tile_stylebox("hover")
+			var tile_pressed := ThemeConstants.create_tile_stylebox("pressed")
+			
+			btn.add_theme_stylebox_override("normal", tile_normal)
+			btn.add_theme_stylebox_override("hover", tile_hover)
+			btn.add_theme_stylebox_override("pressed", tile_pressed)
+			btn.add_theme_stylebox_override("disabled", tile_normal)
+			btn.add_theme_stylebox_override("focus", tile_normal)
 
 			# Point value subscript (bottom-right, like Scrabble tiles)
 			var pt_label := Label.new()
@@ -1205,7 +1210,7 @@ func _apply_gravity_with_animation() -> void:
 		tile_visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 		# Create background style matching button
-		var stylebox := ThemeConstants.create_tile_stylebox()
+		var stylebox := ThemeConstants.create_tile_stylebox("normal")
 		stylebox.content_margin_left = 4.0
 		stylebox.content_margin_right = 4.0
 		stylebox.content_margin_top = 4.0
@@ -1430,23 +1435,27 @@ func _update_selection_visuals() -> void:
 	)
 
 	var highlight: Color = COLOR_SELECTED if long_enough else COLOR_TOO_SHORT
+	var is_valid = long_enough
 	for cell in selected_path:
 		var btn: Button = buttons[cell.y][cell.x]
 		btn.add_theme_color_override("font_color", Color.WHITE)
-		btn.add_theme_stylebox_override("normal", _make_stylebox(highlight))
-		btn.add_theme_stylebox_override("hover", _make_stylebox(highlight))
+		btn.add_theme_stylebox_override("normal", ThemeConstants.create_highlight_stylebox(highlight, is_valid))
+		btn.add_theme_stylebox_override("hover", ThemeConstants.create_highlight_stylebox(highlight, is_valid))
 
 
 func _clear_selection_visuals() -> void:
-	# Restore default tile appearance (blue background, white text)
-	var tile_style := ThemeConstants.create_tile_stylebox()
+	# Restore default tile appearance with state-specific styles
+	var tile_normal := ThemeConstants.create_tile_stylebox("normal")
+	var tile_hover := ThemeConstants.create_tile_stylebox("hover")
+	var tile_pressed := ThemeConstants.create_tile_stylebox("pressed")
 
 	for row in range(ROWS):
 		for col in range(COLS):
 			var btn: Button = buttons[row][col]
 			btn.add_theme_color_override("font_color", ThemeConstants.TILE_FONT_COLOR)
-			btn.add_theme_stylebox_override("normal", tile_style)
-			btn.add_theme_stylebox_override("hover", tile_style)
+			btn.add_theme_stylebox_override("normal", tile_normal)
+			btn.add_theme_stylebox_override("hover", tile_hover)
+			btn.add_theme_stylebox_override("pressed", tile_pressed)
 
 
 func _make_stylebox(color: Color) -> StyleBoxFlat:
@@ -1713,12 +1722,12 @@ func _show_game_over_modal(is_new_high_score: bool) -> void:
 	if game_complete_sound and game_complete_sound.stream:
 		game_complete_sound.play()
 
-	# Base message: "Game Complete" with score
-	var base_message: String = lang_config.ui_strings.get("game_complete", "Game Complete!\nScore: %d") % score
+	# Base message for message label
+	var base_message: String = lang_config.ui_strings.get("game_complete", "Game Complete!")
 
-	# If new high score, add congratulatory text and play win sound
+	# If new high score, show congratulatory title
 	if is_new_high_score:
-		modal_message_label.text = lang_config.ui_strings.get("new_high_score", "New High Score!\n") + base_message
+		modal_message_label.text = lang_config.ui_strings.get("new_high_score", "🏆 New High Score!")
 
 		# Play game won sound after a brief delay
 		await get_tree().create_timer(0.3).timeout
@@ -1727,8 +1736,9 @@ func _show_game_over_modal(is_new_high_score: bool) -> void:
 	else:
 		modal_message_label.text = base_message
 
-	# Hide the separate score label since the message includes it
-	modal_score_label.hide()
+	# Always show score in the separate score label for cleaner layout
+	modal_score_label.text = lang_config.ui_strings.get("score_format", "Score: %d") % score
+	modal_score_label.show()
 
 	# Update button labels
 	retry_button.text = lang_config.ui_strings["play_again"]

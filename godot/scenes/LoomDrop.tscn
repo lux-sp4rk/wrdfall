@@ -19,6 +19,55 @@ shadow_color = Color(0, 0, 0, 0.3)
 shadow_size = 4
 shadow_offset = Vector2(0, 2)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_panel"]
+bg_color = Color(0.22, 0.30, 0.38, 1)
+border_color = Color(0.45, 0.55, 0.65, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 16
+shadow_offset = Vector2(0, 8)
+content_margin_left = 32.0
+content_margin_top = 32.0
+content_margin_right = 32.0
+content_margin_bottom = 32.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_button_normal"]
+bg_color = Color(0.35, 0.48, 0.60, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.25)
+shadow_size = 3
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_button_hover"]
+bg_color = Color(0.42, 0.55, 0.68, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.25)
+shadow_size = 3
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_button_pressed"]
+bg_color = Color(0.28, 0.40, 0.52, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.25)
+shadow_size = 3
+shadow_offset = Vector2(0, 2)
+
 [node name="LoomDrop" type="Control" unique_id=20148124]
 layout_mode = 3
 anchors_preset = 15
@@ -149,6 +198,7 @@ grow_vertical = 2
 [node name="Panel" type="Panel" parent="GameOverModal/CenterContainer" unique_id=168660986]
 custom_minimum_size = Vector2(500, 400)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal_panel")
 
 [node name="VBox" type="VBoxContainer" parent="GameOverModal/CenterContainer/Panel" unique_id=1816266748]
 layout_mode = 1
@@ -160,7 +210,7 @@ grow_vertical = 2
 theme_override_constants/separation = 24
 
 [node name="TopSpacer" type="Control" parent="GameOverModal/CenterContainer/Panel/VBox" unique_id=266848416]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 
 [node name="MessageLabel" type="Label" parent="GameOverModal/CenterContainer/Panel/VBox" unique_id=1060311077]
@@ -191,7 +241,11 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(350, 90)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 32
+theme_override_styles/normal = SubResource("StyleBoxFlat_modal_button_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_modal_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_modal_button_pressed")
 text = "Play Again"
 
 [node name="QuitButton" type="Button" parent="GameOverModal/CenterContainer/Panel/VBox/ButtonContainer" unique_id=671124874]
@@ -199,11 +253,15 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(350, 90)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 32
+theme_override_styles/normal = SubResource("StyleBoxFlat_modal_button_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_modal_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_modal_button_pressed")
 text = "Quit to Menu"
 
 [node name="BottomSpacer" type="Control" parent="GameOverModal/CenterContainer/Panel/VBox" unique_id=1997048629]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 
 [node name="DropSoundPlayer" type="AudioStreamPlayer" parent="." unique_id=2046695954]

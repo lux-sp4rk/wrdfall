@@ -250,6 +250,28 @@ theme_override_font_sizes/font_size = 28
 text = "0.0"
 horizontal_alignment = 2
 
+[node name="LeaderboardSection" type="VBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ContentVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SectionTitle" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/LeaderboardSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "Leaderboard"
+horizontal_alignment = 1
+
+[node name="LeaderboardList" type="VBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/LeaderboardSection"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LeaderboardLoading" type="Label" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/LeaderboardSection"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Loading Leaderboard..."
+horizontal_alignment = 1
+
 [node name="ButtonRow" type="HBoxContainer" parent="MarginContainer/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 16
