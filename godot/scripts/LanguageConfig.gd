@@ -15,6 +15,7 @@ var seed_words: Array
 var letter_points: Dictionary  # per-letter scoring values (Scrabble-style)
 var extra_alpha: Array  # extra Unicode codepoints allowed (e.g. Ñ = 209)
 var ui_strings: Dictionary
+var tips: Array  # gameplay tips shown on pause screen
 
 
 static func get_config(lang_code: String) -> LanguageConfig:
@@ -117,7 +118,17 @@ static func english() -> LanguageConfig:
 		"streak": "streak %d!",
 		"experimental_features": "Experimental Features",
 		"drop_ratchet": "Drop Ratchet",
+		"resume": "Resume",
 	}
+	cfg.tips = [
+		"Longer words = higher score multipliers",
+		"Use Freeze to stop the timer and plan your next move",
+		"Diagonal and zigzag paths are allowed!",
+		"3-letter minimum for valid words",
+		"Look for common prefixes and suffixes",
+		"Shaking the grid costs points but can save you",
+		"Streaks build up bonus points — keep the chain going!",
+	]
 	return cfg
 
 
@@ -206,5 +217,15 @@ static func spanish() -> LanguageConfig:
 		"streak": "racha %d!",
 		"experimental_features": "Funciones Experimentales",
 		"drop_ratchet": "Aceleraci\u00f3n de Ca\u00edda",
+		"resume": "Reanudar",
 	}
+	cfg.tips = [
+		"Palabras m\u00e1s largas = multiplicadores de puntuaci\u00f3n m\u00e1s altos",
+		"Usa Congelar para detener el tiempo y planificar tu siguiente movimiento",
+		"\u00a1Se permiten caminos diagonales y en zigzag!",
+		"M\u00ednimo de 3 letras para palabras v\u00e1lidas",
+		"Busca prefijos y sufijos comunes",
+		"Mezclar la cuadr\u00edcula cuesta puntos pero puede salvarte",
+		"Las rachas acumulan puntos de bonificaci\u00f3n \u2014 \u00a1sigue la cadena!",
+	]
 	return cfg
