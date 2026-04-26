@@ -13,6 +13,13 @@ pre-push:
     - name: run-gut-tests
       root: "godot/"
       run: |
+        # Skip if no Godot files changed
+        CHANGED=$(git diff --name-only origin/main...HEAD | grep '^godot/' || true)
+        if [ -z "$CHANGED" ]; then
+          echo "No Godot files changed. Skipping GUT tests."
+          exit 0
+        fi
+
         if command -v godot &> /dev/null; then
           GODOT_BIN="godot"
         elif [ -f "$HOME/bin/godot" ]; then
@@ -21,17 +28,38 @@ pre-push:
           echo "Godot not found. Skipping tests."
           exit 0
         fi
-        echo "Running GUT tests..."
-        "$GODOT_BIN" --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
+
+        TESTS=$(bash ../scripts/select-gut-tests.sh)
+        if [ -z "$TESTS" ]; then
+          echo "No relevant GUT tests for changed files. Skipping."
+          exit 0
+        fi
+
+        echo "Running GUT tests: $TESTS"
+        "$GODOT_BIN" --headless -s addons/gut/gut_cmdln.gd -gtest="$TESTS" -gexit
       fail_text: "Tests failed. Fix them before pushing."
     - name: faye-tests
       root: "landing/"
       run: |
+        # Skip if no landing files changed
+        CHANGED=$(git diff --name-only origin/main...HEAD | grep '^landing/' || true)
+        if [ -z "$CHANGED" ]; then
+          echo "No landing files changed. Skipping Faye tests."
+          exit 0
+        fi
+
         echo "🧪 Faye: Running tests..."
-        pnpm vitest run --passWithNoTests
+        pnpm vitest run --changed origin/main --passWithNoTests
       fail_text: "Faye found test failures. Fix before pushing or use: SKIP_LEFTHOOK=1 git push"
     - name: d33-bug-hunt
       run: |
+        # Skip if no JS/landing files changed
+        CHANGED=$(git diff --name-only origin/main...HEAD | grep -E '^(landing/|src/|scripts/d33)' || true)
+        if [ -z "$CHANGED" ]; then
+          echo "No JS/landing files changed. Skipping D33."
+          exit 0
+        fi
+
         echo "🐛 D33: Running bug hunt..."
         ./scripts/d33-local.sh
       fail_text: "D33 found issues. Fix before pushing or use: SKIP_LEFTHOOK=1 git push"
