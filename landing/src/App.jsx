@@ -60,15 +60,6 @@ function App() {
 
   // Extracted launch sequence — called after prefetch finishes when triggered by play click
   const proceedFromPrefetchReady = useCallback(async () => {
-    console.log('[proceedFromPrefetchReady] checking tutorial state...'); // debug
-    const hasCompletedTutorial = localStorage.getItem('word-loom-tutorial-completed') === 'true';
-    const hasSkippedTutorial = localStorage.getItem('word-loom-tutorial-skipped') === 'true';
-    console.log('[proceedFromPrefetchReady] completed=', hasCompletedTutorial, 'skipped=', hasSkippedTutorial); // debug
-    if (!hasCompletedTutorial && !hasSkippedTutorial) {
-      console.log('[proceedFromPrefetchReady] showing tutorial prompt'); // debug
-      setShowTutorialPrompt(true);
-      return;
-    }
     console.log('[proceedFromPrefetchReady] launching game...'); // debug
     await launchGame('game');
     console.log('[proceedFromPrefetchReady] launchGame returned'); // debug
