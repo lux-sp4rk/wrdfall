@@ -81,6 +81,7 @@ function App() {
   }, []);
 
   const startPrefetch = useCallback(async () => {
+    console.log('[startPrefetch] starting...'); // debug
     setState(prev => ({ ...prev, prefetchStatus: 'loading', prefetchProgress: 0, error: null }));
 
     try {
@@ -88,7 +89,9 @@ function App() {
         setState(prev => ({ ...prev, prefetchProgress: progress }));
       });
 
+      console.log('[startPrefetch] waiting for PrefetchManager.start()...'); // debug
       const blobs = await prefetchManager.current.start();
+      console.log('[startPrefetch] PrefetchManager.start() resolved'); // debug
 
       window.WORD_LOOM_BLOBS = {
         executableBlob: blobs.wasmBlob,
@@ -103,7 +106,7 @@ function App() {
         await proceedFromPrefetchReady();
       }
     } catch (error) {
-      console.error('Pre-fetch failed:', error);
+      console.error('[startPrefetch] Pre-fetch failed:', error); // debug
       const categorized = categorizeError(error);
       setErrorDetails(categorized);
       setState(prev => ({
@@ -150,16 +153,20 @@ function App() {
   }, [isOnline, state.prefetchStatus, startPrefetch]);
 
   async function handlePlayClick() {
+    console.log('[handlePlayClick] clicked, prefetchStatus=', state.prefetchStatus); // debug
     if (state.prefetchStatus === 'loading') {
+      console.log('[handlePlayClick] already loading, ignoring'); // debug
       return;
     }
     if (state.prefetchStatus === 'idle') {
       // First click: start prefetching, auto-proceed when ready
+      console.log('[handlePlayClick] starting prefetch...'); // debug
       prefetchTriggerRef.current = 'play-click';
       startPrefetch();
       return;
     }
     // prefetchStatus === 'ready': proceed with launch
+    console.log('[handlePlayClick] prefetch ready, proceeding to launch'); // debug
     await proceedFromPrefetchReady();
   }
 
