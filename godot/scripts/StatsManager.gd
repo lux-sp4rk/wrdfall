@@ -403,7 +403,7 @@ func submit_to_leaderboard(score: int) -> void:
 	Supabase.database.query(SupabaseQuery.new().from("leaderboards").insert([data]))
 
 func get_leaderboard(limit: int = 10) -> void:
-	var query = SupabaseQuery.new().from("leaderboards").select(PackedStringArray(["score", "profiles(display_name)"])).order("score", false).limit(limit)
+	var query = SupabaseQuery.new().from("leaderboards").select(PackedStringArray(["score", "profiles(display_name)"])).order("score", false).range(0, limit - 1)
 	var task = Supabase.database.query(query)
 	task.completed.connect(func(result):
 		if result:
