@@ -149,12 +149,13 @@ func _ready() -> void:
 	retry_button.pressed.connect(_on_retry_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
 
-	# Connect burger menu to sidebar
-	top_nav_bar.burger_pressed.connect(game_sidebar.toggle)
+	# Connect burger menu to sidebar (native only — web uses React shell for nav)
+	if not OS.has_feature("web"):
+		top_nav_bar.burger_pressed.connect(game_sidebar.toggle)
 
-	# Pause game when sidebar opens/closes
-	game_sidebar.sidebar_opened.connect(_on_sidebar_opened)
-	game_sidebar.sidebar_closed.connect(_on_sidebar_closed)
+		# Pause game when sidebar opens/closes
+		game_sidebar.sidebar_opened.connect(_on_sidebar_opened)
+		game_sidebar.sidebar_closed.connect(_on_sidebar_closed)
 
 	# Hide modal initially
 	game_over_modal.hide()
