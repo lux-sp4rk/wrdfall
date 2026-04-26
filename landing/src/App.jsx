@@ -60,13 +60,18 @@ function App() {
 
   // Extracted launch sequence — called after prefetch finishes when triggered by play click
   const proceedFromPrefetchReady = useCallback(async () => {
+    console.log('[proceedFromPrefetchReady] checking tutorial state...'); // debug
     const hasCompletedTutorial = localStorage.getItem('word-loom-tutorial-completed') === 'true';
     const hasSkippedTutorial = localStorage.getItem('word-loom-tutorial-skipped') === 'true';
+    console.log('[proceedFromPrefetchReady] completed=', hasCompletedTutorial, 'skipped=', hasSkippedTutorial); // debug
     if (!hasCompletedTutorial && !hasSkippedTutorial) {
+      console.log('[proceedFromPrefetchReady] showing tutorial prompt'); // debug
       setShowTutorialPrompt(true);
       return;
     }
+    console.log('[proceedFromPrefetchReady] launching game...'); // debug
     await launchGame('game');
+    console.log('[proceedFromPrefetchReady] launchGame returned'); // debug
   }, []);
 
   // Memoized functions to avoid dependency warnings
@@ -97,13 +102,20 @@ function App() {
         executableBlob: blobs.wasmBlob,
         mainPackBlob: blobs.pckBlob
       };
+      console.log('[startPrefetch] WORD_LOOM_BLOBS set'); // debug
 
       const dictWords = dictionaryManager.current.parseWords(blobs.dict);
       dictionaryManager.current.cache.set('en', dictWords);
+      console.log('[startPrefetch] dictionary parsed, words:', dictWords.size); // debug
 
       setState(prev => ({ ...prev, prefetchStatus: 'ready' }));
+      console.log('[startPrefetch] state set to ready, trigger=', prefetchTriggerRef.current); // debug
       if (prefetchTriggerRef.current === 'play-click') {
+        console.log('[startPrefetch] trigger matched, calling proceedFromPrefetchReady'); // debug
         await proceedFromPrefetchReady();
+        console.log('[startPrefetch] proceedFromPrefetchReady returned'); // debug
+      } else {
+        console.log('[startPrefetch] trigger mismatch, skipping proceed. trigger=', prefetchTriggerRef.current); // debug
       }
     } catch (error) {
       console.error('[startPrefetch] Pre-fetch failed:', error); // debug
