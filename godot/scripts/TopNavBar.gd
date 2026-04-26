@@ -18,6 +18,10 @@ var is_showing_word_score: bool = false
 var word_score_timer: Timer
 var active_word_score_tween: Tween = null
 func _ready() -> void:
+	# Hide burger menu on web — React shell owns navigation
+	if OS.has_feature("web"):
+		burger_button.visible = false
+
 	burger_button.pressed.connect(_on_burger_pressed)
 	pause_button.pressed.connect(_on_pause_pressed)
 	_update_high_score_display()
