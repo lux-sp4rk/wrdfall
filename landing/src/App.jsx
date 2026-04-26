@@ -20,10 +20,13 @@ import {
 } from './services/hardening.js';
 import './App.css';
 
-// Initialize Supabase client
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseKey = import.meta.env.VITE_SUPABASE_KEY || 'placeholder-key';
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Initialize Supabase client only if real config is provided
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_KEY;
+const hasSupabaseConfig = supabaseUrl && supabaseKey &&
+  !supabaseUrl.includes('placeholder') &&
+  !supabaseUrl.includes('your-project');
+const supabase = hasSupabaseConfig ? createClient(supabaseUrl, supabaseKey) : null;
 
 // Theme background colors (must match ThemeConstants.gd)
 const THEME_BG = {
@@ -97,7 +100,7 @@ function App() {
 
       setState(prev => ({ ...prev, prefetchStatus: 'ready' }));
       if (prefetchTriggerRef.current === 'play-click') {
-        proceedFromPrefetchReady();
+        await proceedFromPrefetchReady();
       }
     } catch (error) {
       console.error('Pre-fetch failed:', error);
@@ -111,16 +114,12 @@ function App() {
     }
   }, []);
 
+  // Initial setup: load high score, set up network monitor, expose goHome callback
   useEffect(() => {
     loadHighScore();
 
-    // Set up network monitoring
     networkMonitor.current = createNetworkMonitor((online) => {
       setIsOnline(online);
-      // Auto-retry when coming back online
-      if (online && state.prefetchStatus === 'error') {
-        startPrefetch();
-      }
     });
 
     window.wordfallGoHome = () => {
@@ -135,13 +134,20 @@ function App() {
       setState(prev => ({ ...prev, transitioning: false }));
     };
 
-    return () => { 
+    return () => {
       delete window.wordfallGoHome;
       if (networkMonitor.current) {
         networkMonitor.current.destroy();
       }
     };
-  }, [loadHighScore, startPrefetch, state.prefetchStatus]);
+  }, [loadHighScore]);
+
+  // Auto-retry prefetch when coming back online after an error
+  useEffect(() => {
+    if (isOnline && state.prefetchStatus === 'error') {
+      startPrefetch();
+    }
+  }, [isOnline, state.prefetchStatus, startPrefetch]);
 
   async function handlePlayClick() {
     if (state.prefetchStatus === 'loading') {
@@ -177,6 +183,7 @@ function App() {
       return;
     }
 
+    console.log('[launchGame] Starting launch sequence for scene:', launchScene);
     setState(prev => ({ ...prev, transitioning: true, error: null }));
 
     // Set body background immediately to match game theme (eliminates black bars during transition)
@@ -187,6 +194,7 @@ function App() {
       await new Promise(resolve => setTimeout(resolve, 500));
 
       const { executableBlob, mainPackBlob } = window.WORD_LOOM_BLOBS || {};
+      console.log('[launchGame] Blobs available:', { hasWasm: !!executableBlob, hasPck: !!mainPackBlob });
       
       godotLauncher.current = new GodotLauncher({
         executable: import.meta.env.VITE_GODOT_WASM || 'index',
@@ -196,7 +204,9 @@ function App() {
         backgroundColor: THEME_BG[state.theme] || THEME_BG.dark,
       });
 
+      console.log('[launchGame] Initializing Godot engine...');
       await godotLauncher.current.initialize();
+      console.log('[launchGame] Godot engine initialized');
 
       // Get current language from user settings
       const currentSettings = getSettings();
@@ -213,12 +223,15 @@ function App() {
         const errMsg = `Dictionary failed to load: language=${language}, words=${typeof words}, size=${words?.size}`;
         throw new Error(errMsg);
       }
+      console.log(`[launchGame] Dictionary loaded: ${words.size} words`);
 
+      console.log('[launchGame] Starting Godot game...');
       await godotLauncher.current.start({
         dictionary: { language: language, words },
         settings: { theme: state.theme },
         launchScene: launchScene,
       });
+      console.log('[launchGame] Godot game started successfully');
 
       window.saveHighScore = (score) => {
         storageManager.current.saveHighScore(score);
