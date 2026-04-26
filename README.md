@@ -2,7 +2,7 @@
 
 **Strategic word puzzles meet Tetris.**
 
-[▶ Play Wordfall on Vercel](https://wordfall.vercel.app)
+[▶ Play Wordfall on Vercel](https://wrdfall.vercel.app)
 
 ![Wordfall gameplay](https://github.com/lux-sp4rk/wordfall/assets/screenshot.png)
 
