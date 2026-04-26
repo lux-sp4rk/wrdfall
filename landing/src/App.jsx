@@ -10,7 +10,6 @@ import { HomeScreen } from './screens/HomeScreen.jsx';
 import { StatsScreen } from './screens/StatsScreen.jsx';
 import { SettingsScreen } from './screens/SettingsScreen.jsx';
 import { RulesScreen } from './screens/RulesScreen.jsx';
-import { TutorialPrompt } from './components/TutorialPrompt.jsx';
 import { WaterfallTransition } from './components/WaterfallTransition.jsx';
 import { 
   categorizeError, 
@@ -20,10 +19,13 @@ import {
 } from './services/hardening.js';
 import './App.css';
 
-// Initialize Supabase client
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseKey = import.meta.env.VITE_SUPABASE_KEY || 'placeholder-key';
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Initialize Supabase client only if real config is provided
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_KEY;
+const hasSupabaseConfig = supabaseUrl && supabaseKey &&
+  !supabaseUrl.includes('placeholder') &&
+  !supabaseUrl.includes('your-project');
+const supabase = hasSupabaseConfig ? createClient(supabaseUrl, supabaseKey) : null;
 
 // Theme background colors (must match ThemeConstants.gd)
 const THEME_BG = {
@@ -42,7 +44,6 @@ function App() {
     currentScreen: 'home',
   }));
 
-  const [showTutorialPrompt, setShowTutorialPrompt] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [errorDetails, setErrorDetails] = useState(null);
 
@@ -54,17 +55,6 @@ function App() {
   const launchLock = useRef(createAsyncLock());
   const prefetchTriggerRef = useRef(null); // 'play-click' | null
   const networkMonitor = useRef(null);
-
-  // Extracted launch sequence — called after prefetch finishes when triggered by play click
-  const proceedFromPrefetchReady = useCallback(async () => {
-    const hasCompletedTutorial = localStorage.getItem('word-loom-tutorial-completed') === 'true';
-    const hasSkippedTutorial = localStorage.getItem('word-loom-tutorial-skipped') === 'true';
-    if (!hasCompletedTutorial && !hasSkippedTutorial) {
-      setShowTutorialPrompt(true);
-      return;
-    }
-    await launchGame('game');
-  }, []);
 
   // Memoized functions to avoid dependency warnings
   const loadHighScore = useCallback(async () => {
@@ -97,7 +87,7 @@ function App() {
 
       setState(prev => ({ ...prev, prefetchStatus: 'ready' }));
       if (prefetchTriggerRef.current === 'play-click') {
-        proceedFromPrefetchReady();
+        await launchGame('game');
       }
     } catch (error) {
       console.error('Pre-fetch failed:', error);
@@ -111,16 +101,12 @@ function App() {
     }
   }, []);
 
+  // Initial setup: load high score, set up network monitor, expose goHome callback
   useEffect(() => {
     loadHighScore();
 
-    // Set up network monitoring
     networkMonitor.current = createNetworkMonitor((online) => {
       setIsOnline(online);
-      // Auto-retry when coming back online
-      if (online && state.prefetchStatus === 'error') {
-        startPrefetch();
-      }
     });
 
     window.wordfallGoHome = () => {
@@ -135,13 +121,20 @@ function App() {
       setState(prev => ({ ...prev, transitioning: false }));
     };
 
-    return () => { 
+    return () => {
       delete window.wordfallGoHome;
       if (networkMonitor.current) {
         networkMonitor.current.destroy();
       }
     };
-  }, [loadHighScore, startPrefetch, state.prefetchStatus]);
+  }, [loadHighScore]);
+
+  // Auto-retry prefetch when coming back online after an error
+  useEffect(() => {
+    if (isOnline && state.prefetchStatus === 'error') {
+      startPrefetch();
+    }
+  }, [isOnline, state.prefetchStatus, startPrefetch]);
 
   async function handlePlayClick() {
     if (state.prefetchStatus === 'loading') {
@@ -154,17 +147,6 @@ function App() {
       return;
     }
     // prefetchStatus === 'ready': proceed with launch
-    await proceedFromPrefetchReady();
-  }
-
-  async function handleTutorialYes() {
-    setShowTutorialPrompt(false);
-    await launchGame('tutorial');
-  }
-
-  async function handleTutorialNo() {
-    setShowTutorialPrompt(false);
-    localStorage.setItem('word-loom-tutorial-skipped', 'true');
     await launchGame('game');
   }
 
@@ -213,7 +195,6 @@ function App() {
         const errMsg = `Dictionary failed to load: language=${language}, words=${typeof words}, size=${words?.size}`;
         throw new Error(errMsg);
       }
-
       await godotLauncher.current.start({
         dictionary: { language: language, words },
         settings: { theme: state.theme },
@@ -299,14 +280,6 @@ function App() {
           onBack={() => setState(prev => ({ ...prev, currentScreen: 'home' }))}
         />
       )}
-
-      <TutorialPrompt
-        isOpen={showTutorialPrompt}
-        onYes={handleTutorialYes}
-        onNo={handleTutorialNo}
-        language={currentSettings.language}
-        theme={state.theme}
-      />
 
       <WaterfallTransition isActive={state.transitioning} theme={state.theme} />
     </div>

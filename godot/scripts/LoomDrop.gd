@@ -11,7 +11,7 @@ signal word_scored(points: int, word_length: int)
 @onready var swap_button: Button = %"SwapButton"
 @onready var draw_more_button: Button = %"DrawMoreButton"
 @onready var freeze_button: Button = %"FreezeButton"
-@onready var pause_overlay: ColorRect = %"PauseOverlay"
+@onready var pause_overlay: Control = %"PauseOverlay"
 @onready var background: ColorRect = $ColorRect
 @onready var margin_container: MarginContainer = $MarginContainer
 @onready var game_over_modal: ColorRect = %"GameOverModal"
@@ -106,6 +106,17 @@ func _ready() -> void:
 	dictionary = DictionaryService.new(lang_config.wordlist_path, lang_config.extra_alpha)
 	_build_weighted_bag()
 	_initialize_grid()
+
+	# Set up pause overlay with localized tips
+	pause_overlay.setup(
+		lang_config.tips,
+		lang_config.letter_weights,
+		lang_config.ui_strings.get("paused", "Game Paused"),
+		lang_config.ui_strings.get("resume", "Resume"),
+		lang_config.ui_strings.get("quit_to_menu", "Quit to Menu")
+	)
+	pause_overlay.resume_pressed.connect(_on_pause_pressed)
+	pause_overlay.quit_pressed.connect(_on_quit_pressed)
 
 	# Start tracking session stats
 	StatsManager.start_session()
@@ -252,10 +263,10 @@ func _on_pause_pressed() -> void:
 func _pause() -> void:
 	is_paused = true
 	drop_timer.paused = true
-	word_label.text = lang_config.ui_strings.get("paused", "Game Paused")
+	word_label.text = ""
 	top_nav_bar.set_timer_paused(true)
 	top_nav_bar.set_game_paused(true)
-	pause_overlay.visible = true
+	pause_overlay.show_overlay()
 	top_nav_bar.set_pause_label(true)
 	_update_powerup_buttons()
 
@@ -265,7 +276,7 @@ func _unpause() -> void:
 	word_label.text = ""
 	top_nav_bar.set_timer_paused(false)
 	top_nav_bar.set_game_paused(false)
-	pause_overlay.visible = false
+	pause_overlay.hide_overlay()
 	top_nav_bar.set_pause_label(false)
 	_update_powerup_buttons()
 
@@ -1666,7 +1677,7 @@ func _play_win_animation(is_new_high_score: bool) -> void:
 
 	# Phase 4: Restore and display message
 	margin_container.position = orig_margin_pos
-	word_label.text = lang_config.ui_strings["you_win"] % score
+	word_label.text = lang_config.ui_strings["you_win"]
 
 	# Animate word label appearance
 	word_label.modulate.a = 0.0
@@ -1706,7 +1717,7 @@ func _play_lose_animation(is_new_high_score: bool) -> void:
 	await tween.finished
 
 	# Display encouraging message with fade-in
-	word_label.text = lang_config.ui_strings["game_over"] % score
+	word_label.text = lang_config.ui_strings["game_over"]
 	word_label.modulate.a = 0.0
 	var label_tween := create_tween()
 	label_tween.tween_property(word_label, "modulate:a", 1.0, 0.4)
