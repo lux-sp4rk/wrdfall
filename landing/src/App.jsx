@@ -193,6 +193,7 @@ function App() {
       await new Promise(resolve => setTimeout(resolve, 500));
 
       const { executableBlob, mainPackBlob } = window.WORD_LOOM_BLOBS || {};
+      console.log('[launchGame] Blobs available:', { hasWasm: !!executableBlob, hasPck: !!mainPackBlob }); // debug
       
       godotLauncher.current = new GodotLauncher({
         executable: import.meta.env.VITE_GODOT_WASM || 'index',
@@ -202,7 +203,9 @@ function App() {
         backgroundColor: THEME_BG[state.theme] || THEME_BG.dark,
       });
 
+      console.log('[launchGame] Initializing Godot engine...'); // debug
       await godotLauncher.current.initialize();
+      console.log('[launchGame] Godot engine initialized'); // debug
 
       // Get current language from user settings
       const currentSettings = getSettings();
@@ -219,11 +222,13 @@ function App() {
         const errMsg = `Dictionary failed to load: language=${language}, words=${typeof words}, size=${words?.size}`;
         throw new Error(errMsg);
       }
+      console.log('[launchGame] Starting Godot game...'); // debug
       await godotLauncher.current.start({
         dictionary: { language: language, words },
         settings: { theme: state.theme },
         launchScene: launchScene,
       });
+      console.log('[launchGame] Godot game started successfully'); // debug
 
       window.saveHighScore = (score) => {
         storageManager.current.saveHighScore(score);
