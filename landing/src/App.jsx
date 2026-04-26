@@ -10,7 +10,6 @@ import { HomeScreen } from './screens/HomeScreen.jsx';
 import { StatsScreen } from './screens/StatsScreen.jsx';
 import { SettingsScreen } from './screens/SettingsScreen.jsx';
 import { RulesScreen } from './screens/RulesScreen.jsx';
-import { TutorialPrompt } from './components/TutorialPrompt.jsx';
 import { WaterfallTransition } from './components/WaterfallTransition.jsx';
 import { 
   categorizeError, 
@@ -45,7 +44,6 @@ function App() {
     currentScreen: 'home',
   }));
 
-  const [showTutorialPrompt, setShowTutorialPrompt] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [errorDetails, setErrorDetails] = useState(null);
 
@@ -57,13 +55,6 @@ function App() {
   const launchLock = useRef(createAsyncLock());
   const prefetchTriggerRef = useRef(null); // 'play-click' | null
   const networkMonitor = useRef(null);
-
-  // Extracted launch sequence — called after prefetch finishes when triggered by play click
-  const proceedFromPrefetchReady = useCallback(async () => {
-    console.log('[proceedFromPrefetchReady] launching game...'); // debug
-    await launchGame('game');
-    console.log('[proceedFromPrefetchReady] launchGame returned'); // debug
-  }, []);
 
   // Memoized functions to avoid dependency warnings
   const loadHighScore = useCallback(async () => {
@@ -77,7 +68,6 @@ function App() {
   }, []);
 
   const startPrefetch = useCallback(async () => {
-    console.log('[startPrefetch] starting...'); // debug
     setState(prev => ({ ...prev, prefetchStatus: 'loading', prefetchProgress: 0, error: null }));
 
     try {
@@ -85,31 +75,22 @@ function App() {
         setState(prev => ({ ...prev, prefetchProgress: progress }));
       });
 
-      console.log('[startPrefetch] waiting for PrefetchManager.start()...'); // debug
       const blobs = await prefetchManager.current.start();
-      console.log('[startPrefetch] PrefetchManager.start() resolved'); // debug
 
       window.WORD_LOOM_BLOBS = {
         executableBlob: blobs.wasmBlob,
         mainPackBlob: blobs.pckBlob
       };
-      console.log('[startPrefetch] WORD_LOOM_BLOBS set'); // debug
 
       const dictWords = dictionaryManager.current.parseWords(blobs.dict);
       dictionaryManager.current.cache.set('en', dictWords);
-      console.log('[startPrefetch] dictionary parsed, words:', dictWords.size); // debug
 
       setState(prev => ({ ...prev, prefetchStatus: 'ready' }));
-      console.log('[startPrefetch] state set to ready, trigger=', prefetchTriggerRef.current); // debug
       if (prefetchTriggerRef.current === 'play-click') {
-        console.log('[startPrefetch] trigger matched, calling proceedFromPrefetchReady'); // debug
-        await proceedFromPrefetchReady();
-        console.log('[startPrefetch] proceedFromPrefetchReady returned'); // debug
-      } else {
-        console.log('[startPrefetch] trigger mismatch, skipping proceed. trigger=', prefetchTriggerRef.current); // debug
+        await launchGame('game');
       }
     } catch (error) {
-      console.error('[startPrefetch] Pre-fetch failed:', error); // debug
+      console.error('Pre-fetch failed:', error);
       const categorized = categorizeError(error);
       setErrorDetails(categorized);
       setState(prev => ({
@@ -156,31 +137,16 @@ function App() {
   }, [isOnline, state.prefetchStatus, startPrefetch]);
 
   async function handlePlayClick() {
-    console.log('[handlePlayClick] clicked, prefetchStatus=', state.prefetchStatus); // debug
     if (state.prefetchStatus === 'loading') {
-      console.log('[handlePlayClick] already loading, ignoring'); // debug
       return;
     }
     if (state.prefetchStatus === 'idle') {
       // First click: start prefetching, auto-proceed when ready
-      console.log('[handlePlayClick] starting prefetch...'); // debug
       prefetchTriggerRef.current = 'play-click';
       startPrefetch();
       return;
     }
     // prefetchStatus === 'ready': proceed with launch
-    console.log('[handlePlayClick] prefetch ready, proceeding to launch'); // debug
-    await proceedFromPrefetchReady();
-  }
-
-  async function handleTutorialYes() {
-    setShowTutorialPrompt(false);
-    await launchGame('tutorial');
-  }
-
-  async function handleTutorialNo() {
-    setShowTutorialPrompt(false);
-    localStorage.setItem('word-loom-tutorial-skipped', 'true');
     await launchGame('game');
   }
 
@@ -203,7 +169,6 @@ function App() {
       await new Promise(resolve => setTimeout(resolve, 500));
 
       const { executableBlob, mainPackBlob } = window.WORD_LOOM_BLOBS || {};
-      console.log('[launchGame] Blobs available:', { hasWasm: !!executableBlob, hasPck: !!mainPackBlob }); // debug
       
       godotLauncher.current = new GodotLauncher({
         executable: import.meta.env.VITE_GODOT_WASM || 'index',
@@ -213,9 +178,7 @@ function App() {
         backgroundColor: THEME_BG[state.theme] || THEME_BG.dark,
       });
 
-      console.log('[launchGame] Initializing Godot engine...'); // debug
       await godotLauncher.current.initialize();
-      console.log('[launchGame] Godot engine initialized'); // debug
 
       // Get current language from user settings
       const currentSettings = getSettings();
@@ -232,13 +195,11 @@ function App() {
         const errMsg = `Dictionary failed to load: language=${language}, words=${typeof words}, size=${words?.size}`;
         throw new Error(errMsg);
       }
-      console.log('[launchGame] Starting Godot game...'); // debug
       await godotLauncher.current.start({
         dictionary: { language: language, words },
         settings: { theme: state.theme },
         launchScene: launchScene,
       });
-      console.log('[launchGame] Godot game started successfully'); // debug
 
       window.saveHighScore = (score) => {
         storageManager.current.saveHighScore(score);
@@ -319,14 +280,6 @@ function App() {
           onBack={() => setState(prev => ({ ...prev, currentScreen: 'home' }))}
         />
       )}
-
-      <TutorialPrompt
-        isOpen={showTutorialPrompt}
-        onYes={handleTutorialYes}
-        onNo={handleTutorialNo}
-        language={currentSettings.language}
-        theme={state.theme}
-      />
 
       <WaterfallTransition isActive={state.transitioning} theme={state.theme} />
     </div>
