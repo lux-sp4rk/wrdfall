@@ -183,7 +183,6 @@ function App() {
       return;
     }
 
-    console.log('[launchGame] Starting launch sequence for scene:', launchScene);
     setState(prev => ({ ...prev, transitioning: true, error: null }));
 
     // Set body background immediately to match game theme (eliminates black bars during transition)
@@ -194,7 +193,6 @@ function App() {
       await new Promise(resolve => setTimeout(resolve, 500));
 
       const { executableBlob, mainPackBlob } = window.WORD_LOOM_BLOBS || {};
-      console.log('[launchGame] Blobs available:', { hasWasm: !!executableBlob, hasPck: !!mainPackBlob });
       
       godotLauncher.current = new GodotLauncher({
         executable: import.meta.env.VITE_GODOT_WASM || 'index',
@@ -204,9 +202,7 @@ function App() {
         backgroundColor: THEME_BG[state.theme] || THEME_BG.dark,
       });
 
-      console.log('[launchGame] Initializing Godot engine...');
       await godotLauncher.current.initialize();
-      console.log('[launchGame] Godot engine initialized');
 
       // Get current language from user settings
       const currentSettings = getSettings();
@@ -223,15 +219,11 @@ function App() {
         const errMsg = `Dictionary failed to load: language=${language}, words=${typeof words}, size=${words?.size}`;
         throw new Error(errMsg);
       }
-      console.log(`[launchGame] Dictionary loaded: ${words.size} words`);
-
-      console.log('[launchGame] Starting Godot game...');
       await godotLauncher.current.start({
         dictionary: { language: language, words },
         settings: { theme: state.theme },
         launchScene: launchScene,
       });
-      console.log('[launchGame] Godot game started successfully');
 
       window.saveHighScore = (score) => {
         storageManager.current.saveHighScore(score);

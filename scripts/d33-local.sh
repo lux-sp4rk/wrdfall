@@ -24,7 +24,7 @@ while IFS= read -r file; do
     if [ -n "$matches" ]; then
         STRAY_LOGS="${STRAY_LOGS}${file}:\n${matches}\n"
     fi
-done < <(find "$PROJECT_ROOT" -type d -name node_modules -prune -o -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \) -print 2>/dev/null | grep -v node_modules)
+done < <(find "$PROJECT_ROOT" -type d \( -name node_modules -o -name dist -o -name public \) -prune -o -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \) -print 2>/dev/null | grep -v -E 'node_modules|/dist/|/public/')
 
 if [ -n "$STRAY_LOGS" ]; then
     echo -e "$STRAY_LOGS" | head -15
