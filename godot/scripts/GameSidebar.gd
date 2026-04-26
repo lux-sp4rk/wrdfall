@@ -53,6 +53,9 @@ func _ready() -> void:
 	background_overlay.modulate.a = 0.0
 	background_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
+	# Ensure overlay spans any viewport width (web/desktop can be wider than 720px)
+	background_overlay.offset_right = 10000.0
+
 	# Sidebar starts off-screen and hidden until burger is pressed
 	visible = false
 
