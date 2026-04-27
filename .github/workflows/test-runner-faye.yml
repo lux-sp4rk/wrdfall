@@ -16,11 +16,43 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
           version: 9
+
+      - name: Install Godot 4.6 (if godot/ present)
+        if: fileExists('godot/project.godot')
+        id: godot-install
+        run: |
+          if [ ! -f "./godot_bin/godot" ]; then
+            mkdir -p ./godot_bin
+            wget -q -O ./godot_bin/godot.zip https://github.com/godotengine/godot/releases/download/4.6-stable/Godot_v4.6-stable_linux.x86_64.zip
+            unzip -q ./godot_bin/godot.zip -d ./godot_bin
+            chmod +x ./godot_bin/Godot_v4.6-stable_linux.x86_64
+            mv ./godot_bin/Godot_v4.6-stable_linux.x86_64 ./godot_bin/godot
+          fi
+          echo "godot_dir=./godot_bin" >> $GITHUB_OUTPUT
+
+      - name: Run GUT tests (if godot/ present)
+        if: fileExists('godot/project.godot')
+        id: gut
+        run: |
+          cd godot
+          ../godot_bin/godot --headless --script addons/gut/gut_cmdln.gd -gdir=res://tests -ginclude_subdirs -gexit
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: Check GUT results
+        if: fileExists('godot/project.godot')
+        run: |
+          if [ "${{ steps.gut.outputs.exit_code }}" != "0" ]; then
+            echo "GUT tests failed"
+            exit 1
+          fi
+          echo "GUT tests passed"
 
       - name: Summon Faye
         uses: lux-sp4rk/test-runner-faye@6f40b784b727d58c6eaee8efb3cea4ae13bda84f
