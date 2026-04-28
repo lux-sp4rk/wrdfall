@@ -1765,3 +1765,11 @@ func _show_game_over_modal(is_new_high_score: bool) -> void:
 	game_over_modal.show()
 	var fade_tween := create_tween()
 	fade_tween.tween_property(game_over_modal, "modulate:a", 1.0, 0.3)
+
+	# Celebratory scale pop for new high score
+	if is_new_high_score and modal_panel:
+		modal_panel.pivot_offset = modal_panel.size / 2
+		modal_panel.scale = Vector2(0.85, 0.85)
+		var scale_tween := create_tween()
+		scale_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		scale_tween.tween_property(modal_panel, "scale", Vector2(1.0, 1.0), 0.4)
