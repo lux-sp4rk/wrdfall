@@ -305,6 +305,7 @@ function App() {
             onSignOut={handleSignOut}
             isOnline={isOnline}
             supabase={supabase}
+            hasSupabaseConfig={hasSupabaseConfig}
           />
         </div>
       )}

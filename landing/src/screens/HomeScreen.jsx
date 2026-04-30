@@ -1,7 +1,7 @@
 import React from 'react'
 import { truncateText, sanitizeText } from '../services/hardening.js'
 
-export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, onRulesClick, onSignIn, onSignOut, isOnline = true }) {
+export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, onRulesClick, onSignIn, onSignOut, isOnline = true, hasSupabaseConfig = false }) {
   const { user, authLoading } = state;
   const displayError = state.error ? sanitizeText(truncateText(state.error, 150)) : null;
   const errorType = state.errorDetails?.type || 'unknown';
@@ -99,7 +99,7 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, 
                 {authLoading ? 'Signing out…' : 'Sign out'}
               </button>
             </div>
-          ) : isOnline ? (
+          ) : (isOnline && hasSupabaseConfig) ? (
             <button type="button" className="google-sign-in-button" onClick={onSignIn} disabled={authLoading}>
               {authLoading ? 'Connecting…' : 'Continue with Google'}
             </button>
