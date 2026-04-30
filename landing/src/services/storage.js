@@ -154,10 +154,11 @@ export class StorageManager {
     // Sync to Supabase (background, non-blocking)
     if (this.supabase) {
       try {
+        const userId = await this.getUserId();
         await this.supabase
           .from('user_stats')
           .upsert({
-            user_id: this.getUserId(),
+            user_id: userId,
             high_score: validScore,
             updated_at: new Date().toISOString(),
           });

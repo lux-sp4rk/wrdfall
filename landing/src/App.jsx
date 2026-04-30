@@ -314,6 +314,9 @@ function App() {
           onBack={() => setState(prev => ({ ...prev, currentScreen: 'home' }))}
           language={currentSettings.language}
           isOnline={isOnline}
+          user={state.user}
+          supabase={supabase}
+          onSignIn={handleSignIn}
         />
       )}
       {state.currentScreen === 'settings' && (

@@ -99,9 +99,9 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, 
                 {authLoading ? 'Signing out…' : 'Sign out'}
               </button>
             </div>
-          ) : supabase ? (
-            <button type="button" className="google-sign-in-button" onClick={onSignIn} disabled={authLoading || !isOnline}>
-              {authLoading ? 'Connecting…' : isOnline ? 'Continue with Google' : 'Offline'}
+          ) : isOnline ? (
+            <button type="button" className="google-sign-in-button" onClick={onSignIn} disabled={authLoading}>
+              {authLoading ? 'Connecting…' : 'Continue with Google'}
             </button>
           ) : null}
         </div>
