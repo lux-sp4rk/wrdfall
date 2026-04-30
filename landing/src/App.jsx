@@ -42,6 +42,8 @@ function App() {
     transitioning: false,
     theme: getTheme(),
     currentScreen: 'home',
+    user: null, // { id, email, provider } or null
+    authLoading: false,
   }));
 
   const [isOnline, setIsOnline] = useState(true);
@@ -55,6 +57,51 @@ function App() {
   const launchLock = useRef(createAsyncLock());
   const prefetchTriggerRef = useRef(null); // 'play-click' | null
   const networkMonitor = useRef(null);
+
+  // Auth: subscribe to auth state changes
+  useEffect(() => {
+    if (!supabase) return;
+
+    // Set initial user
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setState(prev => ({ ...prev, user: session.user }));
+      }
+    });
+
+    // Listen for changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setState(prev => ({ 
+        ...prev, 
+        user: session?.user ?? null 
+      }));
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Auth: sign in with Google
+  const handleSignIn = useCallback(async () => {
+    if (!supabase) return;
+    setState(prev => ({ ...prev, authLoading: true }));
+    try {
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin },
+      });
+    } catch (err) {
+      console.error('Sign in failed:', err);
+      setState(prev => ({ ...prev, authLoading: false }));
+    }
+  }, []);
+
+  // Auth: sign out
+  const handleSignOut = useCallback(async () => {
+    if (!supabase) return;
+    setState(prev => ({ ...prev, authLoading: true }));
+    await supabase.auth.signOut();
+    setState(prev => ({ ...prev, authLoading: false }));
+  }, []);
 
   // Memoized functions to avoid dependency warnings
   const loadHighScore = useCallback(async () => {
@@ -249,12 +296,15 @@ function App() {
       {state.currentScreen === 'home' && (
         <div ref={landingRef} id="main-content" className={state.transitioning ? 'game-active' : ''}>
           <HomeScreen
-            state={{ ...state, onRetry: startPrefetch, errorDetails }}
+            state={{ ...state, onRetry: startPrefetch, errorDetails, user: state.user }}
             onPlayClick={handlePlayClick}
             onStatsClick={() => setState(prev => ({ ...prev, currentScreen: 'stats' }))}
             onSettingsClick={() => setState(prev => ({ ...prev, currentScreen: 'settings' }))}
             onRulesClick={() => setState(prev => ({ ...prev, currentScreen: 'rules' }))}
+            onSignIn={handleSignIn}
+            onSignOut={handleSignOut}
             isOnline={isOnline}
+            supabase={supabase}
           />
         </div>
       )}

@@ -169,26 +169,40 @@ export class StorageManager {
   }
 
   /**
+   * Get user ID for database operations
+   * Returns authenticated Supabase user ID if available,
+   * otherwise falls back to anonymous device ID.
+   */
+  async getUserId() {
+    // Try authenticated user first
+    if (this.supabase) {
+      try {
+        const { data: { user } } = await this.supabase.auth.getUser();
+        if (user?.id) return user.id;
+      } catch (err) {
+        console.warn('Failed to get authenticated user:', err);
+      }
+    }
+    // Fall back to anonymous device ID
+    return this._getDeviceId();
+  }
+
+  /**
    * Get or create anonymous device ID
    */
-  getUserId() {
+  _getDeviceId() {
     try {
       let deviceId = localStorage.getItem(this.deviceIdKey);
       if (!deviceId) {
-        // Validate crypto.randomUUID is available
         if (typeof crypto !== 'undefined' && crypto.randomUUID) {
           deviceId = crypto.randomUUID();
-          localStorage.setItem(this.deviceIdKey, deviceId);
         } else {
-          // Fallback for older browsers
           deviceId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-          localStorage.setItem(this.deviceIdKey, deviceId);
         }
+        localStorage.setItem(this.deviceIdKey, deviceId);
       }
       return deviceId;
     } catch (err) {
-      console.error('Failed to get/create device ID:', err);
-      // Return a temporary ID that won't persist
       return 'temp-' + Date.now();
     }
   }
