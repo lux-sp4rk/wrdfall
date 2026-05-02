@@ -1290,7 +1290,7 @@ func _apply_gravity_with_animation() -> void:
 			"global_position",
 			tile_data.target_pos,
 			tile_data.duration
-		).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+		).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BOUNCE)
 
 	# Wait for animations to complete
 	await tween.finished
