@@ -160,21 +160,9 @@ func _animate_word_score(word_length: int) -> void:
 			active_word_score_tween.tween_property(word_score_label, "scale", Vector2(1.0, 1.0), 0.5)
 
 func show_word_score(points: int, word_length: int) -> void:
-	# If already showing word score, restart timer with new score
-	if is_showing_word_score:
-		word_score_timer.stop()
-
-	is_showing_word_score = true
-	timer_label.visible = false
-
-	var phrase := _calculate_phrase(word_length)
-	word_score_label.text = "+%d %s" % [points, phrase]
-	word_score_label.visible = true
-
-	# Animate the word score display
-	_animate_word_score(word_length)
-
-	word_score_timer.start()
+	# No-op: TopNavBar word score animation removed per PR #267 review.
+	# Word score feedback now uses FloatingScoreLabel at the board only.
+	pass
 
 func _on_word_score_timeout() -> void:
 	is_showing_word_score = false
