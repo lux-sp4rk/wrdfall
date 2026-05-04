@@ -71,7 +71,6 @@ func _ready() -> void:
 	freeze_button.pressed.connect(_on_freeze_pressed)
 	top_nav_bar.set_drop_timer(drop_timer)
 	top_nav_bar.pause_pressed.connect(_on_pause_pressed)
-	word_scored.connect(top_nav_bar.show_word_score)
 	retry_button.pressed.connect(_on_retry_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
 
