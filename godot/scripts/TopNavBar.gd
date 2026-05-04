@@ -11,10 +11,13 @@ signal pause_pressed
 @onready var score_label = %ScoreLabel
 @onready var high_score_label = %HighScoreLabel
 @onready var timer_label = %TimerLabel
+@onready var sand_timer = %SandTimer
 @onready var word_score_label = %WordScoreLabel
 @onready var high_score_notification_label = %HighScoreNotificationLabel
 
+
 var drop_timer_ref: Timer = null
+var sand_timer_ref: Timer = null  # Secondary timer to drive sand animation independently
 var is_showing_word_score: bool = false
 var word_score_timer: Timer
 var active_word_score_tween: Tween = null
@@ -69,10 +72,19 @@ func set_timer_paused(paused: bool) -> void:
 	else:
 		set_process(true)
 
+
 func _process(_delta: float) -> void:
+	# Sand timer ratio updates every frame for smooth visual depletion.
+	# Show sand timer when it's NOT showing word score, and drop timer is running.
 	if not is_showing_word_score and drop_timer_ref and not drop_timer_ref.is_stopped():
-		var time_left := ceili(drop_timer_ref.time_left)
-		timer_label.text = "%ds" % time_left
+		var elapsed := drop_timer_ref.wait_time - drop_timer_ref.time_left
+		var ratio := 1.0 - (elapsed / drop_timer_ref.wait_time)
+		sand_timer.set_ratio(ratio)
+		sand_timer.visible = true
+		timer_label.visible = false
+	elif not is_showing_word_score and (not drop_timer_ref or drop_timer_ref.is_stopped()):
+		sand_timer.visible = false
+		timer_label.visible = true
 
 func _update_high_score_display(current_score: int = 0) -> void:
 	var high_score := maxi(StatsManager.high_score, current_score)

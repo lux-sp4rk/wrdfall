@@ -1,6 +1,7 @@
-[gd_scene load_steps=10 format=3 uid="uid://b4qm8xjhw3fxo"]
+[gd_scene load_steps=11 format=3 uid="uid://b4qm8xjhw3fxo"]
 
 [ext_resource type="Script" path="res://scripts/TopNavBar.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/SandTimer.gd" id="2_sandtimer"]
 
 [sub_resource type="StyleBoxFlat" id="NavButtonNormal"]
 bg_color = Color(0.48, 0.61, 0.55, 1)
@@ -128,6 +129,14 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 42
 text = "8s"
 horizontal_alignment = 1
+
+[node name="SandTimer" type="Control" parent="CenterDisplay"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("2_sandtimer")
 
 [node name="WordScoreLabel" type="Label" parent="CenterDisplay"]
 unique_name_in_owner = true
