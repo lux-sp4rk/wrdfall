@@ -314,5 +314,5 @@ unique_name_in_owner = true
 z_index = 20
 modulate = Color(1, 1, 1, 0)
 theme_override_colors/font_color = Color(1, 0.84, 0, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 48
 horizontal_alignment = 1
