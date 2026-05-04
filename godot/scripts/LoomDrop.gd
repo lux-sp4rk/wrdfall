@@ -133,6 +133,10 @@ func _ready() -> void:
 	if not FeatureFlags.draw_more_enabled:
 		draw_more_button.visible = false
 
+	# Hide word_label — TopNavBar WordScoreLabel handles all word score feedback
+	# This prevents duplicate +N display at both the board and top nav (PR #267)
+	word_label.visible = false
+
 	_update_score_display()
 	_update_shake_button()
 	_update_swap_button()
