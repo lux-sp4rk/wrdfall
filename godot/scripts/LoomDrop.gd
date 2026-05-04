@@ -26,6 +26,8 @@ signal word_scored(points: int, word_length: int)
 @onready var game_complete_sound: AudioStreamPlayer = %"GameCompleteSoundPlayer"
 @onready var game_won_sound: AudioStreamPlayer = %"GameWonSoundPlayer"
 @onready var game_sidebar = %GameSidebar
+@onready var score_burst_particles: CPUParticles2D = %ScoreBurstParticles
+@onready var floating_score_label: Label = %FloatingScoreLabel
 
 # Grid and game rules now defined in GameConstants
 const ROWS: int = GameConstants.ROWS
@@ -812,6 +814,7 @@ func _accept_word(word: String) -> void:
 	var points: int = _score_word(word)
 	score += points
 	word_scored.emit(points, word.length())
+	_show_score_burst(points)
 	_update_score_display()
 	_update_powerup_buttons()
 
@@ -879,6 +882,29 @@ func _score_word(word: String) -> int:
 	combo_mult = minf(combo_mult, GameConstants.COMBO_MULTIPLIER_MAX)
 
 	return int(letter_sum * length_mult * combo_mult)
+
+
+func _show_score_burst(points: int) -> void:
+	if selected_path.is_empty():
+		return
+	var last_cell: Vector2i = selected_path[selected_path.size() - 1]
+	var btn: Button = buttons[last_cell.y][last_cell.x]
+	var burst_pos: Vector2 = btn.global_position + btn.size / 2.0
+
+	# Particle burst at last letter's cell center
+	score_burst_particles.global_position = burst_pos
+	score_burst_particles.restart()
+
+	# Floating +N label: rise ~60px and fade over 0.8s
+	floating_score_label.text = "+%d" % points
+	floating_score_label.show()
+	floating_score_label.reset_size()
+	floating_score_label.global_position = burst_pos - floating_score_label.size / 2.0
+	floating_score_label.modulate.a = 1.0
+
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(floating_score_label, "global_position:y", burst_pos.y - 60.0, 0.8).set_ease(Tween.EASE_OUT)
+	tween.tween_property(floating_score_label, "modulate:a", 0.0, 0.8).set_ease(Tween.EASE_IN)
 
 
 # --- Shake Button ---
