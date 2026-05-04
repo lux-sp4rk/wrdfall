@@ -22,6 +22,13 @@ var draw_more_enabled: bool = true:
 			feature_flag_changed.emit("draw_more_enabled", val)
 			save_flags()
 
+var dev_mode_cheats: bool = false:
+	set(val):
+		if dev_mode_cheats != val:
+			dev_mode_cheats = val
+			feature_flag_changed.emit("dev_mode_cheats", val)
+			save_flags()
+
 func _ready() -> void:
 	load_flags()
 
@@ -29,6 +36,7 @@ func save_flags() -> void:
 	var config := ConfigFile.new()
 	config.set_value("flags", "drop_ratchet_enabled", drop_ratchet_enabled)
 	config.set_value("flags", "draw_more_enabled", draw_more_enabled)
+	config.set_value("flags", "dev_mode_cheats", dev_mode_cheats)
 	var err := config.save(FLAGS_FILE)
 	if err != OK:
 		push_error("FeatureFlags: Failed to save flags: " + str(err))
@@ -39,6 +47,7 @@ func save_flags() -> void:
 		if js:
 			js.setItem("word-loom-drop-ratchet-enabled", "true" if drop_ratchet_enabled else "false")
 			js.setItem("word-loom-draw-more-enabled", "true" if draw_more_enabled else "false")
+			js.setItem("word-loom-dev-mode-cheats", "true" if dev_mode_cheats else "false")
 
 func load_flags() -> void:
 	var config := ConfigFile.new()
@@ -47,9 +56,11 @@ func load_flags() -> void:
 	if err == OK:
 		drop_ratchet_enabled = config.get_value("flags", "drop_ratchet_enabled", false)
 		draw_more_enabled = config.get_value("flags", "draw_more_enabled", true)
+		dev_mode_cheats = config.get_value("flags", "dev_mode_cheats", false)
 	else:
 		drop_ratchet_enabled = false
 		draw_more_enabled = true
+		dev_mode_cheats = false
 	
 	# Web localStorage override (React-driven changes)
 	if OS.has_feature("web"):
@@ -61,3 +72,6 @@ func load_flags() -> void:
 			var draw_val = js.getItem("word-loom-draw-more-enabled")
 			if draw_val != null:
 				draw_more_enabled = (draw_val == "true")
+			var cheats_val = js.getItem("word-loom-dev-mode-cheats")
+			if cheats_val != null:
+				dev_mode_cheats = (cheats_val == "true")
