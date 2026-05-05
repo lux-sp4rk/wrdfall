@@ -1,10 +1,12 @@
 {
-  "experimental": {
-    "plan": true
-  },
+  "experimental": {},
   "general": {
     "plan": {
-      "directory": "docs/plans"
+      "directory": "docs/plans",
+      "enabled": true
     }
+  },
+  "agents": {
+    "overrides": {}
   }
 }
