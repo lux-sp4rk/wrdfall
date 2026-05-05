@@ -69,7 +69,7 @@ func _ready() -> void:
 	swap_button.pressed.connect(_on_swap_pressed)
 	draw_more_button.pressed.connect(_on_draw_more_pressed)
 	freeze_button.pressed.connect(_on_freeze_pressed)
-	top_nav_bar.set_drop_timer(drop_timer)
+	sand_timer.set_drop_timer(drop_timer)
 	top_nav_bar.pause_pressed.connect(_on_pause_pressed)
 	retry_button.pressed.connect(_on_retry_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)

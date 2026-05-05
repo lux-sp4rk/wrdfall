@@ -10,11 +10,9 @@ signal pause_pressed
 @onready var pause_button = %PauseButton
 @onready var score_label = %ScoreLabel
 @onready var high_score_label = %HighScoreLabel
-@onready var timer_label = %TimerLabel
 @onready var word_score_label = %WordScoreLabel
 @onready var high_score_notification_label = %HighScoreNotificationLabel
 
-var drop_timer_ref: Timer = null
 var is_showing_word_score: bool = false
 var word_score_timer: Timer
 var active_word_score_tween: Tween = null
@@ -33,7 +31,6 @@ func _ready() -> void:
 	_update_high_score_display()
 	_apply_theme()
 	ThemeManager.theme_changed.connect(_apply_theme)
-	set_process(false)  # Disable processing until timer is set
 
 	# Create word score display timer (2 seconds)
 	word_score_timer = Timer.new()
@@ -58,21 +55,6 @@ func update_score(score: int) -> void:
 		_update_high_score_display(score)
 		if not has_shown_high_score_notification:
 			_show_high_score_notification()
-
-func set_drop_timer(timer: Timer) -> void:
-	drop_timer_ref = timer
-	set_process(true)  # Enable processing when timer is set
-
-func set_timer_paused(paused: bool) -> void:
-	if paused:
-		set_process(false)
-	else:
-		set_process(true)
-
-func _process(_delta: float) -> void:
-	if not is_showing_word_score and drop_timer_ref and not drop_timer_ref.is_stopped():
-		var time_left := ceili(drop_timer_ref.time_left)
-		timer_label.text = "%ds" % time_left
 
 func _update_high_score_display(current_score: int = 0) -> void:
 	var high_score := maxi(StatsManager.high_score, current_score)
@@ -107,10 +89,7 @@ func _apply_theme() -> void:
 	if high_score_notification_label:
 		high_score_notification_label.add_theme_color_override("font_color", ThemeManager.get_color("accent"))
 
-	# Update timer and word score labels
-	if timer_label:
-		timer_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
-
+	# Update word score label
 	if word_score_label:
 		word_score_label.add_theme_color_override("font_color", ThemeManager.get_color("accent"))
 
@@ -167,7 +146,6 @@ func show_word_score(points: int, word_length: int) -> void:
 func _on_word_score_timeout() -> void:
 	is_showing_word_score = false
 	word_score_label.visible = false
-	timer_label.visible = true
 
 	# Clean up theme overrides and transform state
 	word_score_label.remove_theme_font_size_override("font_size")

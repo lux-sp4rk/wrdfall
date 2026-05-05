@@ -7,6 +7,7 @@ signal word_scored(points: int, word_length: int)
 @onready var board_panel: PanelContainer = $MarginContainer/VBox/GridCenter/BoardPanel
 @onready var word_label: Label = %"WordLabel"
 @onready var top_nav_bar = %"TopNavBar"
+@onready var sand_timer: Control = %"SandTimer"
 @onready var shake_button: Button = %"ShakeButton"
 @onready var swap_button: Button = %"SwapButton"
 @onready var draw_more_button: Button = %"DrawMoreButton"
@@ -149,7 +150,7 @@ func _ready() -> void:
 	swap_button.pressed.connect(_on_swap_pressed)
 	draw_more_button.pressed.connect(_on_draw_more_pressed)
 	freeze_button.pressed.connect(_on_freeze_pressed)
-	top_nav_bar.set_drop_timer(drop_timer)
+	sand_timer.set_drop_timer(drop_timer)
 	top_nav_bar.pause_pressed.connect(_on_pause_pressed)
 	# word_scored signal drives FloatingScoreLabel only — removed TopNavBar word_score animation per PR #267 review
 	# (floating label at the board is sufficient; top-navbar animation fights for attention and adds visual noise)
@@ -272,7 +273,7 @@ func _pause() -> void:
 	is_paused = true
 	drop_timer.paused = true
 	word_label.text = ""
-	top_nav_bar.set_timer_paused(true)
+	sand_timer.set_paused(true)
 	top_nav_bar.set_game_paused(true)
 	pause_overlay.show_overlay()
 	top_nav_bar.set_pause_label(true)
@@ -282,7 +283,7 @@ func _unpause() -> void:
 	is_paused = false
 	drop_timer.paused = false
 	word_label.text = ""
-	top_nav_bar.set_timer_paused(false)
+	sand_timer.set_paused(false)
 	top_nav_bar.set_game_paused(false)
 	pause_overlay.hide_overlay()
 	top_nav_bar.set_pause_label(false)
@@ -308,7 +309,7 @@ func _freeze() -> void:
 	freeze_button.text = "▶ Resume\n(Free)"
 	word_label.text = lang_config.ui_strings.get("frozen", "Frozen")
 	drop_timer.paused = true
-	top_nav_bar.set_timer_paused(true)
+	sand_timer.set_paused(true)
 	top_nav_bar.set_game_paused(true)
 	_update_powerup_buttons()
 
@@ -317,7 +318,7 @@ func _unfreeze() -> void:
 	drop_timer.paused = false
 	word_label.text = ""
 	freeze_button.text = "⏸ Freeze\n(-%d)" % _get_freeze_cost()
-	top_nav_bar.set_timer_paused(false)
+	sand_timer.set_paused(false)
 	top_nav_bar.set_game_paused(false)
 	_update_powerup_buttons()
 
