@@ -58,3 +58,6 @@ coverage/
 # Syncthing
 .stfolder
 *.sync-conflict-*
+
+.gemini/
+gha-creds-*.json
