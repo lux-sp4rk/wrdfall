@@ -59,7 +59,7 @@ word-loom/
 │   │   ├── TopNavBar.gd       # Nav bar component logic
 │   │   └── GameSidebar.gd     # Sidebar component logic
 │   │   # --- Tutorial ---
-│   │   ├── Tutorial.gd, TutorialUI.gd, TutorialLoomDrop.gd
+│   │   ├── Tutorial.gd, TutorialUI.gd
 │   │   └── TutorialController.gd, TutorialData.gd
 │   │
 │   ├── data/                  # Game data

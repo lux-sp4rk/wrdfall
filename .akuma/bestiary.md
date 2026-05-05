@@ -8,7 +8,7 @@
 
 ### The Sighting
 
-During PR #267 (particle burst + floating score label), the TopNavBar was exhibiting an errant "+N" word score animation that should have been removed. Signal connections were severed in `LoomDrop.gd` and `TutorialLoomDrop.gd`. The function itself was gutted in `TopNavBar.gd`. A fresh clone on a clean machine still displayed the ghost score.
+During PR #267 (particle burst + floating score label), the TopNavBar was exhibiting an errant "+N" word score animation that should have been removed. Signal connections were severed in `LoomDrop.gd`. The function itself was gutted in `TopNavBar.gd`. A fresh clone on a clean machine still displayed the ghost score.
 
 ### The Nature of the Creature
 
