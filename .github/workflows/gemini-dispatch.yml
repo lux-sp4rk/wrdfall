@@ -105,6 +105,10 @@ jobs:
               core.setOutput('command', 'triage');
             } else if (request.startsWith("@gemini-cli /approve")) {
               core.setOutput('command', 'approve');
+            } else if (request.startsWith("@gemini-cli /hunt")) {
+              core.setOutput('command', 'hunt');
+              const additionalContext = request.replace(/^@gemini-cli \/hunt/, '').trim();
+              core.setOutput('additional_context', additionalContext);
             } else if (request.startsWith("@gemini-cli")) {
               const additionalContext = request.replace(/^@gemini-cli/, '').trim();
               core.setOutput('command', 'invoke');
@@ -166,6 +170,19 @@ jobs:
     with:
       additional_context: '${{ needs.dispatch.outputs.additional_context }}'
     secrets: 'inherit'
+  hunt:
+    needs: 'dispatch'
+    if: |-
+      ${{ needs.dispatch.outputs.command == 'hunt' }}
+    uses: './.github/workflows/d33-hunt.yml'
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+      issues: 'write'
+      pull-requests: 'write'
+    with:
+      additional_context: '${{ needs.dispatch.outputs.additional_context }}'
+    secrets: 'inherit'
 
   plan-execute:
     needs: 'dispatch'
@@ -187,6 +204,7 @@ jobs:
       - 'review'
       - 'triage'
       - 'invoke'
+      - 'hunt'
       - 'plan-execute'
     if: |-
       ${{ always() && !cancelled() && (failure() || needs.dispatch.outputs.command == 'fallthrough') }}
