@@ -1,6 +1,6 @@
 name: Arachne Code Review
 # Calls the reusable Arachne review workflow from dotfiles
-# Bug Hunter D33 performs multi-pass code review on PRs
+# Akuma reviews and signs off — last line before merge
 
 on:
   pull_request:

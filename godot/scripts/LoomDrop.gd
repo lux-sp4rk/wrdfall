@@ -1,6 +1,8 @@
 extends Control
 
 signal word_scored(points: int, word_length: int)
+signal combo_changed(new_streak: int)
+signal combo_broken()
 
 @onready var grid_container: GridContainer = %"GridContainer"
 @onready var grid_center: CenterContainer = $MarginContainer/VBox/GridCenter
@@ -29,6 +31,9 @@ signal word_scored(points: int, word_length: int)
 @onready var game_sidebar = %GameSidebar
 @onready var score_burst_particles: CPUParticles2D = %ScoreBurstParticles
 @onready var floating_score_label: Label = %FloatingScoreLabel
+@onready var combo_display: PanelContainer = %ComboDisplay
+@onready var combo_label: Label = %ComboLabel
+@onready var combo_flash_overlay: ColorRect = %ComboFlashOverlay
 
 # Grid and game rules now defined in GameConstants
 const ROWS: int = GameConstants.ROWS
@@ -84,6 +89,24 @@ var combo_streak: int = 0
 var drops_since_start: int = 0
 var base_drop_interval: float = 0.0
 var current_drop_interval: float = 0.0
+
+# Combo visual constants
+const COMBO_LEVEL_COLORS: Array[Color] = [
+	Color(1.0, 0.85, 0.3, 1.0),   # x2: Warm gold
+	Color(1.0, 0.65, 0.15, 1.0),   # x3: Orange
+	Color(1.0, 0.35, 0.15, 1.0),   # x4: Red-orange
+	Color(1.0, 0.2,  0.2,  1.0),   # x5: Red
+	Color(0.95, 0.15, 0.55, 1.0),  # x6+: Magenta
+]
+const COMBO_FLASH_BASE_ALPHA: float = 0.08
+const COMBO_FLASH_INCREMENT: float = 0.04
+const COMBO_MAX_FLASH_ALPHA: float = 0.35
+const COMBO_GLOW_BASE_WIDTH: int = 2
+const COMBO_GLOW_INCREMENT: float = 0.8
+const COMBO_MAX_GLOW_WIDTH: int = 6
+const COMBO_PULSE_SCALE: float = 1.15
+
+var _original_board_style: StyleBox
 
 # Rescue word drip-feed: when no valid word exists, bias drops to build one
 var _rescue_word: String = ""
@@ -176,6 +199,16 @@ func _ready() -> void:
 	_apply_theme()
 	ThemeManager.theme_changed.connect(_apply_theme)
 	FeatureFlags.feature_flag_changed.connect(_on_feature_flag_changed)
+
+	# Store original board panel style for combo glow restoration
+	if board_panel:
+		_original_board_style = board_panel.get_theme_stylebox("panel")
+
+	# Initialize combo display
+	if combo_display:
+		combo_display.hide()
+	if combo_flash_overlay:
+		combo_flash_overlay.color = Color(1, 1, 1, 0)
 
 	# Dev toolbar (debug builds only)
 	if OS.is_debug_build():
@@ -825,10 +858,12 @@ func _accept_word(word: String) -> void:
 	_update_powerup_buttons()
 
 	# Update combo streak
+	var old_streak: int = combo_streak
 	if word.length() >= GameConstants.COMBO_THRESHOLD:
 		combo_streak += 1
 	else:
 		combo_streak = 0
+	_update_combo_visuals(old_streak)
 
 	# Check for drop speed reset
 	if word.length() >= GameConstants.RATCHET_RESET_WORD_LENGTH:
@@ -1440,6 +1475,8 @@ func _trigger_game_complete(reason: String = "unknown") -> void:
 	game_over = true
 	drop_timer.stop()
 	_update_powerup_buttons()
+	_hide_combo_display()
+	_apply_board_glow(0)
 
 	# Capture previous high score BEFORE ending session
 	var previous_high_score: int = StatsManager.high_score
@@ -1623,6 +1660,9 @@ func _apply_theme() -> void:
 		var panel_style = board_panel.get_theme_stylebox("panel")
 		if panel_style:
 			panel_style.bg_color = ThemeManager.get_color("card_background")
+	# Re-apply combo glow if active (so border uses current theme bg)
+	if combo_streak > 1:
+		_apply_board_glow(combo_streak)
 
 	# Update word feedback label
 	if word_label:
@@ -1805,3 +1845,106 @@ func _show_game_over_modal(is_new_high_score: bool) -> void:
 		var scale_tween := create_tween()
 		scale_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 		scale_tween.tween_property(modal_panel, "scale", Vector2(1.0, 1.0), 0.4)
+
+
+# --- Combo Visual System ---
+
+func _update_combo_visuals(old_streak: int) -> void:
+	if combo_streak > 1:
+		_show_combo_display()
+		_apply_board_glow(combo_streak)
+		_trigger_combo_flash(combo_streak)
+		combo_changed.emit(combo_streak)
+	else:
+		if old_streak > 1 and combo_streak == 0:
+			# Combo broken — brief visual cue
+			_trigger_combo_break_visual()
+			combo_broken.emit()
+		_hide_combo_display()
+		_apply_board_glow(0)
+
+
+func _show_combo_display() -> void:
+	if not combo_display or not combo_label:
+		return
+	combo_display.show()
+	combo_label.text = "x%d" % combo_streak
+
+	# Pick color from combo level
+	var color_idx: int = mini(combo_streak - 2, COMBO_LEVEL_COLORS.size() - 1)
+	if color_idx < 0:
+		color_idx = 0
+	var combo_color: Color = COMBO_LEVEL_COLORS[color_idx]
+	combo_label.add_theme_color_override("font_color", combo_color)
+
+	# Pulse animation
+	combo_display.scale = Vector2(0.7, 0.7)
+	var tween := create_tween()
+	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tween.tween_property(combo_display, "scale", Vector2(1.0, 1.0), 0.25)
+
+
+func _hide_combo_display() -> void:
+	if combo_display:
+		combo_display.hide()
+	if combo_flash_overlay:
+		combo_flash_overlay.color = Color(1, 1, 1, 0)
+
+
+func _apply_board_glow(streak: int) -> void:
+	if not board_panel:
+		return
+	var panel_style: StyleBox = board_panel.get_theme_stylebox("panel")
+	if not panel_style:
+		return
+	if streak <= 1:
+		# Restore original style
+		if _original_board_style:
+			panel_style.border_color = _original_board_style.border_color
+			panel_style.set_border_width_all(_original_board_style.border_width_left)
+			panel_style.border_blend = _original_board_style.border_blend
+		return
+
+	# Compute glow intensity
+	var glow_level: float = mini((streak - 1) * COMBO_GLOW_INCREMENT, COMBO_MAX_GLOW_WIDTH)
+	var border_width: int = int(COMBO_GLOW_BASE_WIDTH + glow_level)
+
+	# Pick combo color
+	var color_idx: int = mini(streak - 2, COMBO_LEVEL_COLORS.size() - 1)
+	if color_idx < 0:
+		color_idx = 0
+	var combo_color: Color = COMBO_LEVEL_COLORS[color_idx]
+
+	panel_style.border_color = combo_color
+	panel_style.set_border_width_all(border_width)
+	panel_style.border_blend = true
+
+
+func _trigger_combo_flash(streak: int) -> void:
+	if not combo_flash_overlay:
+		return
+
+	# Compute flash alpha: base + increment per streak level
+	var flash_alpha: float = COMBO_FLASH_BASE_ALPHA + (streak - 2) * COMBO_FLASH_INCREMENT
+	flash_alpha = minf(flash_alpha, COMBO_MAX_FLASH_ALPHA)
+
+	# Pick combo color tint
+	var color_idx: int = mini(streak - 2, COMBO_LEVEL_COLORS.size() - 1)
+	if color_idx < 0:
+		color_idx = 0
+	var combo_color: Color = COMBO_LEVEL_COLORS[color_idx]
+
+	var flash_color := Color(combo_color.r, combo_color.g, combo_color.b, flash_alpha)
+	combo_flash_overlay.color = flash_color
+
+	var tween := create_tween()
+	tween.tween_property(combo_flash_overlay, "color:a", 0.0, 0.3).set_ease(Tween.EASE_OUT)
+
+
+func _trigger_combo_break_visual() -> void:
+	# Brief red flash for combo break
+	if not combo_flash_overlay:
+		return
+	combo_flash_overlay.color = Color(0.8, 0.1, 0.1, 0.12)
+	var tween := create_tween()
+	tween.tween_property(combo_flash_overlay, "color:a", 0.0, 0.4).set_ease(Tween.EASE_OUT)

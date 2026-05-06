@@ -70,6 +70,21 @@ shadow_color = Color(0, 0, 0, 0.25)
 shadow_size = 3
 shadow_offset = Vector2(0, 2)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_combo"]
+bg_color = Color(0.1, 0.1, 0.15, 0.85)
+border_color = Color(1, 0.85, 0.3, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(1, 0.85, 0.3, 0.3)
+shadow_size = 4
+shadow_offset = Vector2(0, 2)
+
 [node name="LoomDrop" type="Control" unique_id=20148124]
 layout_mode = 3
 anchors_preset = 15
@@ -107,6 +122,29 @@ theme_override_constants/separation = 8
 [node name="TopNavBar" parent="MarginContainer/VBox" unique_id=937234417 instance=ExtResource("2_topnavbar")]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="ComboDisplay" type="PanelContainer" parent="MarginContainer/VBox" unique_id=3000000000]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_combo")
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBox/ComboDisplay" unique_id=3000000001]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 6
+
+[node name="ComboLabel" type="Label" parent="MarginContainer/VBox/ComboDisplay/MarginContainer" unique_id=3000000002]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "x2"
 
 [node name="WordLabel" type="Label" parent="MarginContainer/VBox" unique_id=391275284]
 unique_name_in_owner = true
@@ -323,3 +361,15 @@ modulate = Color(1, 1, 1, 0)
 theme_override_colors/font_color = Color(1, 0.84, 0, 1)
 theme_override_font_sizes/font_size = 48
 horizontal_alignment = 1
+
+[node name="ComboFlashOverlay" type="ColorRect" parent="." unique_id=3000000003]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 1, 1, 0)
+z_index = 2
+mouse_filter = 2
