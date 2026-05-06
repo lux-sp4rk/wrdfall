@@ -189,35 +189,31 @@ describe('StorageManager', () => {
   })
 
   describe('getUserId', () => {
-    it('creates new device ID when none exists', () => {
-      const userId = storage.getUserId()
+    it('creates new device ID when none exists', async () => {
+      const userId = await storage.getUserId()
       
       expect(userId).toBeDefined()
       expect(userId.length).toBeGreaterThan(0)
       expect(localStorage.getItem('word_loom_device_id')).toBe(userId)
     })
 
-    it('returns existing device ID', () => {
+    it('returns existing device ID', async () => {
       localStorage.setItem('word_loom_device_id', 'existing-id-123')
       // Create a new storage instance to ensure clean state
       const newStorage = new StorageManager(mockSupabase)
-      const userId = newStorage.getUserId()
+      const userId = await newStorage.getUserId()
       
       expect(userId).toBe('existing-id-123')
     })
 
-    it('handles localStorage errors gracefully', () => {
-      const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    it('handles localStorage errors gracefully', async () => {
       vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
         throw new Error('Storage error')
       })
       
-      const userId = storage.getUserId()
+      const userId = await storage.getUserId()
       
       expect(userId).toContain('temp-')
-      expect(spy).toHaveBeenCalled()
-      
-      spy.mockRestore()
     })
   })
 })

@@ -10,13 +10,14 @@ const supabase = supabaseUrl && !supabaseUrl.includes('placeholder')
 
 const statsService = new StatsService(supabase)
 
-export function StatsScreen({ theme, onBack, language = 'en', isOnline = true }) {
+export function StatsScreen({ theme, onBack, language = 'en', isOnline = true, user, supabase, onSignIn }) {
   const [stats, setStats] = useState(null)
   const [leaderboard, setLeaderboard] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [copied, setCopied] = useState(false)
   const [showReset, setShowReset] = useState(false)
+  const [authLoading, setAuthLoading] = useState(false)
   const chartRef = useRef(null)
 
   // Load stats with error handling
@@ -25,7 +26,7 @@ export function StatsScreen({ theme, onBack, language = 'en', isOnline = true })
     setError(null)
     try {
       const [statsData, leaderboardData] = await Promise.all([
-        statsService.getStats(),
+        statsService.getStats(user?.id),
         statsService.getLeaderboard(20)
       ])
       setStats(statsData)
@@ -36,7 +37,7 @@ export function StatsScreen({ theme, onBack, language = 'en', isOnline = true })
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [user?.id])
 
   useEffect(() => {
     loadStats()
@@ -178,6 +179,23 @@ export function StatsScreen({ theme, onBack, language = 'en', isOnline = true })
             <p className="empty-state-message">
               Play a game to see your statistics here!
             </p>
+            {!user && (
+              <>
+                <div className="card-divider" style={{ margin: '16px 0' }} />
+                <p className="empty-state-message" style={{ fontSize: '0.9em', opacity: 0.8 }}>
+                  Sign in to save your scores to the leaderboard
+                </p>
+                <button
+                  type="button"
+                  className="google-sign-in-button"
+                  onClick={onSignIn}
+                  disabled={!isOnline || authLoading}
+                  style={{ marginTop: '12px' }}
+                >
+                  {authLoading ? 'Connecting…' : isOnline ? 'Continue with Google' : 'Offline'}
+                </button>
+              </>
+            )}
           </div>
         ) : (
           <>

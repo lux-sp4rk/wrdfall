@@ -1,11 +1,11 @@
 import React from 'react'
 import { truncateText, sanitizeText } from '../services/hardening.js'
 
-export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, onRulesClick, isOnline = true }) {
-  // Sanitize and truncate error messages to prevent UI breakage
-  const displayError = state.error ? sanitizeText(truncateText(state.error, 150)) : null
-  const errorType = state.errorDetails?.type || 'unknown'
-  const isRetryable = state.errorDetails?.retryable !== false
+export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, onRulesClick, onSignIn, onSignOut, isOnline = true, hasSupabaseConfig = false }) {
+  const { user, authLoading } = state;
+  const displayError = state.error ? sanitizeText(truncateText(state.error, 150)) : null;
+  const errorType = state.errorDetails?.type || 'unknown';
+  const isRetryable = state.errorDetails?.retryable !== false;
 
   return (
     <div className={`landing-container theme-${state.theme}`}
@@ -44,9 +44,9 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, 
             <p className="error-details">{displayError}</p>
             <div className="error-actions">
               {isRetryable && state.prefetchStatus === 'error' && (
-                <button 
+                <button
                   type="button"
-                  className="retry-button" 
+                  className="retry-button"
                   onClick={state.onRetry}
                   disabled={!isOnline}
                   aria-label="Retry loading game"
@@ -61,10 +61,10 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, 
           </div>
         )}
 
-        <button 
+        <button
           type="button"
           className={`play-button ${state.prefetchStatus === 'loading' ? 'loading' : ''}`}
-          onClick={onPlayClick} 
+          onClick={onPlayClick}
           disabled={state.transitioning || state.prefetchStatus === 'error'}
           aria-label={state.transitioning ? 'Game starting' : (state.prefetchStatus === 'error' ? 'Game unavailable' : 'Play game')}
           aria-busy={state.transitioning}
@@ -89,6 +89,23 @@ export function HomeScreen({ state, onPlayClick, onStatsClick, onSettingsClick, 
         </div>
 
         <div className="card-divider" />
+
+        {/* Auth section */}
+        <div className="auth-section">
+          {user ? (
+            <div className="user-status">
+              <span className="user-email">{user.email}</span>
+              <button type="button" className="secondary-button sign-out-button" onClick={onSignOut} disabled={authLoading}>
+                {authLoading ? 'Signing out…' : 'Sign out'}
+              </button>
+            </div>
+          ) : (isOnline && hasSupabaseConfig) ? (
+            <button type="button" className="google-sign-in-button" onClick={onSignIn} disabled={authLoading}>
+              {authLoading ? 'Connecting…' : 'Continue with Google'}
+            </button>
+          ) : null}
+        </div>
+
         <p className="copyright">©2026 Lux Spark</p>
       </div>
     </div>
