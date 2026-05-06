@@ -85,6 +85,12 @@ var freeze_uses: int = 0
 # Combo streak state
 var combo_streak: int = 0
 
+# Last scored word for definition lookup
+var _last_scored_word: String = ""
+
+# Definition modal instance
+var _definition_modal: Control = null
+
 # Drop ratchet state
 var drops_since_start: int = 0
 var base_drop_interval: float = 0.0
@@ -179,6 +185,8 @@ func _ready() -> void:
 	# (floating label at the board is sufficient; top-navbar animation fights for attention and adds visual noise)
 	retry_button.pressed.connect(_on_retry_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
+	%DefinitionButton.pressed.connect(_show_definition)
+	%DefinitionButton.visible = FeatureFlags.word_definitions_enabled
 
 	# Connect burger menu to sidebar (native only — web uses React shell for nav)
 	if not OS.has_feature("web"):
@@ -365,6 +373,8 @@ func _on_feature_flag_changed(flag_name: String, value: bool) -> void:
 	elif flag_name == "draw_more_enabled":
 		draw_more_button.visible = value
 		_update_powerup_buttons()
+	elif flag_name == "word_definitions_enabled":
+		%DefinitionButton.visible = value
 
 
 func _on_sidebar_opened() -> void:
@@ -853,6 +863,7 @@ func _accept_word(word: String) -> void:
 	var points: int = _score_word(word)
 	score += points
 	word_scored.emit(points, word.length())
+	_last_scored_word = word
 	_show_score_burst(points)
 	_update_score_display()
 	_update_powerup_buttons()
@@ -1492,6 +1503,34 @@ func _trigger_game_complete(reason: String = "unknown") -> void:
 		_play_win_animation(is_new_high_score)
 	else:
 		_play_lose_animation(is_new_high_score)
+
+
+func _show_definition() -> void:
+	if _last_scored_word.is_empty():
+		return
+	if not _definition_modal:
+		_definition_modal = preload("res://scenes/DefinitionModal.tscn").instantiate()
+		add_child(_definition_modal)
+		_definition_modal.dismissed.connect(_on_definition_modal_dismissed)
+		DefinitionService.definition_ready.connect(_on_definition_ready)
+		DefinitionService.definition_error.connect(_on_definition_error)
+
+	_definition_modal.show_loading(_last_scored_word)
+	DefinitionService.lookup_definition(_last_scored_word)
+
+
+func _on_definition_ready(word: String, definition: String, part_of_speech: String) -> void:
+	if _definition_modal and _definition_modal.visible:
+		_definition_modal.show_definition(word, definition, part_of_speech)
+
+
+func _on_definition_error(word: String, error: String) -> void:
+	if _definition_modal and _definition_modal.visible:
+		_definition_modal.show_error(word, error)
+
+
+func _on_definition_modal_dismissed() -> void:
+	pass  # Future: resume game if needed
 
 
 func _update_grid_display() -> void:
