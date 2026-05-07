@@ -109,13 +109,14 @@ Defined in `godot/project.godot` — loaded automatically at startup:
 
 | Autoload | Purpose | Key Responsibilities |
 |----------|---------|---------------------|
-| `FeatureFlags` | Feature toggles | `drop_ratchet_enabled`, `draw_more_enabled` — persisted to ConfigFile/localStorage |
+| `FeatureFlags` | Feature toggles | `drop_ratchet_enabled`, `draw_more_enabled`, `word_definitions_enabled` — persisted to ConfigFile/localStorage |
 | `GameSettings` | User preferences | Language, difficulty, theme, tutorial completion — ConfigFile persistence |
 | `StatsManager` | Progress tracking | High scores, session history, WPM, Supabase sync |
 | `GameConstants` | Game rules | Grid size, scoring multipliers, power-up costs, drop intervals |
 | `ThemeConstants` | Visual constants | Color definitions, icon strings |
 | `ThemeManager` | Theme system | Light/dark switching, color lookup, `theme_changed` signal |
 | `Supabase` | Backend | Auth, database queries, leaderboards (from addon) |
+| `DefinitionService` | Word definitions | Fetches definitions from Free Dictionary API (dictionaryapi.dev). Caches results in memory per session. |
 
 ### Scene Components
 

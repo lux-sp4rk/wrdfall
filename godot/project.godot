@@ -28,6 +28,7 @@ GameConstants="*res://scripts/GameConstants.gd"
 ThemeConstants="*res://scripts/ThemeConstants.gd"
 ThemeManager="*res://scripts/ThemeManager.gd"
 Supabase="*res://addons/supabase/Supabase/supabase.gd"
+DefinitionService="*res://scripts/DefinitionService.gd"
 
 [display]
 

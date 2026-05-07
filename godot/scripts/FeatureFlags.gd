@@ -36,6 +36,13 @@ var test_flag_ping: bool = false:
 			feature_flag_changed.emit("test_flag_ping", val)
 			save_flags()
 
+var word_definitions_enabled: bool = true:
+	set(val):
+		if word_definitions_enabled != val:
+			word_definitions_enabled = val
+			feature_flag_changed.emit("word_definitions_enabled", val)
+			save_flags()
+
 func _ready() -> void:
 	load_flags()
 
@@ -45,10 +52,11 @@ func save_flags() -> void:
 	config.set_value("flags", "draw_more_enabled", draw_more_enabled)
 	config.set_value("flags", "dev_mode_cheats", dev_mode_cheats)
 	config.set_value("flags", "test_flag_ping", test_flag_ping)
+	config.set_value("flags", "word_definitions_enabled", word_definitions_enabled)
 	var err := config.save(FLAGS_FILE)
 	if err != OK:
 		push_error("FeatureFlags: Failed to save flags: " + str(err))
-	
+
 	# Also sync to localStorage for React consistency if on web
 	if OS.has_feature("web"):
 		var js = JavaScriptBridge.get_interface("localStorage")
@@ -57,6 +65,7 @@ func save_flags() -> void:
 			js.setItem("word-loom-draw-more-enabled", "true" if draw_more_enabled else "false")
 			js.setItem("word-loom-dev-mode-cheats", "true" if dev_mode_cheats else "false")
 			js.setItem("word-loom-test-flag-ping", "true" if test_flag_ping else "false")
+			js.setItem("word-loom-word-definitions-enabled", "true" if word_definitions_enabled else "false")
 
 func load_flags() -> void:
 	var config := ConfigFile.new()
@@ -67,11 +76,13 @@ func load_flags() -> void:
 		draw_more_enabled = config.get_value("flags", "draw_more_enabled", true)
 		dev_mode_cheats = config.get_value("flags", "dev_mode_cheats", false)
 		test_flag_ping = config.get_value("flags", "test_flag_ping", false)
+		word_definitions_enabled = config.get_value("flags", "word_definitions_enabled", true)
 	else:
 		drop_ratchet_enabled = false
 		draw_more_enabled = true
 		dev_mode_cheats = false
 		test_flag_ping = false
+		word_definitions_enabled = true
 	
 	# Web localStorage override (React-driven changes)
 	if OS.has_feature("web"):
@@ -89,3 +100,6 @@ func load_flags() -> void:
 			var ping_val = js.getItem("word-loom-test-flag-ping")
 			if ping_val != null:
 				test_flag_ping = (ping_val == "true")
+			var def_val = js.getItem("word-loom-word-definitions-enabled")
+			if def_val != null:
+				word_definitions_enabled = (def_val == "true")
