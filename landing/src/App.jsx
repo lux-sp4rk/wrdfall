@@ -201,8 +201,17 @@ function App() {
         launchScene: launchScene,
       });
 
-      window.saveHighScore = (score) => {
-        storageManager.current.saveHighScore(score);
+      window.saveHighScore = (sessionData) => {
+        // sessionData can be:
+        // - number (legacy): only high score
+        // - object: full session stats { score, wordsFound, tilesCleared, duration, longestWord, timestamp }
+        if (typeof sessionData === 'number') {
+          // Legacy path: Godot only passed score
+          storageManager.current.saveHighScore(sessionData);
+        } else if (typeof sessionData === 'object' && sessionData !== null) {
+          // New path: full session stats for word-loom-stats persistence
+          storageManager.current.saveSessionStats(sessionData);
+        }
       };
 
       if (landingRef.current) {

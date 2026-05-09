@@ -169,6 +169,93 @@ export class StorageManager {
   }
 
   /**
+   * Save full session stats to word-loom-stats localStorage.
+   * Called from Godot via JS bridge when game ends.
+   *
+   * @param {Object} session - Session data from Godot
+   * @param {number} session.score - Final score for this session
+   * @param {number} session.wordsFound - Words found this session
+   * @param {number} session.tilesCleared - Tiles cleared this session
+   * @param {number} session.duration - Session duration in seconds
+   * @param {string} session.longestWord - Longest word found this session
+   * @param {string} [session.timestamp] - ISO timestamp (defaults to now)
+   */
+  saveSessionStats(session) {
+    // Validate inputs
+    const score = clampNumber(session.score, 0, this.maxScore, null);
+    const wordsFound = clampNumber(session.wordsFound, 0, 999999, 0);
+    const tilesCleared = clampNumber(session.tilesCleared, 0, 999999, 0);
+    const duration = clampNumber(session.duration, 0, 999999, 0);
+
+    if (score === null) {
+      console.warn('Invalid session score rejected:', session.score);
+      return;
+    }
+
+    // Read existing aggregated stats (not session_history - that's stored separately in Godot)
+    const existingStats = this._getLocalStats();
+
+    // Update aggregates: keep max for score and longest_word, accumulate totals
+    const newHighScore = Math.max(existingStats.high_score || 0, score);
+    const existingLongest = existingStats.longest_word || '';
+    const newLongestWord = session.longestWord && session.longestWord.length > existingLongest.length
+      ? session.longestWord
+      : existingLongest;
+
+    const updatedStats = {
+      high_score: newHighScore,
+      longest_word: newLongestWord,
+      max_wpm: existingStats.max_wpm || 0, // Will be recalculated from history if needed
+      total_words: (existingStats.total_words || 0) + wordsFound,
+      total_tiles: (existingStats.total_tiles || 0) + tilesCleared,
+      total_time: (existingStats.total_time || 0) + duration,
+      session_history: existingStats.session_history || [],
+    };
+
+    // Build session record for history (limit to last 50)
+    const sessionRecord = {
+      timestamp: session.timestamp || new Date().toISOString(),
+      score: score,
+      words_found: wordsFound,
+      tiles_cleared: tilesCleared,
+      duration: duration,
+      longest_word: session.longestWord || '',
+    };
+
+    updatedStats.session_history.unshift(sessionRecord);
+    if (updatedStats.session_history.length > 50) {
+      updatedStats.session_history = updatedStats.session_history.slice(0, 50);
+    }
+
+    // Also update the legacy high score key for backwards compatibility
+    try {
+      this.setLocalHighScore(newHighScore);
+    } catch (err) {
+      console.warn('Failed to update legacy high score:', err);
+    }
+
+    // Write full stats blob
+    try {
+      localStorage.setItem('word-loom-stats', JSON.stringify(updatedStats));
+    } catch (err) {
+      console.error('Failed to save session stats:', err);
+    }
+  }
+
+  /**
+   * Get local stats object from word-loom-stats
+   */
+  _getLocalStats() {
+    try {
+      const raw = localStorage.getItem('word-loom-stats');
+      if (!raw) return {};
+      return JSON.parse(raw);
+    } catch {
+      return {};
+    }
+  }
+
+  /**
    * Get or create anonymous device ID
    */
   getUserId() {
