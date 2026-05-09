@@ -248,6 +248,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="Panel" type="Panel" parent="GameOverModal/CenterContainer" unique_id=168660986]
 custom_minimum_size = Vector2(560, 480)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_modal_panel")
