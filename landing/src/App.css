@@ -661,6 +661,18 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
+.icon-button.definition-icon {
+  min-height: 32px;
+  padding: 4px 8px;
+  font-size: 16px;
+}
+
+.stat-value-with-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .confirm-overlay {
   position: fixed;
   inset: 0;
@@ -694,6 +706,52 @@ button:focus-visible {
   height: 52px;
   min-height: 52px;
   font-size: 16px;
+}
+
+/* ===== Definition Dialog ===== */
+
+.definition-dialog {
+  max-width: 420px;
+  text-align: center;
+}
+
+.definition-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.definition-word {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--color-accent-secondary, #F29170);
+  margin: 0;
+}
+
+.definition-pos {
+  font-size: 18px;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 0 0 12px 0;
+}
+
+.definition-text {
+  font-size: 18px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.definition-loading,
+.definition-error {
+  font-size: 16px;
+  color: var(--text-secondary);
+  padding: 20px 0;
+}
+
+.definition-error {
+  color: var(--color-error);
 }
 
 /* ===== Tutorial Prompt ===== */

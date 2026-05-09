@@ -6,11 +6,15 @@ extends Control
 @onready var share_button: Button = %ShareButton
 @onready var confirm_dialog: ConfirmationDialog = %ConfirmDialog
 @onready var history_chart: Control = %HistoryChart
+@onready var definition_button: Button = %DefinitionButton
 
 # Records section
 @onready var high_score_label: Label = %HighScoreValue
 @onready var longest_word_label: Label = %LongestWordValue
 @onready var max_wpm_label: Label = %MaxWPMValue
+
+# Definition modal
+var _definition_modal: Control = null
 
 # Totals section
 @onready var total_words_label: Label = %TotalWordsValue
@@ -30,9 +34,11 @@ func _ready() -> void:
 	reset_button.pressed.connect(_on_reset_pressed)
 	share_button.pressed.connect(_on_share_pressed)
 	confirm_dialog.confirmed.connect(_on_reset_confirmed)
+	definition_button.pressed.connect(_show_definition)
 	_apply_theme()
 	ThemeManager.theme_changed.connect(_apply_theme)
 	_update_display()
+	_update_definition_button_visibility()
 	_load_leaderboard()
 
 func _load_leaderboard() -> void:
@@ -106,6 +112,13 @@ func _draw_history_chart() -> void:
 	# Connect draw signal if not already connected
 	if not history_chart.draw.is_connected(_on_chart_draw):
 		history_chart.draw.connect(_on_chart_draw)
+
+func _update_definition_button_visibility() -> void:
+	"""Show definition button only when there's a valid word to look up"""
+	definition_button.visible = (
+		FeatureFlags.word_definitions_enabled and
+		not StatsManager.longest_word.is_empty()
+	)
 
 func _on_chart_draw() -> void:
 	"""Custom drawing for session history chart"""
@@ -302,3 +315,30 @@ func _apply_theme() -> void:
 	# Redraw chart with new theme colors
 	if history_chart:
 		history_chart.queue_redraw()
+
+func _show_definition() -> void:
+	"""Show definition modal for the longest word"""
+	var word: String = StatsManager.longest_word
+	if word.is_empty():
+		return
+
+	if not _definition_modal:
+		_definition_modal = preload("res://scenes/DefinitionModal.tscn").instantiate()
+		add_child(_definition_modal)
+		_definition_modal.dismissed.connect(_on_definition_modal_dismissed)
+		DefinitionService.definition_ready.connect(_on_definition_ready)
+		DefinitionService.definition_error.connect(_on_definition_error)
+
+	_definition_modal.show_loading(word)
+	DefinitionService.lookup_definition(word)
+
+func _on_definition_ready(word: String, definition: String, part_of_speech: String) -> void:
+	if _definition_modal and _definition_modal.visible:
+		_definition_modal.show_definition(word, definition, part_of_speech)
+
+func _on_definition_error(word: String, error: String) -> void:
+	if _definition_modal and _definition_modal.visible:
+		_definition_modal.show_error(word, error)
+
+func _on_definition_modal_dismissed() -> void:
+	pass  # Future: resume game if needed
