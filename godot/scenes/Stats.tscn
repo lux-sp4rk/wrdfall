@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://stats_scene"]
+[gd_scene load_steps=3 format=3 uid="uid://stats_scene"]
 
 [ext_resource type="Script" path="res://scripts/Stats.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://cxkdefined01" path="res://scenes/DefinitionModal.tscn" id="2_definition_modal"]
 
 [node name="Stats" type="Control"]
 layout_mode = 3
@@ -93,6 +94,18 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "—"
 horizontal_alignment = 2
+
+[node name="DefinitionButton" type="Button" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/RecordsSection/LongestWordRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(1, 0.84, 0, 0.7)
+theme_override_colors/font_hover_color = Color(1, 0.84, 0, 1.0)
+theme_override_font_sizes/font_size = 28
+text = "📖"
+tooltip_text = "View definition"
+visible = false
 
 [node name="MaxWPMRow" type="HBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ContentVBox/RecordsSection"]
 layout_mode = 2

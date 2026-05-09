@@ -188,6 +188,99 @@ describe('StorageManager', () => {
     })
   })
 
+  describe('saveSessionStats', () => {
+    it('saves first session stats to word-loom-stats', async () => {
+      const session = {
+        score: 1000,
+        wordsFound: 5,
+        tilesCleared: 20,
+        duration: 120,
+        longestWord: 'hello',
+      }
+      storage.saveSessionStats(session)
+
+      const saved = JSON.parse(localStorage.getItem('word-loom-stats'))
+      expect(saved.high_score).toBe(1000)
+      expect(saved.longest_word).toBe('hello')
+      expect(saved.total_words).toBe(5)
+      expect(saved.total_tiles).toBe(20)
+      expect(saved.total_time).toBe(120)
+      expect(saved.session_history).toHaveLength(1)
+      expect(saved.session_history[0].score).toBe(1000)
+    })
+
+    it('accumulates totals across sessions', async () => {
+      storage.saveSessionStats({ score: 1000, wordsFound: 5, tilesCleared: 20, duration: 120, longestWord: 'hello' })
+      storage.saveSessionStats({ score: 800, wordsFound: 3, tilesCleared: 15, duration: 60, longestWord: 'hi' })
+
+      const saved = JSON.parse(localStorage.getItem('word-loom-stats'))
+      expect(saved.total_words).toBe(8)
+      expect(saved.total_tiles).toBe(35)
+      expect(saved.total_time).toBe(180)
+    })
+
+    it('updates high score when new score is higher', async () => {
+      storage.saveSessionStats({ score: 1000, wordsFound: 5, tilesCleared: 20, duration: 120, longestWord: 'hello' })
+      storage.saveSessionStats({ score: 1500, wordsFound: 3, tilesCleared: 15, duration: 60, longestWord: 'yo' })
+
+      const saved = JSON.parse(localStorage.getItem('word-loom-stats'))
+      expect(saved.high_score).toBe(1500)
+    })
+
+    it('keeps existing high score when new score is lower', async () => {
+      storage.saveSessionStats({ score: 1000, wordsFound: 5, tilesCleared: 20, duration: 120, longestWord: 'hello' })
+      storage.saveSessionStats({ score: 500, wordsFound: 3, tilesCleared: 15, duration: 60, longestWord: 'yo' })
+
+      const saved = JSON.parse(localStorage.getItem('word-loom-stats'))
+      expect(saved.high_score).toBe(1000)
+    })
+
+    it('updates longest word when new word is longer', async () => {
+      storage.saveSessionStats({ score: 1000, wordsFound: 5, tilesCleared: 20, duration: 120, longestWord: 'hello' })
+      storage.saveSessionStats({ score: 800, wordsFound: 3, tilesCleared: 15, duration: 60, longestWord: 'superlong' })
+
+      const saved = JSON.parse(localStorage.getItem('word-loom-stats'))
+      expect(saved.longest_word).toBe('superlong')
+    })
+
+    it('keeps existing longest word when new word is shorter', async () => {
+      storage.saveSessionStats({ score: 1000, wordsFound: 5, tilesCleared: 20, duration: 120, longestWord: 'superlong' })
+      storage.saveSessionStats({ score: 800, wordsFound: 3, tilesCleared: 15, duration: 60, longestWord: 'hi' })
+
+      const saved = JSON.parse(localStorage.getItem('word-loom-stats'))
+      expect(saved.longest_word).toBe('superlong')
+    })
+
+    it('caps session_history at 50 records', async () => {
+      for (let i = 0; i < 60; i++) {
+        storage.saveSessionStats({ score: i, wordsFound: 1, tilesCleared: 1, duration: 10, longestWord: 'word' })
+      }
+      const saved = JSON.parse(localStorage.getItem('word-loom-stats'))
+      expect(saved.session_history).toHaveLength(50)
+      expect(saved.session_history[0].score).toBe(59) // most recent first
+    })
+
+    it('rejects invalid scores', async () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      storage.saveSessionStats({ score: 'invalid', wordsFound: 5, tilesCleared: 20, duration: 120, longestWord: 'hello' })
+
+      expect(localStorage.getItem('word-loom-stats')).toBeNull()
+      expect(spy).toHaveBeenCalled()
+      spy.mockRestore()
+    })
+
+    it('handles localStorage errors gracefully', async () => {
+      const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('Storage full')
+      })
+      storage.saveSessionStats({ score: 1000, wordsFound: 5, tilesCleared: 20, duration: 120, longestWord: 'hello' })
+
+      expect(spy).toHaveBeenCalled()
+      spy.mockRestore()
+    })
+  })
+
   describe('getUserId', () => {
     it('creates new device ID when none exists', () => {
       const userId = storage.getUserId()

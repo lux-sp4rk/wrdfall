@@ -24,6 +24,7 @@ var total_time_played: float = 0.0  # seconds
 var high_score: int = 0
 var longest_word: String = ""
 var max_wpm: float = 0.0
+var last_word_played: String = ""
 
 var session_history: Array[Dictionary] = []  # [{timestamp, score, words_found, duration}]
 
@@ -34,6 +35,7 @@ var _current_user: SupabaseUser = null  # Stores the authenticated user
 
 signal sync_completed(success: bool)
 signal auth_completed(success: bool)
+signal word_played(word: String)
 
 func _ready() -> void:
 	load_stats()
@@ -128,10 +130,13 @@ func record_word(word: String, tiles_cleared: int) -> void:
 	"""Track a word being found during gameplay"""
 	session_words_found += 1
 	session_tiles_cleared += tiles_cleared
+	last_word_played = word
 
 	# Update longest word if applicable
 	if word.length() > longest_word.length():
 		longest_word = word
+
+	word_played.emit(word)
 
 func record_powerup(type: String) -> void:
 	"""Track power-up usage"""

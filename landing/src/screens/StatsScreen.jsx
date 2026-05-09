@@ -17,6 +17,10 @@ export function StatsScreen({ theme, onBack, language = 'en', isOnline = true })
   const [error, setError] = useState(null)
   const [copied, setCopied] = useState(false)
   const [showReset, setShowReset] = useState(false)
+  const [showDefinition, setShowDefinition] = useState(false)
+  const [definitionData, setDefinitionData] = useState(null)
+  const [definitionLoading, setDefinitionLoading] = useState(false)
+  const [definitionError, setDefinitionError] = useState(null)
   const chartRef = useRef(null)
 
   // Load stats with error handling
@@ -85,6 +89,40 @@ export function StatsScreen({ theme, onBack, language = 'en', isOnline = true })
     await statsService.resetStats()
     await loadStats()
     setShowReset(false)
+  }
+
+  async function handleShowDefinition() {
+    if (!stats?.longest_word) return
+    setShowDefinition(true)
+    setDefinitionLoading(true)
+    setDefinitionError(null)
+    setDefinitionData(null)
+
+    try {
+      const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${stats.longest_word.toLowerCase()}`)
+      if (!response.ok) {
+        throw new Error('Definition not found')
+      }
+      const data = await response.json()
+      const firstMeaning = data[0]?.meanings?.[0]
+      const firstDefinition = firstMeaning?.definitions?.[0]
+
+      setDefinitionData({
+        word: stats.longest_word,
+        partOfSpeech: firstMeaning?.partOfSpeech || 'unknown',
+        definition: firstDefinition?.definition || 'No definition available'
+      })
+    } catch (err) {
+      setDefinitionError(err.message || 'Failed to load definition')
+    } finally {
+      setDefinitionLoading(false)
+    }
+  }
+
+  function handleCloseDefinition() {
+    setShowDefinition(false)
+    setDefinitionData(null)
+    setDefinitionError(null)
   }
 
   // Loading skeleton state
@@ -184,9 +222,22 @@ export function StatsScreen({ theme, onBack, language = 'en', isOnline = true })
             <div className="stats-section">
               <h3 className="stats-section-title">Records</h3>
               <StatRow label="High Score" value={formatNumber(stats.high_score ?? 0, language)} />
-              <StatRow 
-                label="Longest Word" 
-                value={stats.longest_word ? truncateText(sanitizeText(stats.longest_word), 15) : '—'} 
+              <StatRow
+                label="Longest Word"
+                value={stats.longest_word ? (
+                  <span className="stat-value-with-button">
+                    {truncateText(sanitizeText(stats.longest_word), 15)}
+                    <button
+                      type="button"
+                      className="icon-button definition-icon"
+                      onClick={handleShowDefinition}
+                      title="View definition"
+                      disabled={!stats.longest_word}
+                    >
+                      📖
+                    </button>
+                  </span>
+                ) : '—'}
               />
               <StatRow label="Max WPM" value={(stats.max_wpm ?? 0).toFixed(1)} />
             </div>
@@ -258,6 +309,31 @@ export function StatsScreen({ theme, onBack, language = 'en', isOnline = true })
               <button type="button" className="secondary-button" onClick={() => setShowReset(false)}>Cancel</button>
               <button type="button" className="play-button confirm-danger-button" onClick={handleReset}>Reset</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showDefinition && (
+        <div className="confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="definition-title">
+          <div className="confirm-dialog definition-dialog">
+            <div className="definition-header">
+              <h3 id="definition-title" className="definition-word">
+                {definitionData?.word || stats?.longest_word}
+              </h3>
+              <button type="button" className="icon-button" onClick={handleCloseDefinition}>✕</button>
+            </div>
+            {definitionLoading && (
+              <p className="definition-loading">Looking up {stats?.longest_word}...</p>
+            )}
+            {definitionError && (
+              <p className="definition-error">{definitionError}</p>
+            )}
+            {definitionData && (
+              <>
+                <p className="definition-pos">{definitionData.partOfSpeech}</p>
+                <p className="definition-text">{definitionData.definition}</p>
+              </>
+            )}
           </div>
         </div>
       )}
