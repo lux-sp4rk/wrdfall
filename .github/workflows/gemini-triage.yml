@@ -98,6 +98,8 @@ jobs:
               }
             }
           prompt: '/gemini-triage'
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: true
 
   label:
     runs-on: 'ubuntu-latest'
