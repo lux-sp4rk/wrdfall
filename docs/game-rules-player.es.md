@@ -4,10 +4,11 @@ Wordfall es un rompecabezas de palabras relajante con un giro: ¡las letras caen
 
 ## Lo Básico
 
-1. **Las letras caen** una a la vez en la cuadrícula
-2. **Desliza sobre letras adyacentes** para formar una palabra (3 letras o más)
-3. **Las letras que coinciden desaparecen** — todo lo de arriba cae para llenar los espacios
-4. **Mantén el tablero despejado** para ganar. ¡Si se llena completamente, pierdes!
+1. **El tablero comienza con 3 filas de letras** — incluyendo algunas palabras sembradas para comenzar
+2. **Nuevas letras caen** una a la vez desde arriba hacia la cuadrícula de 5×5
+3. **Desliza sobre letras adyacentes** para formar una palabra (3 letras o más)
+4. **Las letras que coinciden desaparecen** — todo lo de arriba cae para llenar los espacios
+5. **Mantén el tablero despejado** para ganar. ¡Si se llena completamente, pierdes!
 
 ## Formando Palabras
 
@@ -21,42 +22,61 @@ Cada letra debe tocar la anterior. ¡Sin saltos!
 
 ## Puntaje
 
-Los puntos vienen de tres cosas:
+Tu puntaje por cada palabra = **Suma de Letras × Multiplicador de Longitud × Multiplicador de Combo**
 
-**1. Rareza de la Letra**  
-Las letras comunes (A, E, S, T) valen 1 punto. Las raras (J, Q, X, Z) valen 8-10 puntos.
+**1. Rareza de la Letra**
+Las letras comunes valen 1 punto. Las raras (J, Q, X, Z) valen 8-10 puntos.
 
-**2. Longitud de la Palabra**  
+**2. Longitud de la Palabra**
 Cuanto más larga tu palabra, más se multiplica tu puntaje:
-- 3 letras: puntos normales
-- 4 letras: doble puntos
-- 5 letras: 4× puntos
-- 6+ letras: ¡8× puntos!
+- 3 letras: 1× (puntaje base)
+- 4 letras: 2×
+- 5 letras: 4×
+- 6+ letras: 8×
 
-**3. Bono de Racha**  
-Encadena palabras de 4 letras (o más) para construir una racha. Cada una en fila aumenta tu multiplicador de bono — ¡hasta 3× tu puntaje!
+**3. Racha de Combo**
+Encadena palabras de 4 letras (o más) para construir una racha. Cada una suma +0.5× a tu multiplicador:
+- 1 en fila: 1.5×
+- 2 en fila: 2.0×
+- 3 en fila: 2.5×
+- 4+ en fila: 3.0× (tope)
 
-⚠️ **Cuidado:** Una palabra de 3 letras rompe tu racha. A veces vale la pena, a veces no.
+⚠️ **Cuidado:** ¡Una palabra de 3 letras rompe tu racha completamente!
 
 ## Aumento de Velocidad
 
-El juego se vuelve gradualmente más rápido conforme juegas. Cada pocas letras, caen un poco más rápido.
-
-**Buenas noticias:** Forma una palabra de 5+ letras y la velocidad vuelve a ser agradable y lenta. Piensa en las palabras largas como presionar el botón de "calma".
+El ritmo aumenta gradualmente:
+- Cada **5 letras caídas**, la velocidad sube un nivel
+- Una palabra de **5+ letras** reinicia la velocidad a un ritmo agradable — piénsalo como presionar el botón de "calma"
+- Lo más rápido que llega es un intervalo de 2 segundos (límite de velocidad)
 
 ## Potenciadores
 
-Gana puntos al limpiar palabras, luego gástelos en herramientas útiles:
+Gana puntos al limpiar palabras, luego gástalos en herramientas útiles. ¡Cada potenciador se vuelve un poco más caro mientras más lo usas!
 
 ### 🔄 Mezclar (Shake)
-**Costo:** 3 puntos  
 Baraja todas las letras en nuevas posiciones aleatorias. ¡Ideal cuando estás atascado!
+- **Normal:** empieza en 3 pts | **Difícil:** empieza en 8 pts
 
 ### 🔀 Intercambiar
-**Costo:** 2 puntos  
 Elige cualquier dos letras e intercambia sus posiciones. Perfecto para preparar esa gran palabra.
+- **Normal:** empieza en 2 pts | **Difícil:** empieza en 5 pts
 
-*Presiona Intercambiar, toca tu primera letra, toca tu segunda letra. ¡Listo!*
+*Presiona Intercambiar, toca tu primera letra, toca tu segunda letra. Presiona ESC para cancelar.*
+
+### ⬇️ Sacar Más
+Deja caer hasta 5 letras nuevas en el tablero. Úsalo cuando te quedes sin opciones.
+- **Normal:** empieza en 5 pts | **Difícil:** empieza en 10 pts
+
+### ⏸️ Congelar
+Pausa todas las letras que caen. ¡Reanuda cuando quieras sin costo!
+- **Normal:** empieza en 10 pts | **Difícil:** empieza en 15 pts
+
+## Modos de Dificultad
+
+**El modo Normal** es el predeterminado relajado — más vocales, palabras de rescate cuando estás en apuros, y costos más bajos de potenciadores.
+
+**El modo Difícil** es para cuando quieres un desafío — caídas más rápidas (4 segundos en lugar de 8), menos vocales, sin palabras de rescate, y costos más altos de potenciadores.
 
 ## Ganar y Perder
 
@@ -64,11 +84,11 @@ Elige cualquier dos letras e intercambia sus posiciones. Perfecto para preparar 
 
 ❌ **Pierdes** cuando las 25 casillas se llenan — sin espacio para la siguiente letra.
 
-**¿Atascado sin palabras?** Intenta un potenciador. El juego también ocasionalmente dejará caer letras útiles cuando estés en apuros.
+**¿Atascado sin palabras?** ¡Intenta un potenciador! En el modo Normal, el juego ocasionalmente dejará caer letras que te ayudan a encontrar palabras.
 
 ## Consejos para el Éxito
 
-- **Construye hacia abajo** — limpiar letras en la parte inferior hace que todo lo de arriba caiga, creando nuevas oportunidades de palabras
+- **Construye hacia abajo** — limpiar letras en la parte inferior hace que todo lo de arriba caiga, creando nuevas oportunidades
 - **Guarda tu racha** — una palabra grande suele ser mejor que dos pequeñas
 - **Usa los potenciadores temprano** — no esperes hasta que el tablero esté casi lleno
 - **Busca terminaciones comunes** — ING, ED, ER, y ES convierten palabras cortas en largas
@@ -76,6 +96,8 @@ Elige cualquier dos letras e intercambia sus posiciones. Perfecto para preparar 
 ## Configuración
 
 **Idioma:** Cambia entre Inglés y Español en cualquier momento. Tus mejores puntajes se guardan por separado para cada idioma.
+
+**Dificultad:** Elige Normal para una experiencia relajada o Difícil para desafíos extra.
 
 **Sonido y Música:** Actívalos en el menú. ¡El sonido suave de lluvia puede ser bastante relajante!
 
