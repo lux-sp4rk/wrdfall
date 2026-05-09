@@ -253,12 +253,7 @@ layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_modal_panel")
 
 [node name="VBox" type="VBoxContainer" parent="GameOverModal/CenterContainer/Panel" unique_id=1816266748]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 2
 theme_override_constants/separation = 24
 
 [node name="TopSpacer" type="Control" parent="GameOverModal/CenterContainer/Panel/VBox" unique_id=266848416]
