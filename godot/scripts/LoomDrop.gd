@@ -381,10 +381,16 @@ func _on_sidebar_closed() -> void:
 
 
 func _on_retry_pressed() -> void:
+	# End session before restarting so stats persist
+	if not game_over:
+		StatsManager.end_session(score, {"loss_reason": "retry"})
 	get_tree().reload_current_scene()
 
 
 func _on_quit_pressed() -> void:
+	# End session before navigating home so stats persist
+	if not game_over:
+		StatsManager.end_session(score, {"loss_reason": "quit"})
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.wordfallGoHome && window.wordfallGoHome()")
 	else:
