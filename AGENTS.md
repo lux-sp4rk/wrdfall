@@ -90,6 +90,15 @@ Open `godot/project.godot` in Godot 4.6+. Main scene is `Boot.tscn`.
 4. **Open a PR** — Arachne (AI reviewer) and test-runner-faye run automatically.
 5. **Update `docs/` if needed**: architecture changes → `ARCHITECTURE.md`, deploy changes → `deployment.md`.
 
+### Git Protocol (MANDATORY)
+When you make changes, you MUST complete the git workflow:
+1. `git add <files>`
+2. `git commit -m "type(scope): description"`
+3. `git push origin <branch>`
+4. Open PR via `gh pr create --title "..." --body "..."`
+
+Never leave changes uncommitted. Never assume someone else will push.
+
 ## Common Tasks
 
 | Task | Where to Start |
