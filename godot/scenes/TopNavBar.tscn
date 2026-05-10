@@ -1,6 +1,7 @@
-[gd_scene load_steps=10 format=3 uid="uid://b4qm8xjhw3fxo"]
+[gd_scene load_steps=11 format=3 uid="uid://b4qm8xjhw3fxo"]
 
 [ext_resource type="Script" path="res://scripts/TopNavBar.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/SandTimer.gd" id="2_sandtimer"]
 
 [sub_resource type="StyleBoxFlat" id="NavButtonNormal"]
 bg_color = Color(0.48, 0.61, 0.55, 1)
@@ -128,37 +129,4 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 36
 text = "+150 GREAT!"
 horizontal_alignment = 1
-visible = false
-
-[node name="ScoreContainer" type="VBoxContainer" parent="."]
-custom_minimum_size = Vector2(220, 0)
-layout_mode = 2
-size_flags_horizontal = 1
-theme_override_constants/separation = 4
-
-[node name="ScoreLabel" type="Label" parent="ScoreContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 36
-text = "Score: 0"
-horizontal_alignment = 2
-vertical_alignment = 1
-
-[node name="HighScoreLabel" type="Label" parent="ScoreContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
-theme_override_font_sizes/font_size = 24
-text = ""
-horizontal_alignment = 2
-vertical_alignment = 0
-
-[node name="HighScoreNotificationLabel" type="Label" parent="ScoreContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.88, 0.47, 0.34, 1)
-theme_override_font_sizes/font_size = 20
-text = ""
-horizontal_alignment = 2
-vertical_alignment = 0
 visible = false
