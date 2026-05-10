@@ -1,6 +1,7 @@
-[gd_scene load_steps=10 format=3 uid="uid://b4qm8xjhw3fxo"]
+[gd_scene load_steps=11 format=3 uid="uid://b4qm8xjhw3fxo"]
 
 [ext_resource type="Script" path="res://scripts/TopNavBar.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/SandTimer.gd" id="2_sandtimer"]
 
 [sub_resource type="StyleBoxFlat" id="NavButtonNormal"]
 bg_color = Color(0.48, 0.61, 0.55, 1)
@@ -131,10 +132,15 @@ horizontal_alignment = 1
 visible = false
 
 [node name="ScoreContainer" type="HBoxContainer" parent="."]
-custom_minimum_size = Vector2(260, 0)
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 size_flags_horizontal = 1
-theme_override_constants/separation = 16
+theme_override_constants/separation = 12
+
+[node name="SandTimer" type="Control" parent="ScoreContainer" unique_name_in_owner=true]
+custom_minimum_size = Vector2(48, 70)
+layout_mode = 2
+script = ExtResource("2_sandtimer")
 
 [node name="ScoreVBox" type="VBoxContainer" parent="ScoreContainer"]
 layout_mode = 2
