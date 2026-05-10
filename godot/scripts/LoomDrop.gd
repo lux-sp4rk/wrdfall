@@ -9,7 +9,7 @@ signal combo_broken()
 @onready var board_panel: PanelContainer = $MarginContainer/VBox/GridCenter/BoardPanel
 @onready var word_label: Label = %"WordLabel"
 @onready var top_nav_bar = %"TopNavBar"
-@onready var sand_timer: Control = %"SandTimer"
+@onready var sand_timer: Control = top_nav_bar.get_node("SandTimer")
 @onready var shake_button: Button = %"ShakeButton"
 @onready var swap_button: Button = %"SwapButton"
 @onready var draw_more_button: Button = %"DrawMoreButton"
