@@ -22,53 +22,68 @@ shadow_size = 4
 shadow_offset = Vector2(0, 2)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_panel"]
-bg_color = Color(0.22, 0.30, 0.38, 1)
-border_color = Color(0.45, 0.55, 0.65, 1)
+bg_color = Color(0.18, 0.25, 0.32, 1)
+border_color = Color(0.55, 0.70, 0.85, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.6)
+shadow_size = 20
+shadow_offset = Vector2(0, 10)
+content_margin_left = 48.0
+content_margin_top = 48.0
+content_margin_right = 48.0
+content_margin_bottom = 48.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_button_normal"]
+bg_color = Color(0.40, 0.55, 0.70, 1)
+border_color = Color(0.55, 0.70, 0.85, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(0, 0, 0, 0.5)
-shadow_size = 16
-shadow_offset = Vector2(0, 8)
-content_margin_left = 32.0
-content_margin_top = 32.0
-content_margin_right = 32.0
-content_margin_bottom = 32.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_button_normal"]
-bg_color = Color(0.35, 0.48, 0.60, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0, 0, 0, 0.25)
-shadow_size = 3
-shadow_offset = Vector2(0, 2)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 4
+shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_button_hover"]
-bg_color = Color(0.42, 0.55, 0.68, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0, 0, 0, 0.25)
-shadow_size = 3
-shadow_offset = Vector2(0, 2)
+bg_color = Color(0.48, 0.63, 0.78, 1)
+border_color = Color(0.65, 0.80, 0.95, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 4
+shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_button_pressed"]
-bg_color = Color(0.28, 0.40, 0.52, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0, 0, 0, 0.25)
-shadow_size = 3
-shadow_offset = Vector2(0, 2)
+bg_color = Color(0.32, 0.45, 0.58, 1)
+border_color = Color(0.45, 0.60, 0.75, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 4
+shadow_offset = Vector2(0, 3)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_combo"]
 bg_color = Color(0.1, 0.1, 0.15, 0.85)
@@ -234,34 +249,29 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="Panel" parent="GameOverModal/CenterContainer" unique_id=168660986]
-custom_minimum_size = Vector2(500, 400)
+custom_minimum_size = Vector2(560, 480)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_modal_panel")
 
 [node name="VBox" type="VBoxContainer" parent="GameOverModal/CenterContainer/Panel" unique_id=1816266748]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 2
 theme_override_constants/separation = 24
 
 [node name="TopSpacer" type="Control" parent="GameOverModal/CenterContainer/Panel/VBox" unique_id=266848416]
-custom_minimum_size = Vector2(0, 20)
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 
 [node name="MessageLabel" type="Label" parent="GameOverModal/CenterContainer/Panel/VBox" unique_id=1060311077]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 48
+theme_override_font_sizes/font_size = 52
 text = "You Win!"
 horizontal_alignment = 1
 
 [node name="ScoreLabel" type="Label" parent="GameOverModal/CenterContainer/Panel/VBox" unique_id=1377184746]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 36
 text = "Score: 0"
 horizontal_alignment = 1
 
@@ -271,7 +281,7 @@ size_flags_vertical = 3
 
 [node name="ButtonContainer" type="VBoxContainer" parent="GameOverModal/CenterContainer/Panel/VBox" unique_id=1202157202]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 28
 alignment = 1
 
 [node name="RetryButton" type="Button" parent="GameOverModal/CenterContainer/Panel/VBox/ButtonContainer" unique_id=2063112390]
@@ -299,7 +309,7 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_modal_button_pressed")
 text = "Quit to Menu"
 
 [node name="BottomSpacer" type="Control" parent="GameOverModal/CenterContainer/Panel/VBox" unique_id=1997048629]
-custom_minimum_size = Vector2(0, 20)
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 
 [node name="DropSoundPlayer" type="AudioStreamPlayer" parent="." unique_id=2046695954]

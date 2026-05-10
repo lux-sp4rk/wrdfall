@@ -90,6 +90,25 @@ Open `godot/project.godot` in Godot 4.6+. Main scene is `Boot.tscn`.
 4. **Open a PR** — Arachne (AI reviewer) and test-runner-faye run automatically.
 5. **Update `docs/` if needed**: architecture changes → `ARCHITECTURE.md`, deploy changes → `deployment.md`.
 
+### Git Protocol (MANDATORY)
+When you make changes, you MUST complete the git workflow:
+1. `git add <files>`
+2. `git commit -m "type(scope): description"`
+3. `git push origin <branch>`
+4. Open PR via `gh pr create --title "..." --body "..."`
+
+Never leave changes uncommitted. Never assume someone else will push.
+
+### ACP Session Setup (MANDATORY for ACP/opencode sessions)
+If you're running in an ACP/opencode session, the repo may not be cloned. You MUST:
+1. Check if repo exists: `ls ~/Projects/wrdfall` or `ls /tmp/wrdfall`
+2. If not, clone it: `git clone https://github.com/lux-sp4rk/wrdfall.git ~/Projects/wrdfall`
+3. Always checkout the correct branch: `git checkout <branch-name>`
+4. Verify you're on the right branch: `git branch --show-current`
+5. Then proceed with changes and follow Git Protocol above
+
+Never work on `main` directly. Never make changes without checking the branch first.
+
 ## Common Tasks
 
 | Task | Where to Start |
