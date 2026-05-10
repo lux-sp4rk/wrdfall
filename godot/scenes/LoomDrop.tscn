@@ -197,6 +197,23 @@ layout_mode = 2
 unique_name_in_owner = true
 custom_minimum_size = Vector2(135, 100)
 layout_mode = 2
+
+[node name="ScoreTimerBar" type="HBoxContainer" parent="MarginContainer/VBox" unique_id=999999999]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="SandTimer" type="Control" parent="MarginContainer/VBox/ScoreTimerBar" unique_name_in_owner=true]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+script = ExtResource("3_sandtimer")
+
+[node name="ScoreLabel" type="Label" parent="MarginContainer/VBox/ScoreTimerBar" unique_name_in_owner=true]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Score: 0"
+horizontal_alignment = 1
+vertical_alignment = 1
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 0.9)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)

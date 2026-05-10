@@ -56,6 +56,9 @@ func update_score(score: int) -> void:
 		if not has_shown_high_score_notification:
 			_show_high_score_notification()
 
+func update_score_label_text(text: String) -> void:
+	score_label.text = text
+
 func _update_high_score_display(current_score: int = 0) -> void:
 	var high_score := maxi(StatsManager.high_score, current_score)
 	if high_score > 0:

@@ -9,7 +9,8 @@ signal combo_broken()
 @onready var board_panel: PanelContainer = $MarginContainer/VBox/GridCenter/BoardPanel
 @onready var word_label: Label = %"WordLabel"
 @onready var top_nav_bar = %"TopNavBar"
-@onready var sand_timer: Control = %"SandTimer"
+@onready var sand_timer: Control = $MarginContainer/VBox/ScoreTimerBar/SandTimer
+@onready var score_label: Label = $MarginContainer/VBox/ScoreTimerBar/ScoreLabel
 @onready var shake_button: Button = %"ShakeButton"
 @onready var swap_button: Button = %"SwapButton"
 @onready var draw_more_button: Button = %"DrawMoreButton"
@@ -1564,7 +1565,10 @@ func _update_point_label(pt_label: Label, letter: String) -> void:
 
 
 func _update_score_display() -> void:
-	top_nav_bar.update_score(score)
+	score_label.text = "Score: %d" % score
+	# Also update TopNavBar if it still has score display (for compatibility)
+	if top_nav_bar.has_method("update_score_label_text"):
+		top_nav_bar.update_score_label_text(score_label.text)
 
 
 func _update_shake_button() -> void:
