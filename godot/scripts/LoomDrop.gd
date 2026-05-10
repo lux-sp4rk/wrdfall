@@ -180,6 +180,9 @@ func _ready() -> void:
 	retry_button.pressed.connect(_on_retry_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
 
+	# Setup modal button micro-interactions
+	_setup_button_micro_interactions()
+
 	# Connect burger menu to sidebar (native only — web uses React shell for nav)
 	if not OS.has_feature("web"):
 		top_nav_bar.burger_pressed.connect(game_sidebar.toggle)
@@ -1838,19 +1841,72 @@ func _show_game_over_modal(is_new_high_score: bool) -> void:
 	retry_button.release_focus()
 	quit_button.release_focus()
 
-	# Fade in modal
+	# Fade in modal with staggered content animation
 	game_over_modal.modulate.a = 0.0
 	game_over_modal.show()
-	var fade_tween := create_tween()
-	fade_tween.tween_property(game_over_modal, "modulate:a", 1.0, 0.3)
+	
+	# Check reduced motion preference
+	var reduced_motion: bool = GameSettings.get_setting("accessibility/reduced_motion", false)
+	
+	if reduced_motion:
+		# Simple fade for reduced motion
+		var fade_tween := create_tween()
+		fade_tween.tween_property(game_over_modal, "modulate:a", 1.0, 0.2)
+		modal_message_label.modulate.a = 1.0
+		modal_score_label.modulate.a = 1.0
+		retry_button.modulate.a = 1.0
+		quit_button.modulate.a = 1.0
+	else:
+		# Full entrance animation
+		var fade_tween := create_tween()
+		fade_tween.tween_property(game_over_modal, "modulate:a", 1.0, 0.3)
+		
+		# Stagger content: title → score → buttons
+		modal_message_label.modulate.a = 0.0
+		modal_score_label.modulate.a = 0.0
+		retry_button.modulate.a = 0.0
+		quit_button.modulate.a = 0.0
+		
+		# Title appears first (100ms delay after modal fade starts)
+		var title_tween := create_tween()
+		title_tween.tween_property(modal_message_label, "modulate:a", 1.0, 0.3).set_delay(0.1)
+		
+		# Score appears next (200ms delay)
+		var score_tween := create_tween()
+		score_tween.tween_property(modal_score_label, "modulate:a", 1.0, 0.3).set_delay(0.2)
+		
+		# Buttons appear last (300ms delay)
+		var buttons_tween := create_tween()
+		buttons_tween.tween_property(retry_button, "modulate:a", 1.0, 0.3).set_delay(0.3)
+		buttons_tween.parallel().tween_property(quit_button, "modulate:a", 1.0, 0.3).set_delay(0.3)
+		
+		# Scale animation for panel
+		if modal_panel:
+			modal_panel.pivot_offset = modal_panel.size / 2
+			modal_panel.scale = Vector2(0.8, 0.8)
+			var scale_tween := create_tween()
+			scale_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
+			scale_tween.tween_property(modal_panel, "scale", Vector2(1.0, 1.0), 0.4)
+		
+		# Score count-up animation
+		var final_score: int = score
+		if final_score > 0:
+			modal_score_label.text = "Score: 0"
+			var count_tween := create_tween()
+			count_tween.tween_method(func(v: int) -> void:
+				modal_score_label.text = lang_config.ui_strings.get("score_format", "Score: %d") % v
+			, 0, final_score, 0.8).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
 
-	# Celebratory scale pop for new high score
+	# Celebratory scale pop for new high score (always play, but faster for reduced motion)
 	if is_new_high_score and modal_panel:
 		modal_panel.pivot_offset = modal_panel.size / 2
-		modal_panel.scale = Vector2(0.85, 0.85)
+		var target_scale := Vector2(1.0, 1.0)
+		var start_scale := Vector2(0.85, 0.85) if not reduced_motion else Vector2(0.95, 0.95)
+		var duration := 0.4 if not reduced_motion else 0.2
+		modal_panel.scale = start_scale
 		var scale_tween := create_tween()
 		scale_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-		scale_tween.tween_property(modal_panel, "scale", Vector2(1.0, 1.0), 0.4)
+		scale_tween.tween_property(modal_panel, "scale", target_scale, duration)
 
 
 # --- Combo Visual System ---
@@ -1954,3 +2010,72 @@ func _trigger_combo_break_visual() -> void:
 	combo_flash_overlay.color = Color(0.8, 0.1, 0.1, 0.12)
 	var tween := create_tween()
 	tween.tween_property(combo_flash_overlay, "color:a", 0.0, 0.4).set_ease(Tween.EASE_OUT)
+
+
+# --- Button Micro-interactions ---
+
+func _setup_button_micro_interactions() -> void:
+	# Connect hover and pressed signals for modal buttons
+	if retry_button:
+		retry_button.mouse_entered.connect(_on_modal_button_hover.bind(retry_button))
+		retry_button.mouse_exited.connect(_on_modal_button_exit.bind(retry_button))
+		retry_button.button_down.connect(_on_modal_button_pressed.bind(retry_button))
+		retry_button.button_up.connect(_on_modal_button_released.bind(retry_button))
+	
+	if quit_button:
+		quit_button.mouse_entered.connect(_on_modal_button_hover.bind(quit_button))
+		quit_button.mouse_exited.connect(_on_modal_button_exit.bind(quit_button))
+		quit_button.button_down.connect(_on_modal_button_pressed.bind(quit_button))
+		quit_button.button_up.connect(_on_modal_button_released.bind(quit_button))
+
+
+func _on_modal_button_hover(button: Button) -> void:
+	var reduced_motion: bool = GameSettings.get_setting("accessibility/reduced_motion", false)
+	if reduced_motion:
+		return
+	
+	var tween := create_tween()
+	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
+	tween.tween_property(button, "scale", Vector2(1.03, 1.03), 0.15)
+	
+	# Enhance shadow on hover
+	var button_style: StyleBoxFlat = button.get_theme_stylebox("normal")
+	if button_style:
+		button_style.shadow_size = 6
+		button_style.shadow_color = Color(0, 0, 0, 0.4)
+
+
+func _on_modal_button_exit(button: Button) -> void:
+	var reduced_motion: bool = GameSettings.get_setting("accessibility/reduced_motion", false)
+	if reduced_motion:
+		return
+	
+	var tween := create_tween()
+	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
+	tween.tween_property(button, "scale", Vector2(1.0, 1.0), 0.15)
+	
+	# Restore shadow
+	var button_style: StyleBoxFlat = button.get_theme_stylebox("normal")
+	if button_style:
+		button_style.shadow_size = 4
+		button_style.shadow_color = Color(0, 0, 0, 0.3)
+
+
+func _on_modal_button_pressed(button: Button) -> void:
+	var reduced_motion: bool = GameSettings.get_setting("accessibility/reduced_motion", false)
+	if reduced_motion:
+		return
+	
+	var tween := create_tween()
+	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
+	tween.tween_property(button, "scale", Vector2(0.97, 0.97), 0.05)
+
+
+func _on_modal_button_released(button: Button) -> void:
+	var reduced_motion: bool = GameSettings.get_setting("accessibility/reduced_motion", false)
+	if reduced_motion:
+		return
+	
+	var tween := create_tween()
+	tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tween.tween_property(button, "scale", Vector2(1.0, 1.0), 0.1)
