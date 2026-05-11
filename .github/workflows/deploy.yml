@@ -34,7 +34,7 @@ jobs:
       - name: Deploy to Vercel
         id: deploy
         run: |
-          DEPLOY_URL=$(npx vercel deploy dist/ --token=${{ secrets.VERCEL_TOKEN }} --yes --prod=${{ github.ref == 'refs/heads/main' }})
+          DEPLOY_URL=$(npx vercel deploy dist/ --name wordfall --token=${{ secrets.VERCEL_TOKEN }} --yes --prod=${{ github.ref == 'refs/heads/main' }})
           echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
           echo "Deployed to: $DEPLOY_URL"
 

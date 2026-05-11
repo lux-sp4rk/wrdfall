@@ -1,0 +1,76 @@
+name: Docs Surface Check
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect surface-area changes
+        id: detect
+        run: |
+          # Get changed files against base branch
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          
+          SURFACE_PATTERNS='^(godot/scenes/|godot/scripts/|README\.md|AGENTS\.md|docs/)'
+          DOCS_PATTERNS='^(docs/|README\.md|AGENTS\.md)'
+          
+          SURFACE_TOUCHED=false
+          DOCS_TOUCHED=false
+          
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            if echo "$file" | grep -qE "$SURFACE_PATTERNS"; then
+              SURFACE_TOUCHED=true
+            fi
+            if echo "$file" | grep -qE "$DOCS_PATTERNS"; then
+              DOCS_TOUCHED=true
+            fi
+          done <<< "$CHANGED"
+          
+          echo "surface_touched=$SURFACE_TOUCHED" >> "$GITHUB_OUTPUT"
+          echo "docs_touched=$DOCS_TOUCHED" >> "$GITHUB_OUTPUT"
+          
+          if [ "$SURFACE_TOUCHED" = "true" ] && [ "$DOCS_TOUCHED" = "false" ]; then
+            echo "flag_docs=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "flag_docs=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Find or create comment
+        if: steps.detect.outputs.flag_docs == 'true'
+        uses: peter-evans/find-comment@v3
+        id: find
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: '📋 Docs Surface Check'
+
+      - name: Post docs reminder
+        if: steps.detect.outputs.flag_docs == 'true'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.find.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            📋 **Docs Surface Check**
+
+            This PR touches user-facing surface area but no docs files were detected in the diff.
+
+            **Please verify:**
+            - [ ] README.md reflects any new features or UI changes
+            - [ ] AGENTS.md is updated if agent behavior changed
+            - [ ] Internal docs under `docs/` cover new scenes, scripts, or signals
+
+            _If no docs updates are needed, check the boxes and ignore this comment._

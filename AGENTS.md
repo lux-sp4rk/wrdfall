@@ -90,6 +90,31 @@ Open `godot/project.godot` in Godot 4.6+. Main scene is `Boot.tscn`.
 4. **Open a PR** — Arachne (AI reviewer) and test-runner-faye run automatically.
 5. **Update `docs/` if needed**: architecture changes → `ARCHITECTURE.md`, deploy changes → `deployment.md`.
 
+### Git Worktree Setup (Recommended)
+Use git worktrees to avoid branch-switching friction. Primary workspace is `~/Projects/wordfall-main` (always on `main`).
+
+```bash
+# Primary workspace — hotfixes and new branches
+cd ~/Projects/wordfall-main
+
+# Feature branches in dedicated directories (same repo, different checkouts)
+git worktree add ../wordfall-pr-294 pr-294
+git worktree add ../wordfall-sandtimer feat/sand-timer-268
+git worktree add ../wordfall-devmode feat/dev-mode-cheats
+```
+
+| Directory | Branch | Purpose |
+|-----------|--------|---------|
+| `~/Projects/wordfall-main` | `main` | Primary workspace — always pull before starting |
+| `~/Projects/wordfall-pr-294` | `pr-294` | Docs-check workflow PR |
+| `~/Projects/wordfall-sandtimer` | `feat/sand-timer-268` | Sand timer feature |
+| `~/Projects/wordfall-devmode` | `feat/dev-mode-cheats` | Dev mode feature flag |
+
+**Rules:**
+- Start new work from `wordfall-main/`, branch from there
+- Never `git checkout main` inside a feature worktree — main lives in `wordfall-main/`
+- Lefthook auto-rescues direct main commits to hotfix branches; prefer branching explicitly
+
 ### Git Protocol (MANDATORY)
 When you make changes, you MUST complete the git workflow:
 1. `git add <files>`
@@ -101,11 +126,12 @@ Never leave changes uncommitted. Never assume someone else will push.
 
 ### ACP Session Setup (MANDATORY for ACP/opencode sessions)
 If you're running in an ACP/opencode session, the repo may not be cloned. You MUST:
-1. Check if repo exists: `ls ~/Projects/wrdfall` or `ls /tmp/wrdfall`
-2. If not, clone it: `git clone https://github.com/lux-sp4rk/wrdfall.git ~/Projects/wrdfall`
-3. Always checkout the correct branch: `git checkout <branch-name>`
-4. Verify you're on the right branch: `git branch --show-current`
-5. Then proceed with changes and follow Git Protocol above
+1. Check if repo exists: `ls ~/Projects/wordfall-main` or `ls /tmp/wrdfall`
+2. If not, clone it: `git clone https://github.com/lux-sp4rk/wrdfall.git ~/Projects/wordfall-main`
+3. Always use `~/Projects/wordfall-main` as the primary workspace (not `~/Projects/wrdfall`)
+4. Check the current branch: `git branch --show-current`
+5. If on `main`, create a new branch: `git checkout -b feat/description`
+6. Then proceed with changes and follow Git Protocol above
 
 Never work on `main` directly. Never make changes without checking the branch first.
 
@@ -149,4 +175,4 @@ Never work on `main` directly. Never make changes without checking the branch fi
 
 ---
 
-*Last updated: 2026-04-29*
+*Last updated: 2026-05-11*

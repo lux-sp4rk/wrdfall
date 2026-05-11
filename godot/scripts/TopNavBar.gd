@@ -71,6 +71,12 @@ func update_score_label_text(text: String) -> void:
 	if game_info and game_info.has_method("update_score_label_text"):
 		game_info.update_score_label_text(text)
 
+func _update_high_score_display(current_score: int = 0) -> void:
+	# GameInfo handles high score display on web
+	if game_info and game_info.has_method("update_high_score"):
+		game_info.update_high_score(current_score)
+		return
+
 func _apply_theme() -> void:
 	# Update Burger button
 	for btn in [burger_button]:
