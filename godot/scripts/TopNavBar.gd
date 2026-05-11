@@ -60,6 +60,8 @@ func update_score_label_text(text: String) -> void:
 	score_label.text = text
 
 func _update_high_score_display(current_score: int = 0) -> void:
+	if not high_score_label:
+		return
 	var high_score := maxi(StatsManager.high_score, current_score)
 	if high_score > 0:
 		high_score_label.text = "Best: %d" % high_score

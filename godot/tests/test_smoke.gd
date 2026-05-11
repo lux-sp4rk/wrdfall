@@ -31,8 +31,10 @@ func test_topnavbar_scene_ready():
 	await nav.ready  # forces _ready() to execute fully
 	# Verify critical nodes resolved
 	assert_not_null(nav.get_node("%BurgerMenuButton"), "BurgerMenuButton must exist in scene")
-	assert_not_null(nav.get_node("%TimerLabel"), "TimerLabel must exist in scene")
 	assert_not_null(nav.get_node("%ScoreLabel"), "ScoreLabel must exist in scene")
+	assert_not_null(nav.get_node("%HighScoreLabel"), "HighScoreLabel must exist in scene")
+	assert_not_null(nav.get_node("%WordScoreLabel"), "WordScoreLabel must exist in scene")
+	assert_not_null(nav.get_node("%HighScoreNotificationLabel"), "HighScoreNotificationLabel must exist in scene")
 	nav.free()
 
 func test_loomdrop_scene_ready():
