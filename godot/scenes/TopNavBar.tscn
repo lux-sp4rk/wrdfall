@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/TopNavBar.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/SandTimer.gd" id="2_sandtimer"]
+[ext_resource type="PackedScene" uid="uid://gameinfo_placeholder" path="res://scenes/GameInfo.tscn" id="3_gameinfo"]
 
 [sub_resource type="StyleBoxFlat" id="NavButtonNormal"]
 bg_color = Color(0.48, 0.61, 0.55, 1)
@@ -130,3 +131,6 @@ theme_override_font_sizes/font_size = 36
 text = "+150 GREAT!"
 horizontal_alignment = 1
 visible = false
+
+[node name="GameInfo" parent="." instance=ExtResource("3_gameinfo")]
+layout_mode = 2

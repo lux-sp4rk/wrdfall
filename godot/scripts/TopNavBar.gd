@@ -8,10 +8,10 @@ signal pause_pressed
 
 @onready var burger_button = %BurgerMenuButton
 @onready var pause_button = %PauseButton
-@onready var score_label = %ScoreLabel
-@onready var high_score_label = %HighScoreLabel
 @onready var word_score_label = %WordScoreLabel
 @onready var high_score_notification_label = %HighScoreNotificationLabel
+@onready var left_container: Control = %"LeftContainer"
+@onready var game_info: HBoxContainer = $GameInfo
 
 var is_showing_word_score: bool = false
 var word_score_timer: Timer
@@ -19,16 +19,25 @@ var active_word_score_tween: Tween = null
 var active_notification_tween: Tween = null
 var has_shown_high_score_notification: bool = false
 var lang_config: LanguageConfig
+
 func _ready() -> void:
 	lang_config = LanguageConfig.get_config(GameSettings.current_language)
 
 	# Hide burger menu on web — React shell owns navigation
 	if OS.has_feature("web"):
 		burger_button.visible = false
+		left_container.custom_minimum_size = Vector2(80, 0)
+	else:
+		left_container.custom_minimum_size = Vector2(220, 0)
 
 	burger_button.pressed.connect(_on_burger_pressed)
 	pause_button.pressed.connect(_on_pause_pressed)
-	_update_high_score_display()
+
+	# Hide GameInfo on non-web platforms (score/timer shown below board)
+	if game_info:
+		game_info.visible = OS.has_feature("web")
+
+	# Theme setup
 	_apply_theme()
 	ThemeManager.theme_changed.connect(_apply_theme)
 
@@ -49,24 +58,24 @@ func set_pause_label(paused: bool) -> void:
 	pause_button.text = "Resume" if paused else "Pause"
 
 func update_score(score: int) -> void:
-	score_label.text = "Score: %d" % score
+	# Delegate to GameInfo if available (web)
+	if game_info and game_info.has_method("update_score"):
+		game_info.update_score(score)
 	# Update high score display if current score beats it
 	if score > StatsManager.high_score:
-		_update_high_score_display(score)
 		if not has_shown_high_score_notification:
 			_show_high_score_notification()
 
 func update_score_label_text(text: String) -> void:
-	score_label.text = text
+	# Delegate to GameInfo if available (web)
+	if game_info and game_info.has_method("update_score_label_text"):
+		game_info.update_score_label_text(text)
 
 func _update_high_score_display(current_score: int = 0) -> void:
-	if not high_score_label:
+	# GameInfo handles high score display on web
+	if game_info and game_info.has_method("update_high_score"):
+		game_info.update_high_score(current_score)
 		return
-	var high_score := maxi(StatsManager.high_score, current_score)
-	if high_score > 0:
-		high_score_label.text = "Best: %d" % high_score
-	else:
-		high_score_label.text = ""
 
 func _apply_theme() -> void:
 	# Update Burger button
@@ -84,19 +93,17 @@ func _apply_theme() -> void:
 			if pressed_style:
 				pressed_style.bg_color = ThemeManager.get_color("secondary_button_pressed")
 
-	# Update score labels
-	if score_label:
-		score_label.add_theme_color_override("font_color", ThemeManager.get_color("text_primary"))
-
-	if high_score_label:
-		high_score_label.add_theme_color_override("font_color", ThemeManager.get_color("text_secondary"))
-
-	if high_score_notification_label:
-		high_score_notification_label.add_theme_color_override("font_color", ThemeManager.get_color("accent"))
-
 	# Update word score label
 	if word_score_label:
 		word_score_label.add_theme_color_override("font_color", ThemeManager.get_color("accent"))
+
+	# Update high score notification label
+	if high_score_notification_label:
+		high_score_notification_label.add_theme_color_override("font_color", ThemeManager.get_color("accent"))
+
+	# Delegate theme to GameInfo if available
+	if game_info and game_info.has_method("apply_theme"):
+		game_info.apply_theme()
 
 func _calculate_phrase(word_length: int) -> String:
 	match word_length:
@@ -143,10 +150,11 @@ func _animate_word_score(word_length: int) -> void:
 			active_word_score_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_ELASTIC)
 			active_word_score_tween.tween_property(word_score_label, "scale", Vector2(1.0, 1.0), 0.5)
 
-func show_word_score(points: int, word_length: int) -> void:
-	# No-op: TopNavBar word score animation removed per PR #267 review.
-	# Word score feedback now uses FloatingScoreLabel at the board only.
-	pass
+func show_word_score(text: String) -> void:
+	word_score_label.text = text
+	word_score_label.visible = true
+	await get_tree().create_timer(1.2).timeout
+	word_score_label.visible = false
 
 func _on_word_score_timeout() -> void:
 	is_showing_word_score = false
