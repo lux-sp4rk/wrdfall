@@ -9,7 +9,6 @@
 [ext_resource type="AudioStream" uid="uid://bvnu8evp1p0r7" path="res://audio/game_complete.wav" id="5_game_complete"]
 [ext_resource type="AudioStream" uid="uid://b8as2b8dwa6ej" path="res://audio/game_won.wav" id="6_game_won"]
 [ext_resource type="PackedScene" uid="uid://thcp5d4w87ghz" path="res://scenes/PauseOverlay.tscn" id="7_pauseoverlay"]
-[ext_resource type="Script" path="res://scripts/SandTimer.gd" id="3_sandtimer"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_board_panel"]
 bg_color = Color(0.15, 0.19, 0.24, 1)
@@ -187,24 +186,6 @@ columns = 5
 [node name="PauseOverlay" parent="MarginContainer/VBox/GridCenter/BoardPanel" instance=ExtResource("7_pauseoverlay")]
 unique_name_in_owner = true
 visible = false
-
-[node name="ScoreTimerBar" type="HBoxContainer" parent="MarginContainer/VBox" unique_id=999999999]
-layout_mode = 2
-theme_override_constants/separation = 16
-alignment = 1
-
-[node name="SandTimer" type="Control" parent="MarginContainer/VBox/ScoreTimerBar" unique_name_in_owner=true]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 2
-script = ExtResource("3_sandtimer")
-
-[node name="ScoreLabel" type="Label" parent="MarginContainer/VBox/ScoreTimerBar" unique_name_in_owner=true]
-layout_mode = 2
-theme_override_font_sizes/font_size = 48
-text = "Score: 0"
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_colors/font_color = Color(1, 1, 1, 1)
 
 [node name="ActionButtons" type="HBoxContainer" parent="MarginContainer/VBox" unique_id=25641394]
 layout_mode = 2

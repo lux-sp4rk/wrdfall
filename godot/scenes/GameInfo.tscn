@@ -1,0 +1,26 @@
+[gd_scene load_steps=2 format=3 uid="uid://gameinfo_placeholder"]
+
+[ext_resource type="Script" path="res://scripts/GameInfo.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/SandTimer.gd" id="2_sandtimer"]
+
+[node name="GameInfo" type="HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 2
+script = ExtResource("1")
+
+[node name="ScoreLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Score: 0"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="SandTimer" type="Control" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+script = ExtResource("2_sandtimer")
