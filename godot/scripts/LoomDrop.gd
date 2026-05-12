@@ -946,16 +946,18 @@ func _show_score_burst(points: int) -> void:
 	score_burst_particles.global_position = burst_pos
 	score_burst_particles.restart()
 
-	# Floating +N label: rise ~60px and fade over 0.8s
+	# Floating +N label: rise ~120px and fade over 1.0s (senior-friendly large text)
 	floating_score_label.text = "+%d" % points
 	floating_score_label.show()
 	floating_score_label.reset_size()
-	floating_score_label.global_position = burst_pos - floating_score_label.size / 2.0
+	# Position higher so the large text doesn't clip into tiles below
+	var score_offset := Vector2(floating_score_label.size.x / -2.0, floating_score_label.size.y * -1.2)
+	floating_score_label.global_position = burst_pos + score_offset
 	floating_score_label.modulate.a = 1.0
 
 	var tween := create_tween().set_parallel(true)
-	tween.tween_property(floating_score_label, "global_position:y", burst_pos.y - 60.0, 0.8).set_ease(Tween.EASE_OUT)
-	tween.tween_property(floating_score_label, "modulate:a", 0.0, 0.8).set_ease(Tween.EASE_IN)
+	tween.tween_property(floating_score_label, "global_position:y", burst_pos.y - 120.0, 1.0).set_ease(Tween.EASE_OUT)
+	tween.tween_property(floating_score_label, "modulate:a", 0.0, 1.0).set_ease(Tween.EASE_IN)
 
 
 # --- Shake Button ---
