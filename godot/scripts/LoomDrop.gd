@@ -951,10 +951,11 @@ func _show_score_burst(points: int) -> void:
 	floating_score_label.show()
 	floating_score_label.reset_size()
 	floating_score_label.global_position = burst_pos - floating_score_label.size / 2.0
+	floating_score_label.global_position.y = clampf(floating_score_label.global_position.y, grid_center.rect_global_position.y, floating_score_label.global_position.y)
 	floating_score_label.modulate.a = 1.0
 
 	var tween := create_tween().set_parallel(true)
-	tween.tween_property(floating_score_label, "global_position:y", burst_pos.y - 60.0, 0.8).set_ease(Tween.EASE_OUT)
+	tween.tween_property(floating_score_label, "global_position:y", burst_pos.y - 80.0, 0.8).set_ease(Tween.EASE_OUT)
 	tween.tween_property(floating_score_label, "modulate:a", 0.0, 0.8).set_ease(Tween.EASE_IN)
 
 
