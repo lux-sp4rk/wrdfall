@@ -350,9 +350,11 @@ color = Color(1, 0.84, 0, 1)
 [node name="FloatingScoreLabel" type="Label" parent="." unique_id=2999999999]
 unique_name_in_owner = true
 z_index = 20
-modulate = Color(1, 1, 1, 0)
-theme_override_colors/font_color = Color(1, 0.84, 0, 1)
-theme_override_font_sizes/font_size = 120
+modulate = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(1, 0.92, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 144
 horizontal_alignment = 1
 
 [node name="ComboFlashOverlay" type="ColorRect" parent="." unique_id=3000000003]

@@ -946,7 +946,7 @@ func _show_score_burst(points: int) -> void:
 	score_burst_particles.global_position = burst_pos
 	score_burst_particles.restart()
 
-	# Floating +N label: rise ~60px and fade over 0.8s
+	# Floating +N label: rise ~80px with shake, fade over 0.8s
 	floating_score_label.text = "+%d" % points
 	floating_score_label.show()
 	floating_score_label.reset_size()
@@ -957,6 +957,12 @@ func _show_score_burst(points: int) -> void:
 	var tween := create_tween().set_parallel(true)
 	tween.tween_property(floating_score_label, "global_position:y", burst_pos.y - 80.0, 0.8).set_ease(Tween.EASE_OUT)
 	tween.tween_property(floating_score_label, "modulate:a", 0.0, 0.8).set_ease(Tween.EASE_IN)
+	# Shake: quick horizontal oscillation over the first 0.3s
+	var shake_tween := create_tween()
+	shake_tween.tween_property(floating_score_label, "global_position:x", floating_score_label.global_position.x + 8.0, 0.06).set_ease(Tween.EASE_IN_OUT)
+	shake_tween.tween_property(floating_score_label, "global_position:x", floating_score_label.global_position.x - 12.0, 0.06).set_ease(Tween.EASE_IN_OUT)
+	shake_tween.tween_property(floating_score_label, "global_position:x", floating_score_label.global_position.x + 8.0, 0.06).set_ease(Tween.EASE_IN_OUT)
+	shake_tween.tween_property(floating_score_label, "global_position:x", floating_score_label.global_position.x, 0.06).set_ease(Tween.EASE_IN_OUT)
 
 
 # --- Shake Button ---
