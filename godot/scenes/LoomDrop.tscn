@@ -133,7 +133,10 @@ theme_override_constants/margin_bottom = 16
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="TopNavBar" parent="MarginContainer/VBox" unique_id=937234417 instance=ExtResource("2_topnavbar")]
+[node name="TopNavBarWrapper" type="CenterContainer" parent="MarginContainer/VBox"]
+layout_mode = 2
+
+[node name="TopNavBar" parent="MarginContainer/VBox/TopNavBarWrapper" unique_id=937234417 instance=ExtResource("2_topnavbar")]
 unique_name_in_owner = true
 layout_mode = 2
 
